@@ -1,10 +1,10 @@
-package org.misarch.experimentconfignew.service
+package org.misarch.experimentconfignew.service.test
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.netty.channel.ChannelOption
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.springframework.http.*
+import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
@@ -125,14 +125,14 @@ class GraphQLQueryGeneratorService {
 
     private suspend fun fetchSchema(): Map<String, Any> =
          withContext(Dispatchers.IO) {
-            webClient.post()
-                .uri(URI.create(GRAPHQL_ENDPOINT))
-                .accept(MediaType.APPLICATION_JSON)
-                .bodyValue(mapOf("query" to QUERY))
-                .retrieve()
-                .bodyToMono(Map::class.java)
-                .block()
-        } as Map<String, Any>
+             webClient.post()
+                 .uri(URI.create(GRAPHQL_ENDPOINT))
+                 .accept(MediaType.APPLICATION_JSON)
+                 .bodyValue(mapOf("query" to QUERY))
+                 .retrieve()
+                 .bodyToMono(Map::class.java)
+                 .block()
+         } as Map<String, Any>
 
 
     private fun generateQueries(schema: Map<String, Any>, maxDepth: Int): Map<String, String> {
