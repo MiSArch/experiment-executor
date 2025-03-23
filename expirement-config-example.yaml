@@ -45,11 +45,22 @@ load:
         requests:
           - categories:
               output:
-                - categoryIds # however to be defined (probably manually in the user interface)
-          - products
+                name: "categories"
+                list:
+                 - nodes: "id"
+          - products:
+              output:
+                name: "products"
+                list:
+                  - nodes: "id"
+
           - product:
-            - input:
-              - id
+              input:
+                name: "products"
+                list:
+                  - nodes: "id"
+              output:
+                id
           - users
           - user
             - id

@@ -1,9 +1,11 @@
-package org.misarch.experimentconfignew.service.test
+package org.misarch.experimentconfignew.service.experiment
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.netty.channel.ChannelOption
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.misarch.experimentconfignew.common.model.GraphQLRequest
+import org.misarch.experimentconfignew.executor.model.Request
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Service
@@ -28,10 +30,15 @@ class GraphQLQueryGeneratorService {
 
     private val webClient = webClientBuilder.build()
 
-    suspend fun generateGraphQL() {
+    // TODO
+    /*suspend fun graphQLQueryStringBuilder(request: Request, queryOrMutation: GraphQLRequest): String {
+        queryOrMutation.inputs.forEach { queryInput -> request.i }
+    }*/
+
+    suspend fun generateGraphQL(graphQLURL: URI): Map<String, String> {
         try {
-            val schema = fetchSchema()
-            val maxDepth = 3
+            val schema = fetchSchema(graphQLURL)
+            val maxDepth = 2
 
             val queries = generateQueries(schema, maxDepth).toSortedMap()
             val mutations = generateMutations(schema, maxDepth).toSortedMap()
@@ -44,13 +51,16 @@ class GraphQLQueryGeneratorService {
                 File("requests.graphql").appendText("$name: $mutation\n\n")
             }
 
+            return queries + mutations
+
         } catch (error: Exception) {
             logger.error { "Error: ${error.message}" }
         }
+
+        return emptyMap()
     }
 
     companion object {
-        private const val GRAPHQL_ENDPOINT = "http://localhost:8080/graphql"
         private const val QUERY = """
             {
                 __schema {
@@ -123,10 +133,10 @@ class GraphQLQueryGeneratorService {
         """
     }
 
-    private suspend fun fetchSchema(): Map<String, Any> =
+    private suspend fun fetchSchema(graphQLURL: URI): Map<String, Any> =
          withContext(Dispatchers.IO) {
              webClient.post()
-                 .uri(URI.create(GRAPHQL_ENDPOINT))
+                 .uri(graphQLURL)
                  .accept(MediaType.APPLICATION_JSON)
                  .bodyValue(mapOf("query" to QUERY))
                  .retrieve()
@@ -155,6 +165,7 @@ class GraphQLQueryGeneratorService {
         return associate { element ->
             val args = (element["args"] as List<Map<String, Any>>).joinToString(", ") { arg ->
                 "${arg["name"]}: ${getDefaultValue(arg["name"] as String, arg["type"] as Map<String, Any>, schema)}"
+                // TODO the args should be added somehow to the request / query model
             }
             val fields = generateFields(element["type"] as Map<String, Any>, schema, maxDepth)
             element["name"] as String to if (args.isEmpty()) {
