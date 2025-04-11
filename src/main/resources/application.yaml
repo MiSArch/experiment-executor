@@ -1,5 +1,5 @@
 spring:
   application:
-    name: experiment-config-new
+    name: experiment-executor
 server:
   port: 8888
