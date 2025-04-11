@@ -27,6 +27,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("io.netty:netty-resolver-dns-native-macos:4.1.115.Final:osx-aarch_64")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     //implementation("com.expediagroup:graphql-kotlin-spring-server:7.0.2")
     //implementation("com.expediagroup:graphql-kotlin-spring-client:7.0.2")
     //implementation("com.querydsl:querydsl-core")

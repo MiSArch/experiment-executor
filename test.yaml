@@ -1,0 +1,64 @@
+---
+version: '1.0.0'
+title: Kill a Docker container with delay and recovery
+description: >
+  This experiment waits 10.3 seconds, kills the container, waits another 7.9 seconds, then restarts it.
+
+steady-state-hypothesis:
+  title: Container is running
+  probes:
+    - type: probe
+      name: container-is-running
+      tolerance: true
+      provider:
+        type: python
+        module: docker_helpers
+        func: are_containers_running
+        arguments:
+          names: 
+            - infrastructure-docker-gateway-1
+            - infrastructure-docker-gateway-dapr-1
+            - infrastructure-docker-gateway-ecs-1
+
+method:
+  - type: action
+    name: pre-kill-delay
+    provider:
+      type: python
+      module: docker_helpers
+      func: sleep
+      arguments:
+        seconds: 10.3
+
+  - type: action
+    name: kill-container
+    provider:
+      type: python
+      module: docker_helpers
+      func: kill_containers
+      arguments:
+        names: 
+            - infrastructure-docker-gateway-1
+            - infrastructure-docker-gateway-dapr-1
+            - infrastructure-docker-gateway-ecs-1
+
+  - type: action
+    name: post-kill-delay
+    provider:
+      type: python
+      module: docker_helpers
+      func: sleep
+      arguments:
+        seconds: 7.9
+
+  - type: action
+    name: restart-container
+    provider:
+      type: python
+      module: docker_helpers
+      func: start_containers
+      arguments:
+        names: 
+            - infrastructure-docker-gateway-1
+            - infrastructure-docker-gateway-dapr-1
+            - infrastructure-docker-gateway-ecs-1
