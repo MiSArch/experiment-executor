@@ -1,19 +1,13 @@
 package org.misarch.experimentexecutor.service.experiment
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.netty.channel.ChannelOption
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.misarch.experimentexecutor.common.model.GraphQLRequest
-import org.misarch.experimentexecutor.executor.model.Request
 import org.springframework.http.MediaType
-import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import reactor.netty.http.client.HttpClient
 import java.io.File
 import java.net.URI
-import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
