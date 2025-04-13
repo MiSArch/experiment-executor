@@ -7,13 +7,14 @@ import org.misarch.experimentexecutor.executor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.misarch.experimentexecutor.plugin.workload.gatling.GatlingPlugin
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.WebClient
 
 @Service
-class ExperimentWorkloadService {
+class ExperimentWorkloadService(webClient: WebClient) {
 
     // TODO implement a plugin registry based on a configuration file
     val registry = listOf<WorkloadPluginInterface>(
-        GatlingPlugin()
+        GatlingPlugin(webClient)
     )
 
     suspend fun executeWorkLoad(workLoad: WorkLoad) {
