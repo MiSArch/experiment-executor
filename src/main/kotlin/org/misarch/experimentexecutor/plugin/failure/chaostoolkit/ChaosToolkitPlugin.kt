@@ -8,9 +8,10 @@ class ChaosToolkitPlugin: FailurePluginInterface {
     override suspend fun executeFailure(failure: Failure): Boolean {
         return runCatching {
             val currentDir = File(".").absolutePath
+            val venv = "~/.venvs/chaostk/bin/activate"
 
             val process = ProcessBuilder("bash", "-c",
-                "source ~/.venvs/chaostk/bin/activate && PYTHONPATH=\"$currentDir\" chaos run test.yaml")
+                "source $venv && PYTHONPATH=\"$currentDir\" chaos run ${failure.chaosToolkit!!.pathUri}")
                 .directory(File("."))
                 .redirectOutput(ProcessBuilder.Redirect.INHERIT)
                 .redirectError(ProcessBuilder.Redirect.INHERIT)

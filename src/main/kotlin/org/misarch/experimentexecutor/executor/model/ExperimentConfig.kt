@@ -17,7 +17,8 @@ data class ChaosToolKitConfig(
 )
 
 data class MiSArchExperimentConfig(
-    val pathUri: String
+    val pathUri: String,
+    val endpointHost: String,
 )
 
 data class WorkLoad(
@@ -25,7 +26,9 @@ data class WorkLoad(
 )
 
 data class GatlingConfig(
-    val pathUri: String
+    val pathUri: String,
+    val endpointHost: String,
+    val tokenEndpointHost: String,
 )
 
 data class Metric(

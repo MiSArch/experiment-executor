@@ -12,17 +12,18 @@ class GatlingPlugin(private val webClient: WebClient) : WorkloadPluginInterface 
     override suspend fun executeWorkLoad(workLoad: WorkLoad): Boolean {
         val token = getOAuthAccessToken(
             clientId = "frontend",
-            url = "http://localhost:8081/keycloak/realms/Misarch/protocol/openid-connect/token",
+            url = "${workLoad.gatling!!.tokenEndpointHost}/keycloak/realms/Misarch/protocol/openid-connect/token",
             username = "eliasmueller",
             password = "123",
         )
         return runCatching {
             val process = ProcessBuilder("./gradlew", "gatlingRun")
-                .directory(File("/Users/p371728/master/thesis/misarch/gatling-test/untitled"))
+                .directory(File(workLoad.gatling.pathUri))
                 .redirectOutput(ProcessBuilder.Redirect.INHERIT) // Redirect output to console
                 .redirectError(ProcessBuilder.Redirect.INHERIT) // Redirect error to console
                 .apply {
                     environment()["ACCESS_TOKEN"] = token
+                    environment()["BASE_URL"] = workLoad.gatling.endpointHost
                 }
                 .start()
             val exitCode = process.waitFor()
