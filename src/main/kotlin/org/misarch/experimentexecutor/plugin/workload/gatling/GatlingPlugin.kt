@@ -7,9 +7,10 @@ import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 import java.io.File
+import java.util.UUID
 
 class GatlingPlugin(private val webClient: WebClient) : WorkloadPluginInterface {
-    override suspend fun executeWorkLoad(workLoad: WorkLoad): Boolean {
+    override suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID): Boolean {
         val token = getOAuthAccessToken(
             clientId = "frontend",
             url = "${workLoad.gatling!!.tokenEndpointHost}/keycloak/realms/Misarch/protocol/openid-connect/token",
@@ -19,11 +20,12 @@ class GatlingPlugin(private val webClient: WebClient) : WorkloadPluginInterface 
         return runCatching {
             val process = ProcessBuilder("./gradlew", "gatlingRun")
                 .directory(File(workLoad.gatling.pathUri))
-                .redirectOutput(ProcessBuilder.Redirect.INHERIT) // Redirect output to console
-                .redirectError(ProcessBuilder.Redirect.INHERIT) // Redirect error to console
+                .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+                .redirectError(ProcessBuilder.Redirect.INHERIT)
                 .apply {
                     environment()["ACCESS_TOKEN"] = token
                     environment()["BASE_URL"] = workLoad.gatling.endpointHost
+                    environment()["TEST_UUID"] = testUUID.toString()
                 }
                 .start()
             val exitCode = process.waitFor()
@@ -33,6 +35,7 @@ class GatlingPlugin(private val webClient: WebClient) : WorkloadPluginInterface 
             false
         }
     }
+
     private suspend fun getOAuthAccessToken(clientId: String, url: String, username: String, password: String): String {
         val data = "grant_type=password&client_id=$clientId&username=$username&password=$password"
         val response = webClient.post()

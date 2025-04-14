@@ -8,6 +8,7 @@ import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.misarch.experimentexecutor.plugin.workload.gatling.GatlingPlugin
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import java.util.*
 
 @Service
 class ExperimentWorkloadService(webClient: WebClient) {
@@ -17,10 +18,10 @@ class ExperimentWorkloadService(webClient: WebClient) {
         GatlingPlugin(webClient)
     )
 
-    suspend fun executeWorkLoad(workLoad: WorkLoad) {
+    suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID) {
         supervisorScope {
             registry.map { plugin ->
-                async { plugin.executeWorkLoad(workLoad) }
+                async { plugin.executeWorkLoad(workLoad, testUUID) }
             }
         }.awaitAll()
     }

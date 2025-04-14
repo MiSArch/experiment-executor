@@ -13,17 +13,27 @@ import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import java.io.File
+import java.util.UUID
 
 class MisarchExperimentConfigPlugin(private val webClient: WebClient) : FailurePluginInterface {
-    override suspend fun executeFailure(failure: Failure): Boolean {
-        runCatching {
-            val config = readConfigFile(failure.experimentConfig!!.pathUri)
-            configureVariables(config)
+    private var config: List<MiSArchFailureConfig> = emptyList()
+
+    override suspend fun executeFailure(failure: Failure, testUUID: UUID): Boolean {
+        return runCatching {
+            config = readConfigFile(failure.experimentConfig!!.pathUri)
+            true
         }.getOrElse {
-            println(it.message)
-            return false
+            false
         }
-        return true
+    }
+
+    override suspend fun startExperiment(): Boolean {
+        return runCatching {
+            configureVariables(config)
+            true
+        }.getOrElse {
+            false
+        }
     }
 
     private fun readConfigFile(pathUri: String): List<MiSArchFailureConfig> {
@@ -52,11 +62,11 @@ class MisarchExperimentConfigPlugin(private val webClient: WebClient) : FailureP
         component: String,
         pubSubDeterioration: PubSubDeterioration?,
     ) {
-       configureVariable(
-        component = component,
-        variable = "pubsubDeterioration",
-        bodyValue = mapOf("value" to pubSubDeterioration)
-       )
+        configureVariable(
+            component = component,
+            variable = "pubsubDeterioration",
+            bodyValue = mapOf("value" to pubSubDeterioration)
+        )
     }
 
     private suspend fun configureServiceInvocationDeterioration(
