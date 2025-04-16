@@ -14,12 +14,12 @@ class GatlingMetricPlugin : MetricPluginInterface {
 
     fun collectAndExportMetrics(workLoad: WorkLoad, testUUID: UUID) {
 
-        val stats = parseGatlingStats(workLoad)
+        val responseTimeStats = parseGatlingResponseTimeStats(workLoad)
         val registry = CollectorRegistry.defaultRegistry
         registry.clear()
-        registry.registerGauges(stats)
-        stats.contents?.forEach { (request, requestStats) ->
-            registry.registerGauges(requestStats, suffix = "_${request.split("-").first().replace("-", "_")}")
+        registry.registerResponseTimeGauges(responseTimeStats)
+        responseTimeStats.contents?.forEach { (request, requestStats) ->
+            registry.registerResponseTimeGauges(requestStats, suffix = "_${request.split("-").first().replace("-", "_")}")
         }
 
         val pushGateway = PushGateway("localhost:9091")
@@ -28,7 +28,7 @@ class GatlingMetricPlugin : MetricPluginInterface {
         println("🚀 Metrics pushed to Prometheus Pushgateway")
     }
 
-    private fun parseGatlingStats(workLoad: WorkLoad): GatlingStats {
+    private fun parseGatlingResponseTimeStats(workLoad: WorkLoad): GatlingStats {
         val pathUri = workLoad.gatling!!.pathUri
         val latest =
             File("$pathUri/build/reports/gatling").listFiles()?.filter { it.isDirectory }?.maxOfOrNull { it.name }
@@ -43,7 +43,7 @@ class GatlingMetricPlugin : MetricPluginInterface {
             .replace("type:", "\"type\":").replace("name:", "\"name\":").replace("path:", "\"path\":")
             .replace("pathFormatted:", "\"pathFormatted\":").replace("contents:", "\"contents\":")
 
-    private fun CollectorRegistry.registerGauges(stats: GatlingStats, suffix: String = "") {
+    private fun CollectorRegistry.registerResponseTimeGauges(stats: GatlingStats, suffix: String = "") {
 
         stats.stats.numberOfRequests.total.toDoubleOrNull()?.let { register("gatling_number_of_requests_total$suffix", "Total number of requests").set(it) }
         stats.stats.numberOfRequests.ok.toDoubleOrNull()?.let { register("gatling_number_of_requests_ok$suffix", "Number of successful requests").set(it) }
