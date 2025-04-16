@@ -1,5 +1,6 @@
 package org.misarch.experimentexecutor.plugin.metrics.gatling
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.Gauge
@@ -14,13 +15,22 @@ class GatlingMetricPlugin : MetricPluginInterface {
 
     fun collectAndExportMetrics(workLoad: WorkLoad, testUUID: UUID) {
 
-        val responseTimeStats = parseGatlingResponseTimeStats(workLoad)
+        val pathUri = workLoad.gatling!!.pathUri
+        val latest = File("$pathUri/build/reports/gatling").listFiles()?.filter { it.isDirectory }?.maxOfOrNull { it.name } ?: ""
+
+        val responseTimeStats = parseGatlingResponseTimeStats(pathUri, latest)
         val registry = CollectorRegistry.defaultRegistry
         registry.clear()
+
         registry.registerResponseTimeGauges(responseTimeStats)
         responseTimeStats.contents?.forEach { (request, requestStats) ->
             registry.registerResponseTimeGauges(requestStats, suffix = "_${request.split("-").first().replace("-", "_")}")
         }
+
+        val indexPath = "$pathUri/build/reports/gatling/$latest/index.html"
+        // TODO properly export those metrics as prometheus metrics
+        val test1 = extractDataSeries(indexPath)
+        val test2 = extractStockChartData(indexPath)
 
         val pushGateway = PushGateway("localhost:9091")
         pushGateway.pushAdd(registry, "gatling_metrics", mapOf("testUUID" to testUUID.toString()))
@@ -28,17 +38,62 @@ class GatlingMetricPlugin : MetricPluginInterface {
         println("🚀 Metrics pushed to Prometheus Pushgateway")
     }
 
-    private fun parseGatlingResponseTimeStats(workLoad: WorkLoad): GatlingStats {
-        val pathUri = workLoad.gatling!!.pathUri
-        val latest =
-            File("$pathUri/build/reports/gatling").listFiles()?.filter { it.isDirectory }?.maxOfOrNull { it.name }
+    private fun parseGatlingResponseTimeStats(pathUri: String, latest: String): GatlingStats {
         val rawJs = File("$pathUri/build/reports/gatling/$latest/js/stats.js").readText()
-        val json = rawJs.trimGatlingJs()
+        val json = rawJs.trimGatlingStatsJs()
 
         return ObjectMapper().readValue(json, GatlingStats::class.java)
     }
 
-    private fun String.trimGatlingJs(): String =
+    private fun extractDataSeries(filePath: String): Map<String, Any> {
+        val fileContent = File(filePath).readText()
+
+        val dataSeries = mutableMapOf<String, Any>()
+        val regex = """(?s)var (\w+)\s*=\s*unpack\(\s*(\[.*?])\s*\);""".toRegex()
+
+        regex.findAll(fileContent).forEach { matchResult ->
+            val variableName = matchResult.groupValues[1]
+            val arrayContents = matchResult.groupValues[2]
+
+            val rawList: List<List<Any?>> = ObjectMapper().readValue(arrayContents, object : TypeReference<List<List<Any?>>>() {})
+
+            val valueMap = rawList.associate { pair ->
+                val timestamp = (pair[0] as Number).toLong()
+                val values = when (val second = pair[1]) {
+                    is List<*> -> second.mapNotNull { (it as Number?)?.toInt() }
+                    null -> emptyList()
+                    else -> error("Unexpected data format: $second")
+                }
+                timestamp to values
+            }.toMap()
+            dataSeries[variableName] = valueMap
+        }
+        return dataSeries
+    }
+
+    private fun extractStockChartData(filePath: String): Map<String, List<Pair<Long, Int>>> {
+        val fileContent = File(filePath).readText()
+
+        val regex = Regex(
+            """name:\s*'([^']+)'\s*,\s*data:\s*\[((?:\s*\[[^\[\]]+],?\s*)+)]""",
+            RegexOption.DOT_MATCHES_ALL
+        )
+
+        return regex.findAll(fileContent).map { matchResult ->
+            val name = matchResult.groupValues[1] // Extract the name
+            val dataArray = "[${matchResult.groupValues[2]}]" // Extract the data array
+
+            val rawData: List<List<Number>> =
+                ObjectMapper().readValue(dataArray, object : TypeReference<List<List<Number>>>() {})
+
+            val data = rawData.map { Pair(it[0].toLong(), it[1].toInt()) }
+
+            Pair(name, data)
+        }.toMap()
+    }
+
+
+    private fun String.trimGatlingStatsJs(): String =
         removePrefix("var stats = ").split("function fillStats").first().replace("stats:", "\"stats\":")
             .replace("type:", "\"type\":").replace("name:", "\"name\":").replace("path:", "\"path\":")
             .replace("pathFormatted:", "\"pathFormatted\":").replace("contents:", "\"contents\":")
