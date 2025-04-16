@@ -12,6 +12,7 @@ import java.util.*
 class ExperimentExecutionService(
     private val experimentFailureService: ExperimentFailureService,
     private val experimentWorkloadService: ExperimentWorkloadService,
+    private val experimentMetricsService: ExperimentMetricsService,
 ) {
     companion object {
         const val TRIGGER_DELAY = 10000L
@@ -42,6 +43,8 @@ class ExperimentExecutionService(
 
             failureJob.await()
             workloadJob.await()
+
+            experimentMetricsService.collectAndExportMetrics(experimentConfig.workLoad, testUUID)
         }
     }
 }

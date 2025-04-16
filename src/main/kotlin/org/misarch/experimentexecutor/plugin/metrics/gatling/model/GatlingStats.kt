@@ -1,41 +1,43 @@
 package org.misarch.experimentexecutor.plugin.metrics.gatling.model
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 data class GatlingStats(
-    val type: String,
-    val name: String,
-    val path: String,
-    val pathFormatted: String,
-    val stats: Stats,
-    val contents: Map<String, GatlingStats> = emptyMap()
+    @JsonProperty("type") val type: String,
+    @JsonProperty("name") val name: String,
+    @JsonProperty("path") val path: String,
+    @JsonProperty("pathFormatted") val pathFormatted: String,
+    @JsonProperty("stats") val stats: Stats,
+    @JsonProperty("contents") val contents: Map<String, GatlingStats>?
 ) {
     data class Stats(
-        val name: String,
-        val numberOfRequests: TotalOkKo,
-        val minResponseTime: TotalOkKo,
-        val maxResponseTime: TotalOkKo,
-        val meanResponseTime: TotalOkKo,
-        val standardDeviation: TotalOkKo,
-        val percentiles1: TotalOkKo,
-        val percentiles2: TotalOkKo,
-        val percentiles3: TotalOkKo,
-        val percentiles4: TotalOkKo,
-        val group1: NameHtmlCountPercentage,
-        val group2: NameHtmlCountPercentage,
-        val group3: NameHtmlCountPercentage,
-        val group4: NameHtmlCountPercentage,
-        val meanNumberOfRequestsPerSecond: TotalOkKo,
+        @JsonProperty("name") val name: String,
+        @JsonProperty("numberOfRequests") val numberOfRequests: TotalOkKo,
+        @JsonProperty("minResponseTime") val minResponseTime: TotalOkKo,
+        @JsonProperty("maxResponseTime") val maxResponseTime: TotalOkKo,
+        @JsonProperty("meanResponseTime") val meanResponseTime: TotalOkKo,
+        @JsonProperty("standardDeviation") val standardDeviation: TotalOkKo,
+        @JsonProperty("percentiles1") val percentiles1: TotalOkKo,
+        @JsonProperty("percentiles2") val percentiles2: TotalOkKo,
+        @JsonProperty("percentiles3") val percentiles3: TotalOkKo,
+        @JsonProperty("percentiles4") val percentiles4: TotalOkKo,
+        @JsonProperty("group1") val group1: NameHtmlCountPercentage,
+        @JsonProperty("group2") val group2: NameHtmlCountPercentage,
+        @JsonProperty("group3") val group3: NameHtmlCountPercentage,
+        @JsonProperty("group4") val group4: NameHtmlCountPercentage,
+        @JsonProperty("meanNumberOfRequestsPerSecond") val meanNumberOfRequestsPerSecond: TotalOkKo,
     )
 }
 
 data class TotalOkKo(
-    val total: Int,
-    val ok: Int,
-    val ko: Int,
+    @JsonProperty("total") val total: String,
+    @JsonProperty("ok") val ok: String,
+    @JsonProperty("ko") val ko: String,
 )
 
 data class NameHtmlCountPercentage(
-    val name: String,
-    val htmlName: String,
-    val count: Int,
-    val percentage: Double
+    @JsonProperty("name") val name: String,
+    @JsonProperty("htmlName") val htmlName: String,
+    @JsonProperty("count") val count: Int,
+    @JsonProperty("percentage") val percentage: Double
 )

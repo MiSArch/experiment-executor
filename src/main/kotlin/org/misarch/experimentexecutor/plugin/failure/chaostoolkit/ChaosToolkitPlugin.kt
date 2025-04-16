@@ -12,6 +12,7 @@ class ChaosToolkitPlugin : FailurePluginInterface {
     override suspend fun executeFailure(failure: Failure, testUUID: UUID): Boolean {
         return runCatching {
             val filePath = failure.chaosToolkit!!.pathUri
+            // TODO remove the container after the experiment
             val process = ProcessBuilder(
                 "bash", "-c",
                 "docker run -d -e TEST_UUID=$testUUID -v $filePath:/app/experiment.yaml -v /var/run/docker.sock:/var/run/docker.sock custom-chaostoolkit"

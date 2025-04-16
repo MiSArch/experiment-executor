@@ -28,12 +28,17 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("io.netty:netty-resolver-dns-native-macos:4.1.115.Final:osx-aarch_64")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    implementation("io.dapr:dapr-sdk-springboot:1.11.0")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.5")
+
+    // Prometheus Push Metrics Exporter
+    implementation("io.prometheus:simpleclient:0.16.0")
+    implementation("io.prometheus:simpleclient_pushgateway:0.16.0")
+
     //implementation("com.expediagroup:graphql-kotlin-spring-server:7.0.2")
     //implementation("com.expediagroup:graphql-kotlin-spring-client:7.0.2")
     //implementation("com.querydsl:querydsl-core")
     //implementation("com.graphql-java:graphql-java-extended-scalars:21.0")
-    implementation("io.dapr:dapr-sdk-springboot:1.11.0")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.5")
     //runtimeOnly("org.postgresql:postgresql")
     //runtimeOnly("org.postgresql:r2dbc-postgresql")
 }
