@@ -26,13 +26,11 @@ class GatlingMetricPlugin : MetricPluginInterface {
     }
 
     private fun parseGatlingStats(workLoad: WorkLoad): GatlingStats {
-        val latest = File("${workLoad.gatling!!.pathUri}/build/reports/gatling").listFiles()?.filter { it.isDirectory }
-            ?.maxOfOrNull { it.name }
-        val rawJs = File("${workLoad.gatling.pathUri}/build/reports/gatling/$latest/js/stats.js").readText()
-        val json =
-            rawJs.removePrefix("var stats = ").split("function fillStats").first().replace("stats:", "\"stats\":")
-                .replace("type:", "\"type\":").replace("name:", "\"name\":").replace("path:", "\"path\":")
-                .replace("pathFormatted:", "\"pathFormatted\":").replace("contents:", "\"contents\":")
+        val pathUri = workLoad.gatling!!.pathUri
+        val latest = File("$pathUri/build/reports/gatling").listFiles()?.filter { it.isDirectory }?.maxOfOrNull { it.name }
+        val rawJs = File("$pathUri/build/reports/gatling/$latest/js/stats.js").readText()
+        val json = rawJs.trimGatlingJs()
+
         return ObjectMapper().readValue(json, GatlingStats::class.java)
     }
 
@@ -60,4 +58,10 @@ class GatlingMetricPlugin : MetricPluginInterface {
 
     private fun CollectorRegistry.register(name: String, help: String) =
         Gauge.build().name(name).help(help).register(this)
+
+    private fun String.trimGatlingJs(): String =
+        removePrefix("var stats = ").split("function fillStats").first().replace("stats:", "\"stats\":")
+            .replace("type:", "\"type\":").replace("name:", "\"name\":").replace("path:", "\"path\":")
+            .replace("pathFormatted:", "\"pathFormatted\":").replace("contents:", "\"contents\":")
+
 }
