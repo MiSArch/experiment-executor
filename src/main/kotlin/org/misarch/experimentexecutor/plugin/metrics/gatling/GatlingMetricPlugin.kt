@@ -18,6 +18,9 @@ class GatlingMetricPlugin : MetricPluginInterface {
         val registry = CollectorRegistry.defaultRegistry
         registry.clear()
         registry.registerGauges(stats)
+        stats.contents?.forEach { (request, requestStats) ->
+            registry.registerGauges(requestStats, suffix = "_${request.split("-").first().replace("-", "_")}")
+        }
 
         val pushGateway = PushGateway("localhost:9091")
         pushGateway.pushAdd(registry, "gatling_metrics", mapOf("testUUID" to testUUID.toString()))
@@ -27,7 +30,8 @@ class GatlingMetricPlugin : MetricPluginInterface {
 
     private fun parseGatlingStats(workLoad: WorkLoad): GatlingStats {
         val pathUri = workLoad.gatling!!.pathUri
-        val latest = File("$pathUri/build/reports/gatling").listFiles()?.filter { it.isDirectory }?.maxOfOrNull { it.name }
+        val latest =
+            File("$pathUri/build/reports/gatling").listFiles()?.filter { it.isDirectory }?.maxOfOrNull { it.name }
         val rawJs = File("$pathUri/build/reports/gatling/$latest/js/stats.js").readText()
         val json = rawJs.trimGatlingJs()
 
@@ -39,56 +43,56 @@ class GatlingMetricPlugin : MetricPluginInterface {
             .replace("type:", "\"type\":").replace("name:", "\"name\":").replace("path:", "\"path\":")
             .replace("pathFormatted:", "\"pathFormatted\":").replace("contents:", "\"contents\":")
 
-    private fun CollectorRegistry.register(name: String, help: String) =
-        Gauge.build().name(name).help(help).register(this)
+    private fun CollectorRegistry.registerGauges(stats: GatlingStats, suffix: String = "") {
 
-    private fun CollectorRegistry.registerGauges(stats: GatlingStats) {
+        stats.stats.numberOfRequests.total.toDoubleOrNull()?.let { register("gatling_number_of_requests_total$suffix", "Total number of requests").set(it) }
+        stats.stats.numberOfRequests.ok.toDoubleOrNull()?.let { register("gatling_number_of_requests_ok$suffix", "Number of successful requests").set(it) }
+        stats.stats.numberOfRequests.ko.toDoubleOrNull()?.let { register("gatling_number_of_requests_ko$suffix", "Number of failed requests").set(it) }
 
-        register("gatling_number_of_requests_total", "Total number of requests").set(stats.stats.numberOfRequests.total.toDouble())
-        register("gatling_number_of_requests_ok", "Number of successful requests").set(stats.stats.numberOfRequests.ok.toDouble())
-        register("gatling_number_of_requests_ko", "Number of failed requests").set(stats.stats.numberOfRequests.ko.toDouble())
+        stats.stats.meanResponseTime.total.toDoubleOrNull()?.let { register("gatling_mean_response_time$suffix", "Mean response time").set(it) }
+        stats.stats.meanResponseTime.ok.toDoubleOrNull()?.let { register("gatling_mean_response_time_ok$suffix", "Mean response time for successful requests").set(it) }
+        stats.stats.meanResponseTime.ko.toDoubleOrNull()?.let { register("gatling_mean_response_time_ko$suffix", "Mean response time for failed requests").set(it) }
 
-        register("gatling_mean_response_time", "Mean response time").set(stats.stats.meanResponseTime.total.toDouble())
-        register("gatling_mean_response_time_ok", "Mean response time for successful requests").set(stats.stats.meanResponseTime.ok.toDouble())
-        register("gatling_mean_response_time_ko", "Mean response time for failed requests").set(stats.stats.meanResponseTime.ko.toDouble())
+        stats.stats.minResponseTime.total.toDoubleOrNull()?.let { register("gatling_min_response_time$suffix", "Min response time").set(it) }
+        stats.stats.minResponseTime.ok.toDoubleOrNull()?.let { register("gatling_min_response_time_ok$suffix", "Min response time for successful requests").set(it) }
+        stats.stats.minResponseTime.ko.toDoubleOrNull()?.let { register("gatling_min_response_time_ko$suffix", "Min response time for failed requests").set(it) }
 
-        register("gatling_min_response_time", "Min response time").set(stats.stats.minResponseTime.total.toDouble())
-        register("gatling_min_response_time_ok", "Min response time for successful requests").set(stats.stats.minResponseTime.ok.toDouble())
-        register("gatling_min_response_time_ko", "Min response time for failed requests").set(stats.stats.minResponseTime.ko.toDouble())
+        stats.stats.maxResponseTime.total.toDoubleOrNull()?.let { register("gatling_max_response_time$suffix", "Max response time").set(it) }
+        stats.stats.maxResponseTime.ok.toDoubleOrNull()?.let { register("gatling_max_response_time_ok$suffix", "Max response time for successful requests").set(it) }
+        stats.stats.maxResponseTime.ko.toDoubleOrNull()?.let { register("gatling_max_response_time_ko$suffix", "Max response time for failed requests").set(it) }
 
-        register("gatling_max_response_time", "Max response time").set(stats.stats.maxResponseTime.total.toDouble())
-        register("gatling_max_response_time_ok", "Max response time for successful requests").set(stats.stats.maxResponseTime.ok.toDouble())
-        register("gatling_max_response_time_ko", "Max response time for failed requests").set(stats.stats.maxResponseTime.ko.toDouble())
+        stats.stats.standardDeviation.total.toDoubleOrNull()?.let { register("gatling_standard_deviation$suffix", "Standard deviation of response time").set(it) }
+        stats.stats.standardDeviation.ok.toDoubleOrNull()?.let { register("gatling_standard_deviation_ok$suffix", "Standard deviation for successful requests").set(it) }
+        stats.stats.standardDeviation.ko.toDoubleOrNull()?.let { register("gatling_standard_deviation_ko$suffix", "Standard deviation for failed requests").set(it) }
 
-        register("gatling_standard_deviation", "Standard deviation of response time").set(stats.stats.standardDeviation.total.toDouble())
-        register("gatling_standard_deviation_ok", "Standard deviation for successful requests").set(stats.stats.standardDeviation.ok.toDouble())
-        register("gatling_standard_deviation_ko", "Standard deviation for failed requests").set(stats.stats.standardDeviation.ko.toDouble())
-
-        register("gatling_mean_requests_per_second", "Mean number of requests per second").set(stats.stats.meanNumberOfRequestsPerSecond.total.toDouble())
-        register("gatling_mean_requests_per_second_ok", "Mean number of successful requests per second").set(stats.stats.meanNumberOfRequestsPerSecond.ok.toDouble())
-        register("gatling_mean_requests_per_second_ko", "Mean number of failed requests per second").set(stats.stats.meanNumberOfRequestsPerSecond.ko.toDouble())
+        stats.stats.meanNumberOfRequestsPerSecond.total.toDoubleOrNull()?.let { register("gatling_mean_requests_per_second$suffix", "Mean number of requests per second").set(it) }
+        stats.stats.meanNumberOfRequestsPerSecond.ok.toDoubleOrNull()?.let { register("gatling_mean_requests_per_second_ok$suffix", "Mean number of successful requests per second").set(it) }
+        stats.stats.meanNumberOfRequestsPerSecond.ko.toDoubleOrNull()?.let { register("gatling_mean_requests_per_second_ko$suffix", "Mean number of failed requests per second").set(it) }
 
         // Percentiles
-        register("gatling_percentiles1", "Percentiles 1").set(stats.stats.percentiles1.total.toDouble())
-        register("gatling_percentiles1_ok", "Percentiles 1 for successful requests").set(stats.stats.percentiles1.ok.toDouble())
-        register("gatling_percentiles1_ko", "Percentiles 1 for failed requests").set(stats.stats.percentiles1.ko.toDouble())
+        stats.stats.percentiles1.total.toDoubleOrNull()?.let { register("gatling_percentiles1$suffix", "Percentiles 1").set(it) }
+        stats.stats.percentiles1.ok.toDoubleOrNull()?.let { register("gatling_percentiles1_ok$suffix", "Percentiles 1 for successful requests").set(it) }
+        stats.stats.percentiles1.ko.toDoubleOrNull()?.let { register("gatling_percentiles1_ko$suffix", "Percentiles 1 for failed requests").set(it) }
 
-        register("gatling_percentiles2", "Percentiles 2").set(stats.stats.percentiles2.total.toDouble())
-        register("gatling_percentiles2_ok", "Percentiles 2 for successful requests").set(stats.stats.percentiles2.ok.toDouble())
-        register("gatling_percentiles2_ko", "Percentiles 2 for failed requests").set(stats.stats.percentiles2.ko.toDouble())
+        stats.stats.percentiles2.total.toDoubleOrNull()?.let { register("gatling_percentiles2$suffix", "Percentiles 2").set(it) }
+        stats.stats.percentiles2.ok.toDoubleOrNull()?.let { register("gatling_percentiles2_ok$suffix", "Percentiles 2 for successful requests").set(it) }
+        stats.stats.percentiles2.ko.toDoubleOrNull()?.let { register("gatling_percentiles2_ko$suffix", "Percentiles 2 for failed requests").set(it) }
 
-        register("gatling_percentiles3", "Percentiles 3").set(stats.stats.percentiles3.total.toDouble())
-        register("gatling_percentiles3_ok", "Percentiles 3 for successful requests").set(stats.stats.percentiles3.ok.toDouble())
-        register("gatling_percentiles3_ko", "Percentiles 3 for failed requests").set(stats.stats.percentiles3.ko.toDouble())
+        stats.stats.percentiles3.total.toDoubleOrNull()?.let { register("gatling_percentiles3$suffix", "Percentiles 3").set(it) }
+        stats.stats.percentiles3.ok.toDoubleOrNull()?.let { register("gatling_percentiles3_ok$suffix", "Percentiles 3 for successful requests").set(it) }
+        stats.stats.percentiles3.ko.toDoubleOrNull()?.let { register("gatling_percentiles3_ko$suffix", "Percentiles 3 for failed requests").set(it) }
 
-        register("gatling_percentiles4", "Percentiles 4").set(stats.stats.percentiles4.total.toDouble())
-        register("gatling_percentiles4_ok", "Percentiles 4 for successful requests").set(stats.stats.percentiles4.ok.toDouble())
-        register("gatling_percentiles4_ko", "Percentiles 4 for failed requests").set(stats.stats.percentiles4.ko.toDouble())
+        stats.stats.percentiles4.total.toDoubleOrNull()?.let { register("gatling_percentiles4$suffix", "Percentiles 4").set(it) }
+        stats.stats.percentiles4.ok.toDoubleOrNull()?.let { register("gatling_percentiles4_ok$suffix", "Percentiles 4 for successful requests").set(it) }
+        stats.stats.percentiles4.ko.toDoubleOrNull()?.let { register("gatling_percentiles4_ko$suffix", "Percentiles 4 for failed requests").set(it) }
 
         // Groups
-        register("gatling_group1_count", "Group 1 count").set(stats.stats.group1.count.toDouble())
-        register("gatling_group2_count", "Group 2 count").set(stats.stats.group2.count.toDouble())
-        register("gatling_group3_count", "Group 3 count").set(stats.stats.group3.count.toDouble())
-        register("gatling_group4_count", "Group 4 count").set(stats.stats.group4.count.toDouble())
+        register("gatling_group1_count$suffix", "Group 1 count").set(stats.stats.group1.count.toDouble())
+        register("gatling_group2_count$suffix", "Group 2 count").set(stats.stats.group2.count.toDouble())
+        register("gatling_group3_count$suffix", "Group 3 count").set(stats.stats.group3.count.toDouble())
+        register("gatling_group4_count$suffix", "Group 4 count").set(stats.stats.group4.count.toDouble())
     }
+
+    private fun CollectorRegistry.register(name: String, help: String) =
+        Gauge.build().name(name).help(help).register(this)
 }
