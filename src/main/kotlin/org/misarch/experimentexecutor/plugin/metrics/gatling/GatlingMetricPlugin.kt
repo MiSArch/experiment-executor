@@ -8,12 +8,15 @@ import io.prometheus.client.exporter.PushGateway
 import org.misarch.experimentexecutor.executor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.metrics.MetricPluginInterface
 import org.misarch.experimentexecutor.plugin.metrics.gatling.model.GatlingStats
+import org.springframework.http.MediaType
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import java.io.File
 import java.util.UUID
 
-class GatlingMetricPlugin : MetricPluginInterface {
+class GatlingMetricPlugin(private val webClient: WebClient) : MetricPluginInterface {
 
-    fun collectAndExportMetrics(workLoad: WorkLoad, testUUID: UUID) {
+    suspend fun collectAndExportMetrics(workLoad: WorkLoad, testUUID: UUID) {
 
         val pathUri = workLoad.gatling!!.pathUri
         val latest = File("$pathUri/build/reports/gatling").listFiles()?.filter { it.isDirectory }?.maxOfOrNull { it.name } ?: ""
@@ -28,14 +31,24 @@ class GatlingMetricPlugin : MetricPluginInterface {
         }
 
         val indexPath = "$pathUri/build/reports/gatling/$latest/index.html"
-        // TODO properly export those metrics as prometheus metrics
-        val test1 = extractDataSeries(indexPath)
-        val test2 = extractStockChartData(indexPath)
+
+        // TODO responsetimepercentilesovertimeokPercentiles -> list of maps with timestamp and list which represent the response time percentiles at the timepoint
+        val dataSeries = extractDataSeries(indexPath)
+        dataSeries.forEach { (series, data) ->
+            if (series == "requests" || series == "responses") {
+                postTotalOkKoSeriesToInflux(data, series, testUUID)
+            }
+        }
+
+        val activeUsers = extractActiveUsers(indexPath)
+        activeUsers.forEach { (scenario, data) -> postActiveUsersToInflux(data, scenario, "activeUsers", testUUID) }
+
+        println("🚀 Gatling Metrics pushed to InfluxDB")
 
         val pushGateway = PushGateway("localhost:9091")
         pushGateway.pushAdd(registry, "gatling_metrics", mapOf("testUUID" to testUUID.toString()))
 
-        println("🚀 Metrics pushed to Prometheus Pushgateway")
+        println("🚀 Gatling Metrics pushed to Prometheus Pushgateway")
     }
 
     private fun parseGatlingResponseTimeStats(pathUri: String, latest: String): GatlingStats {
@@ -45,10 +58,10 @@ class GatlingMetricPlugin : MetricPluginInterface {
         return ObjectMapper().readValue(json, GatlingStats::class.java)
     }
 
-    private fun extractDataSeries(filePath: String): Map<String, Any> {
+    private fun extractDataSeries(filePath: String): Map<String, Map<Long, List<Int>>> {
         val fileContent = File(filePath).readText()
 
-        val dataSeries = mutableMapOf<String, Any>()
+        val dataSeries = mutableMapOf<String, Map<Long, List<Int>>>()
         val regex = """(?s)var (\w+)\s*=\s*unpack\(\s*(\[.*?])\s*\);""".toRegex()
 
         regex.findAll(fileContent).forEach { matchResult ->
@@ -71,7 +84,7 @@ class GatlingMetricPlugin : MetricPluginInterface {
         return dataSeries
     }
 
-    private fun extractStockChartData(filePath: String): Map<String, List<Pair<Long, Int>>> {
+    private fun extractActiveUsers(filePath: String): Map<String, List<Pair<Long, Int>>> {
         val fileContent = File(filePath).readText()
 
         val regex = Regex(
@@ -150,4 +163,41 @@ class GatlingMetricPlugin : MetricPluginInterface {
 
     private fun CollectorRegistry.register(name: String, help: String) =
         Gauge.build().name(name).help(help).register(this)
+
+    private suspend fun postActiveUsersToInflux(data: List<Pair<Long, Int>>, scenario: String, metricName: String, testUUID: UUID) {
+        val lineProtocol = data.joinToString("\n") { (timestamp, value) ->
+            "$metricName,scenario=${scenario.replace(" ", "")},testUUID=$testUUID value=${value.toDouble()} $timestamp"
+        }
+        postToInflux(lineProtocol)
+    }
+
+    private suspend fun postTotalOkKoSeriesToInflux(data: Map<Long, List<Int>>, metricName: String, testUUID: UUID) {
+        val all = data.map { (k, v) ->  k to v[0] }.toMap()
+        val ok = data.map { (k, v) ->  k to v[1] }.toMap()
+        val ko = data.map { (k, v) ->  k to v[2] }.toMap()
+        val lineProtocolAll = all.map { (timestamp, value) ->
+            "$metricName,flavor=all,testUUID=$testUUID value=${value.toDouble()} ${timestamp * 1000}"
+        }.joinToString("\n")
+        val lineProtocolOk = ok.map { (timestamp, value) ->
+            "$metricName,flavor=ok,testUUID=$testUUID value=${value.toDouble()} ${timestamp * 1000}"
+        }.joinToString("\n")
+        val lineProtocolKo = ko.map { (timestamp, value) ->
+            "$metricName,flavor=ko,testUUID=$testUUID value=${value.toDouble()} ${timestamp * 1000}"
+        }.joinToString("\n")
+        postToInflux(lineProtocolAll)
+        postToInflux(lineProtocolOk)
+        postToInflux(lineProtocolKo)
+    }
+
+    private suspend fun postToInflux(lineProtocol: String) {
+        val url = "http://localhost:8086/api/v2/write?org=my-org&bucket=my-bucket&precision=ms"
+        webClient.post()
+            .uri(url)
+            .header("Authorization", "Token my-secret-token")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.TEXT_PLAIN)
+            .bodyValue(lineProtocol)
+            .retrieve()
+            .awaitBodilessEntity()
+    }
 }
