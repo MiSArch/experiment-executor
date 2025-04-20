@@ -190,7 +190,7 @@ class GatlingMetricPlugin(private val webClient: WebClient) : MetricPluginInterf
     }
 
     private suspend fun postToInflux(lineProtocol: String) {
-        val url = "http://localhost:8086/api/v2/write?org=my-org&bucket=my-bucket&precision=ms"
+        val url = "http://localhost:8086/api/v2/write?org=misarch&bucket=gatling&precision=ms"
         webClient.post()
             .uri(url)
             .header("Authorization", "Token my-secret-token")
