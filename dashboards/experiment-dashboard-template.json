@@ -37,7 +37,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "TODO influx uuid"
+        "uid": "influxdb_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -115,7 +115,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "TODO influx uuid"
+            "uid": "influxdb_uid"
           },
           "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"activeUsers\")\n  |> filter(fn: (r) => r.scenario == \"BuyProcess\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r._field == \"value\")",
           "refId": "A"
@@ -127,7 +127,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom datasource id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -176,7 +176,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "TODO prom datasource id"
+            "uid": "prometheus_uid"
           },
           "editorMode": "code",
           "expr": "gatling_group1_count{testUUID=\"${testUUID}\"}",
@@ -192,7 +192,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -241,7 +241,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "TODO prom data source id"
+            "uid": "prometheus_uid"
           },
           "editorMode": "code",
           "expr": "gatling_group2_count{testUUID=\"${testUUID}\"}",
@@ -257,7 +257,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -306,7 +306,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "TODO prom data source id"
+            "uid": "prometheus_uid"
           },
           "editorMode": "code",
           "expr": "gatling_group3_count{testUUID=\"${testUUID}\"}",
@@ -322,7 +322,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -371,7 +371,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "TODO prom data source id"
+            "uid": "prometheus_uid"
           },
           "editorMode": "code",
           "expr": "gatling_group4_count{testUUID=\"${testUUID}\"}",
@@ -387,7 +387,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "TODO influx data source id"
+        "uid": "influxdb_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -465,7 +465,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "TODO influx data source id"
+            "uid": "influxdb_uid"
           },
           "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"responses\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n",
           "refId": "A"
@@ -477,7 +477,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -541,7 +541,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -605,7 +605,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -669,7 +669,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -730,7 +730,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -791,7 +791,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -852,7 +852,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -913,7 +913,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -974,7 +974,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1035,7 +1035,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1096,7 +1096,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1157,7 +1157,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1231,7 +1231,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1291,7 +1291,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1352,7 +1352,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1413,7 +1413,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1474,7 +1474,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1534,7 +1534,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1595,7 +1595,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1656,7 +1656,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1717,7 +1717,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1777,7 +1777,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1838,7 +1838,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1899,7 +1899,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -1974,7 +1974,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -2068,7 +2068,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -2157,7 +2157,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -2247,7 +2247,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -2337,7 +2337,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -2440,7 +2440,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -2530,7 +2530,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -2624,7 +2624,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "TODO prom data source id"
+        "uid": "prometheus_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -2822,8 +2822,8 @@
       },
       {
         "current": {
-          "text": "4daf8a10-245a-4865-bc98-3c8d323b6698",
-          "value": "4daf8a10-245a-4865-bc98-3c8d323b6698"
+          "text": "TODO UUID",
+          "value": "TODO UUID"
         },
         "definition": "label_values(testUUID)",
         "name": "testUUID",
