@@ -1,5 +1,7 @@
 spring:
   application:
     name: experiment-executor
+grafana:
+  apitoken: ${GRAFANA_API_TOKEN}
 server:
   port: 8888

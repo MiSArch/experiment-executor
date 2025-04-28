@@ -1,19 +1,22 @@
 package org.misarch.experimentexecutor.plugin.result.grafana
 
 import org.misarch.experimentexecutor.plugin.result.ExportPluginInterface
+import org.springframework.http.MediaType
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import java.io.File
-import java.nio.file.Paths
 import java.time.Instant
 import java.util.*
 
-class GrafanaPlugin : ExportPluginInterface {
+class GrafanaPlugin(private val webClient: WebClient, private val grafanaApiToken: String) : ExportPluginInterface {
+
     override suspend fun createReport(testUUID: UUID, startTime: Instant, endTime: Instant): Boolean {
         // TODO
-        val filePath = "/Users/p371728/master/thesis/misarch/experiment-executor/dashboards/experiment-dashboard-template.json"
+        val filePath = "src/main/resources/dashboards/experiment-dashboard-template.json"
         return updateDashboardTemplate(filePath, testUUID, startTime, endTime)
     }
 
-    private fun updateDashboardTemplate(
+    private suspend fun updateDashboardTemplate(
         filePath: String,
         testUUID: UUID,
         startTime: Instant,
@@ -30,8 +33,16 @@ class GrafanaPlugin : ExportPluginInterface {
             .replace("REPLACE_ME_TEST_START_TIME", startTime.toString())
             .replace("REPLACE_ME_TEST_END_TIME", endTime.toString())
 
-        val outputPath = Paths.get(file.parent, "experiment-dashboard-$testUUID.json").toString()
-        File(outputPath).writeText(updatedContent)
+
+        webClient.post()
+            .uri("http://localhost:3001/api/dashboards/db")
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", "Bearer $grafanaApiToken")
+            .bodyValue(updatedContent)
+            .retrieve()
+            .awaitBodilessEntity()
+
+        println("\uD83D\uDCC8 Result dashboard exported to Grafana\n http://localhost:3001/d/$testUUID")
 
         return true
     }
