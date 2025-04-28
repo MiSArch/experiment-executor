@@ -6,6 +6,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.misarch.experimentexecutor.executor.model.ExperimentConfig
 import org.springframework.stereotype.Service
+import java.time.Instant
 import java.util.*
 
 @Service
@@ -13,6 +14,7 @@ class ExperimentExecutionService(
     private val experimentFailureService: ExperimentFailureService,
     private val experimentWorkloadService: ExperimentWorkloadService,
     private val experimentMetricsService: ExperimentMetricsService,
+    private val experimentResultService: ExperimentResultService,
 ) {
     companion object {
         const val TRIGGER_DELAY = 10000L
@@ -39,12 +41,18 @@ class ExperimentExecutionService(
 
             delay(TRIGGER_DELAY)
             triggerState[testUUID] = true
+
+            val startTime = Instant.now()
+
             experimentFailureService.startExperimentFailure()
 
             failureJob.await()
             workloadJob.await()
 
+            val endTime = Instant.now().plusSeconds(60)
+
             experimentMetricsService.collectAndExportMetrics(experimentConfig.workLoad, testUUID)
+            experimentResultService.createAndExportReports(testUUID, startTime, endTime)
         }
     }
 }
