@@ -100,7 +100,7 @@
               "options": {
                 "mode": "exclude",
                 "names": [
-                  "value {scenario=\"BuyProcess\", testUUID=\"bbd78300-f4e6-410f-abf7-606be794a719\"}"
+                  "value {scenario=\"BuyProcess\", testUUID=\"4daf8a10-245a-4865-bc98-3c8d323b6698\"}"
                 ],
                 "prefix": "All except:",
                 "readOnly": true
@@ -224,7 +224,7 @@
             "uid": "bejkrunikvmkgc"
           },
           "editorMode": "code",
-          "expr": "gatling_group1_count",
+          "expr": "gatling_group1_count{testUUID=\"${testUUID}\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -305,7 +305,7 @@
             "uid": "bejkrunikvmkgc"
           },
           "editorMode": "code",
-          "expr": "gatling_group2_count",
+          "expr": "gatling_group2_count{testUUID=\"${testUUID}\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -386,7 +386,7 @@
             "uid": "bejkrunikvmkgc"
           },
           "editorMode": "code",
-          "expr": "gatling_group3_count",
+          "expr": "gatling_group3_count{testUUID=\"${testUUID}\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -467,7 +467,7 @@
             "uid": "bejkrunikvmkgc"
           },
           "editorMode": "code",
-          "expr": "gatling_group4_count",
+          "expr": "gatling_group4_count{testUUID=\"${testUUID}\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -856,7 +856,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "gatling_min_response_time",
+          "expr": "gatling_min_response_time{testUUID=\"${testUUID}\"}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -2408,8 +2408,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2502,8 +2501,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2596,8 +2594,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2699,8 +2696,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2793,8 +2789,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2891,8 +2886,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2933,7 +2927,7 @@
           "refId": "A"
         }
       ],
-      "title": "${service} dapr completed messages",
+      "title": "${service} dapr http completed messages",
       "type": "timeseries"
     }
   ],
@@ -2945,8 +2939,8 @@
     "list": [
       {
         "current": {
-          "text": "inventory",
-          "value": "inventory"
+          "text": "catalog",
+          "value": "catalog"
         },
         "description": "",
         "label": "service",
@@ -2958,7 +2952,7 @@
             "value": "address"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "catalog",
             "value": "catalog"
           },
@@ -2973,7 +2967,7 @@
             "value": "gateway"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "inventory",
             "value": "inventory"
           },
@@ -3048,8 +3042,8 @@
       },
       {
         "current": {
-          "text": "bbd78300-f4e6-410f-abf7-606be794a719",
-          "value": "bbd78300-f4e6-410f-abf7-606be794a719"
+          "text": "4daf8a10-245a-4865-bc98-3c8d323b6698",
+          "value": "4daf8a10-245a-4865-bc98-3c8d323b6698"
         },
         "definition": "label_values(testUUID)",
         "name": "testUUID",
@@ -3119,13 +3113,13 @@
     ]
   },
   "time": {
-    "from": "2025-04-28T08:09:03.527Z",
-    "to": "2025-04-28T08:12:54.000Z"
+    "from": "2025-04-28T10:18:03.000Z",
+    "to": "2025-04-28T10:20:10.000Z"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Experiment Dashboard 1",
   "uid": "bejh17yrp9a0wd",
-  "version": 35,
+  "version": 37,
   "weekStart": ""
 }
