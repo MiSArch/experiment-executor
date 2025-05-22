@@ -26,7 +26,7 @@ class ExperimentExecutionService(
         return triggerState[testUUID] ?: false
     }
 
-    suspend fun executeExperiment(experimentConfig: ExperimentConfig) {
+    suspend fun executeExperiment(experimentConfig: ExperimentConfig): String {
         val testUUID = UUID.randomUUID()
         triggerState[testUUID] = false
 
@@ -53,6 +53,8 @@ class ExperimentExecutionService(
 
             experimentMetricsService.collectAndExportMetrics(experimentConfig.workLoad, testUUID)
             experimentResultService.createAndExportReports(testUUID, startTime, endTime, experimentConfig.goals)
+
         }
+        return testUUID.toString()
     }
 }

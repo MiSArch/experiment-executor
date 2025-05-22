@@ -18,8 +18,9 @@ class TestController(
     }
 
     @PostMapping("/experiment")
-    suspend fun createExperiment(@RequestBody experimentConfig: ExperimentConfig) {
-        experimentExecutionService.executeExperiment(experimentConfig)
+    @CrossOrigin(origins = ["http://localhost:5173/"])
+    suspend fun createExperiment(@RequestBody experimentConfig: ExperimentConfig): String {
+        return experimentExecutionService.executeExperiment(experimentConfig)
     }
 
     @GetMapping("/trigger/{testUUID}")
