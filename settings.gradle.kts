@@ -1,1 +1,1 @@
-rootProject.name = "experiment-config-new"
+rootProject.name = "experiment-executor"

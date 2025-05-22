@@ -1,11 +1,11 @@
-package org.misarch.experimentconfignew
+package org.misarch.experimentexecutor
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class ExperimentConfigNewApplication
+class ExperimentExecutorApplication
 
 fun main(args: Array<String>) {
-    runApplication<ExperimentConfigNewApplication>(*args)
+    runApplication<ExperimentExecutorApplication>(*args)
 }
