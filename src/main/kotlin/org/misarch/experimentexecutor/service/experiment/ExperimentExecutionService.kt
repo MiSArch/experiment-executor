@@ -52,7 +52,7 @@ class ExperimentExecutionService(
             val endTime = Instant.now().plusSeconds(60)
 
             experimentMetricsService.collectAndExportMetrics(experimentConfig.workLoad, testUUID)
-            experimentResultService.createAndExportReports(testUUID, startTime, endTime)
+            experimentResultService.createAndExportReports(testUUID, startTime, endTime, experimentConfig.goals)
         }
     }
 }

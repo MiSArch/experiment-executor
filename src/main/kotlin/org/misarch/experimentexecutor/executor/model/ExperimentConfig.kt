@@ -41,7 +41,9 @@ data class Goals(
     val user: List<Goal>,
     val system: List<Goal>
 )
+
 data class Goal(
     val metric: String,
-    val threshold: String
+    val threshold: String,
+    val color: String,
 )
