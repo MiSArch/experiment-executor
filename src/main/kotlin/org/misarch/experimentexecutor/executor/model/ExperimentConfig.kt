@@ -1,10 +1,10 @@
 package org.misarch.experimentexecutor.executor.model
 
 data class ExperimentConfig(
+    val testUUID: String,
     val failure: Failure,
     val workLoad: WorkLoad,
-    val metrics: List<Metric>,
-    val goals: Goals
+    val goals: List<Goal>
 )
 
 data class Failure(
@@ -26,21 +26,19 @@ data class WorkLoad(
 )
 
 data class GatlingConfig(
+    val loadType: GatlingLoadType,
     val pathUri: String,
     val endpointHost: String,
     val tokenEndpointHost: String,
 )
 
-data class Metric(
-    val name: String,
-    val description: String,
-    val unit: String,
-)
+enum class GatlingLoadType {
+    ScalabilityLoadTest,
+    ResilienceLoadTest,
+    ElasticityLoadTest,
+    RampUpListLoadTest,
+}
 
-data class Goals(
-    val user: List<Goal>,
-    val system: List<Goal>
-)
 
 data class Goal(
     val metric: String,

@@ -5,7 +5,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.misarch.experimentexecutor.executor.model.ExperimentConfig
+import org.misarch.experimentexecutor.executor.model.GatlingLoadType
+import org.springframework.core.env.Environment
 import org.springframework.stereotype.Service
+import java.io.File
 import java.time.Instant
 import java.util.*
 
@@ -26,8 +29,7 @@ class ExperimentExecutionService(
         return triggerState[testUUID] ?: false
     }
 
-    suspend fun executeExperiment(experimentConfig: ExperimentConfig): String {
-        val testUUID = UUID.randomUUID()
+    suspend fun executeExperiment(experimentConfig: ExperimentConfig, testUUID: UUID): String {
         triggerState[testUUID] = false
 
         withContext(Dispatchers.Default) {

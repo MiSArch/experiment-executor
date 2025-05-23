@@ -3,7 +3,7 @@ package org.misarch.experimentexecutor.service.experiment
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.supervisorScope
-import org.misarch.experimentexecutor.executor.model.Goals
+import org.misarch.experimentexecutor.executor.model.Goal
 import org.misarch.experimentexecutor.plugin.result.grafana.GrafanaPlugin
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -19,7 +19,7 @@ class ExperimentResultService(webClient: WebClient, @Value("\${grafana.apitoken}
         GrafanaPlugin(webClient, grafanaApiToken),
     )
 
-    suspend fun createAndExportReports(testUUID: UUID, startTime: Instant, endTime: Instant, goals: Goals) {
+    suspend fun createAndExportReports(testUUID: UUID, startTime: Instant, endTime: Instant, goals: List<Goal>) {
         supervisorScope {
             registry.map { plugin ->
                 async { plugin.createReport(testUUID, startTime, endTime, goals) }

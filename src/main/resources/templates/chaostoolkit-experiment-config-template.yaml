@@ -1,0 +1,59 @@
+---
+version: '1.0.0'
+title: REPLACE_ME_TEST_UUID
+description: >
+  REPLACE_ME_TEST_UUID
+
+steady-state-hypothesis:
+  title: Container is running
+  probes:
+    - type: probe
+      name: container-is-running
+      tolerance: true
+      provider:
+        type: python
+        module: docker_helpers
+        func: are_containers_running
+        arguments:
+          names:
+            - infrastructure-docker-gateway-1
+            - infrastructure-docker-gateway-dapr-1
+            - infrastructure-docker-gateway-ecs-1
+
+method:
+  - type: action
+    name: wait-for-trigger
+    provider:
+      type: python
+      module: docker_helpers
+      func: wait_for_trigger
+      arguments:
+        url: REPLACE_ME_EXPERIMENT_EXECUTOR_HOST/trigger/{UUID}
+        check_interval: 0.1
+
+  - type: action
+    name: kill-container
+    provider:
+      type: python
+      module: docker_helpers
+      func: kill_containers
+      arguments:
+        names:
+          - infrastructure-docker-gateway-1
+          - infrastructure-docker-gateway-dapr-1
+          - infrastructure-docker-gateway-ecs-1
+    pauses:
+      before: 4
+      after: 8
+
+  - type: action
+    name: restart-container
+    provider:
+      type: python
+      module: docker_helpers
+      func: start_containers
+      arguments:
+        names:
+          - infrastructure-docker-gateway-1
+          - infrastructure-docker-gateway-dapr-1
+          - infrastructure-docker-gateway-ecs-1

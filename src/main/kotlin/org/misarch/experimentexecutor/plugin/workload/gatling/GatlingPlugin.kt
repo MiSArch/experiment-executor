@@ -23,6 +23,7 @@ class GatlingPlugin(private val webClient: WebClient) : WorkloadPluginInterface 
                 .redirectOutput(ProcessBuilder.Redirect.INHERIT)
                 .redirectError(ProcessBuilder.Redirect.INHERIT)
                 .apply {
+                    environment()["TEST_CLASS"] = "org.misarch.${workLoad.gatling.loadType}"
                     environment()["ACCESS_TOKEN"] = token
                     environment()["BASE_URL"] = workLoad.gatling.endpointHost
                     environment()["TEST_UUID"] = testUUID.toString()

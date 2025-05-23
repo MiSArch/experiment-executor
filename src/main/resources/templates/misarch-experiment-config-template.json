@@ -1,0 +1,46 @@
+[
+  {
+    "failures": [
+      {
+        "name": "catalog",
+        "pubSubDeterioration": null,
+        "serviceInvocationDeterioration": null,
+        "artificialMemoryUsage": null,
+        "artificialCPUUsage": null
+      }
+    ],
+    "pause": 15000
+  },
+  {
+    "failures": [
+      {
+        "name": "catalog",
+        "pubSubDeterioration": null,
+        "serviceInvocationDeterioration": [
+          {
+            "path": "/",
+            "delay": 1001,
+            "delayProbability": 1.0,
+            "errorProbability": 1.0,
+            "errorCode": 404
+          }
+        ],
+        "artificialMemoryUsage": null,
+        "artificialCPUUsage": null
+      }
+    ],
+    "pause": 15000
+  },
+  {
+    "failures": [
+      {
+        "name": "catalog",
+        "pubSubDeterioration": null,
+        "serviceInvocationDeterioration": null,
+        "artificialMemoryUsage": null,
+        "artificialCPUUsage": null
+      }
+    ],
+    "pause": 0
+  }
+]

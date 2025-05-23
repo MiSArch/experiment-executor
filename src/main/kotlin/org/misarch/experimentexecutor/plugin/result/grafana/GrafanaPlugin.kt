@@ -1,7 +1,7 @@
 package org.misarch.experimentexecutor.plugin.result.grafana
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.misarch.experimentexecutor.executor.model.Goals
+import org.misarch.experimentexecutor.executor.model.Goal
 import org.misarch.experimentexecutor.plugin.result.ExportPluginInterface
 import org.misarch.experimentexecutor.plugin.result.grafana.model.GrafanaDashboardConfig
 import org.springframework.http.MediaType
@@ -13,9 +13,9 @@ import java.util.*
 
 class GrafanaPlugin(private val webClient: WebClient, private val grafanaApiToken: String) : ExportPluginInterface {
 
-    override suspend fun createReport(testUUID: UUID, startTime: Instant, endTime: Instant, goals: Goals): Boolean {
+    override suspend fun createReport(testUUID: UUID, startTime: Instant, endTime: Instant, goals: List<Goal>): Boolean {
         // TODO
-        val filePath = "src/main/resources/dashboards/experiment-dashboard-template.json"
+        val filePath = "src/main/resources/templates/experiment-dashboard-template.json"
         return updateDashboardTemplate(filePath, testUUID, startTime, endTime, goals)
     }
 
@@ -24,7 +24,7 @@ class GrafanaPlugin(private val webClient: WebClient, private val grafanaApiToke
         testUUID: UUID,
         startTime: Instant,
         endTime: Instant,
-        goals: Goals,
+        goals: List<Goal>,
     ): Boolean {
         val file = File(filePath)
         if (!file.exists()) {
@@ -45,11 +45,11 @@ class GrafanaPlugin(private val webClient: WebClient, private val grafanaApiToke
                         fieldConfig = it.fieldConfig?.copy(
                             defaults = it.fieldConfig.defaults?.copy(
                                 thresholds =
-                                    if (goals.system.any { goal -> goal.metric == it.title }) {
+                                    if (goals.any { goal -> goal.metric == it.title }) {
                                         it.fieldConfig.defaults.thresholds?.copy(
                                             mode = it.fieldConfig.defaults.thresholds.mode,
                                             steps = it.fieldConfig.defaults.thresholds.steps.flatMap { step ->
-                                                val goal = goals.system.first { goal -> goal.metric == it.title }
+                                                val goal = goals.first { goal -> goal.metric == it.title }
                                                 listOf(step.copy(),
                                                 step.copy(
                                                     color = goal.color,
