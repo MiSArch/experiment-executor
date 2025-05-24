@@ -5,15 +5,13 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.misarch.experimentexecutor.executor.model.ExperimentConfig
-import org.misarch.experimentexecutor.executor.model.GatlingLoadType
-import org.springframework.core.env.Environment
 import org.springframework.stereotype.Service
-import java.io.File
 import java.time.Instant
 import java.util.*
 
 @Service
 class ExperimentExecutionService(
+    private val experimentConfigService: ExperimentConfigService,
     private val experimentFailureService: ExperimentFailureService,
     private val experimentWorkloadService: ExperimentWorkloadService,
     private val experimentMetricsService: ExperimentMetricsService,
@@ -27,6 +25,11 @@ class ExperimentExecutionService(
 
     suspend fun getTriggerState(testUUID: UUID): Boolean {
         return triggerState[testUUID] ?: false
+    }
+
+    suspend fun executeStoredExperiment(testUUID: UUID): String {
+        val experimentConfig = experimentConfigService.getExperimentConfig(testUUID)
+        return executeExperiment(experimentConfig, testUUID)
     }
 
     suspend fun executeExperiment(experimentConfig: ExperimentConfig, testUUID: UUID): String {

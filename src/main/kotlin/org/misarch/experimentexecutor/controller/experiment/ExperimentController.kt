@@ -10,7 +10,7 @@ import java.net.URI
 import java.util.*
 
 @RestController
-@CrossOrigin(origins = ["http://localhost:5173/"])
+@CrossOrigin(origins = ["http://localhost:5173"])
 class ExperimentController(
     private val graphQLQueryGeneratorService: GraphQLQueryGeneratorService,
     private val experimentExecutionService: ExperimentExecutionService,
@@ -21,14 +21,19 @@ class ExperimentController(
         graphQLQueryGeneratorService.generateGraphQL(URI(graphQLURL))
     }
 
-    @GetMapping("/experiment/generate/{loadType}")
+    @PostMapping("/experiment/generate/{loadType}")
     suspend fun generateExperiment(@PathVariable loadType: GatlingLoadType): String {
         return experimentConfigService.generateExperiment(loadType)
     }
 
+    @PostMapping("/experiment")
+    suspend fun runExperimentWithConfigFile(@RequestBody experimentConfig: ExperimentConfig): String {
+        return experimentExecutionService.executeExperiment(experimentConfig, UUID.fromString(experimentConfig.testUUID))
+    }
+
     @PostMapping("/experiment/{testUUID}")
-    suspend fun runExperiment(@PathVariable testUUID: UUID, @RequestBody experimentConfig: ExperimentConfig): String {
-        return experimentExecutionService.executeExperiment(experimentConfig, testUUID)
+    suspend fun runExperiment(@PathVariable testUUID: UUID): String {
+        return experimentExecutionService.executeStoredExperiment(testUUID)
     }
 
     @GetMapping("/experiment/{testUUID}/chaosToolkitConfig")
@@ -37,7 +42,7 @@ class ExperimentController(
     }
 
     @PutMapping("/experiment/{testUUID}/chaosToolkitConfig")
-    suspend fun putChaosToolkit(@PathVariable testUUID: UUID, @RequestBody chaosToolKitConfig: String): String {
+    suspend fun putChaosToolkit(@PathVariable testUUID: UUID, @RequestBody chaosToolKitConfig: String) {
         return experimentConfigService.updateChaosToolkitConfig(testUUID, chaosToolKitConfig)
     }
 
@@ -47,28 +52,18 @@ class ExperimentController(
     }
 
     @PutMapping("/experiment/{testUUID}/misarchExperimentConfig")
-    suspend fun putMisarchExperimentConfig(@PathVariable testUUID: UUID, @RequestBody misarchExperimentConfig: String): String {
+    suspend fun putMisarchExperimentConfig(@PathVariable testUUID: UUID, @RequestBody misarchExperimentConfig: String) {
         return experimentConfigService.updateMisarchExperimentConfig(testUUID, misarchExperimentConfig)
     }
 
-    @GetMapping("/experiment/{testUUID}/gatlingConfig/usersteps")
+    @GetMapping("/experiment/{testUUID}/gatlingConfig/userSteps")
     suspend fun getGatlingUserSteps(@PathVariable testUUID: UUID): String {
         return experimentConfigService.getGatlingUsersteps(testUUID)
     }
 
-    @PutMapping("/experiment/{testUUID}/gatlingConfig/usersteps")
-    suspend fun putGatlingUsersteps(@PathVariable testUUID: UUID, @RequestBody usersteps: String): String {
+    @PutMapping("/experiment/{testUUID}/gatlingConfig/userSteps")
+    suspend fun putGatlingUsersteps(@PathVariable testUUID: UUID, @RequestBody usersteps: String) {
         return experimentConfigService.updateGatlingUsersteps(testUUID, usersteps)
-    }
-
-    @GetMapping("/experiment/{testUUID}/gatlingConfig/loadConfig")
-    suspend fun getGatlingLoadconfig(@PathVariable testUUID: UUID): String {
-        return experimentConfigService.getGatlingLoadConfig(testUUID)
-    }
-
-    @PutMapping("/experiment/{testUUID}/gatlingConfig/loadconfig")
-    suspend fun putGatlingLoadconfig(@PathVariable testUUID: UUID, @RequestBody loadconfig: String): String {
-        return experimentConfigService.updateGatlingLoadConfig(testUUID, loadconfig)
     }
 
     @GetMapping("/experiment/{testUUID}/gatlingConfig/work")
@@ -79,6 +74,16 @@ class ExperimentController(
     @PutMapping("/experiment/{testUUID}/gatlingConfig/work")
     suspend fun putGatlingWork(@PathVariable testUUID: UUID, @RequestBody work: String): String {
         return experimentConfigService.updateGatlingWork(testUUID, work)
+    }
+
+    @GetMapping("/experiment/{testUUID}/config")
+    suspend fun getExperimentConfig(@PathVariable testUUID: UUID): ExperimentConfig {
+        return experimentConfigService.getExperimentConfig(testUUID)
+    }
+
+    @PutMapping("/experiment/{testUUID}/config")
+    suspend fun putExperimentConfig(@PathVariable testUUID: UUID, @RequestBody experimentConfig: ExperimentConfig) {
+        return experimentConfigService.updateExperimentConfig(testUUID, experimentConfig)
     }
 
     @GetMapping("/trigger/{testUUID}")

@@ -1,5 +1,7 @@
 package org.misarch.experimentexecutor.service.experiment
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import org.misarch.experimentexecutor.executor.model.ExperimentConfig
 import org.misarch.experimentexecutor.executor.model.GatlingLoadType
 import org.springframework.stereotype.Service
 import java.io.File
@@ -53,10 +55,14 @@ class ExperimentConfigService {
     fun getChaosToolkitConfig(testUUID: UUID): String {
         val basePath = System.getenv("BASE_PATH")
         val experimentDir = "$basePath/$testUUID"
-        return File("$experimentDir/chaostoolkit-experiment-config.yaml").readText()    }
+        return File("$experimentDir/chaostoolkit-experiment-config.yaml").readText()
+    }
 
-    fun updateChaosToolkitConfig(testUUID: UUID, chaosToolKitConfig: String): String {
-        TODO("Not yet implemented")
+    fun updateChaosToolkitConfig(testUUID: UUID, chaosToolKitConfig: String) {
+        val basePath = System.getenv("BASE_PATH")
+        val experimentDir = "$basePath/$testUUID"
+        val filePath = "$experimentDir/chaostoolkit-experiment-config.yaml"
+        File(filePath).writeText(chaosToolKitConfig)
     }
 
     fun getMisarchExperimentConfig(testUUID: UUID): String {
@@ -65,8 +71,11 @@ class ExperimentConfigService {
         return File("$experimentDir/misarch-experiment-config.json").readText()
     }
 
-    fun updateMisarchExperimentConfig(testUUID: UUID, misarchExperimentConfig: String): String {
-        TODO("Not yet implemented")
+    fun updateMisarchExperimentConfig(testUUID: UUID, misarchExperimentConfig: String) {
+        val basePath = System.getenv("BASE_PATH")
+        val experimentDir = "$basePath/$testUUID"
+        val filePath = "$experimentDir/misarch-experiment-config.json"
+        File(filePath).writeText(misarchExperimentConfig)
     }
 
     fun getGatlingUsersteps(testUUID: UUID): String {
@@ -75,16 +84,26 @@ class ExperimentConfigService {
         return File("$experimentDir/gatling-usersteps.csv").readText()
     }
 
-    fun updateGatlingUsersteps(testUUID: UUID, usersteps: String): String {
-        TODO("Not yet implemented")
+    fun updateGatlingUsersteps(testUUID: UUID, usersteps: String) {
+        val basePath = System.getenv("BASE_PATH")
+        val experimentDir = "$basePath/$testUUID"
+        val filePath = "$experimentDir/gatling-usersteps.csv"
+        File(filePath).writeText(usersteps)
     }
 
-    fun getGatlingLoadConfig(testUUID: UUID): String {
-        TODO("Not yet implemented")
+    fun getExperimentConfig(testUUID: UUID): ExperimentConfig {
+        val basePath = System.getenv("BASE_PATH")
+        val experimentDir = "$basePath/$testUUID"
+        val rawText = File("$experimentDir/execution.json").readText()
+        return jacksonObjectMapper().readValue(rawText, ExperimentConfig::class.java)
     }
 
-    fun updateGatlingLoadConfig(testUUID: UUID, loadConfig: String): String {
-        TODO("Not yet implemented")
+    fun updateExperimentConfig(testUUID: UUID, experimentConfig: ExperimentConfig) {
+        val basePath = System.getenv("BASE_PATH")
+        val experimentDir = "$basePath/$testUUID"
+        val filePath = "$experimentDir/execution.json"
+        val jsonContent = jacksonObjectMapper().writeValueAsString(experimentConfig)
+        File(filePath).writeText(jsonContent)
     }
 
     fun getGatlingWork(testUUID: UUID): String {
