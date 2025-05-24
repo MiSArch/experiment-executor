@@ -2,7 +2,7 @@
   "testUUID": "REPLACE_ME_TEST_UUID",
   "failure": {
     "chaosToolkit": {
-      "pathUri": "REPLACE_ME_BASE_PATH/chaostoolkit-experiment.yaml"
+      "pathUri": "REPLACE_ME_BASE_PATH/chaostoolkit-experiment-config.yaml"
     },
     "experimentConfig": {
       "pathUri": "REPLACE_ME_BASE_PATH/misarch-experiment-config.json",
