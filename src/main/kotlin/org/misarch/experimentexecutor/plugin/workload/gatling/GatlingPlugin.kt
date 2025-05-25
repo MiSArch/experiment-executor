@@ -6,7 +6,6 @@ import org.misarch.experimentexecutor.executor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
-import java.io.File
 import java.util.UUID
 
 class GatlingPlugin(private val webClient: WebClient) : WorkloadPluginInterface {
@@ -18,16 +17,19 @@ class GatlingPlugin(private val webClient: WebClient) : WorkloadPluginInterface 
             password = "123",
         )
         return runCatching {
-            val process = ProcessBuilder("./gradlew", "gatlingRun")
-                .directory(File(workLoad.gatling.pathUri))
+            val process = ProcessBuilder(
+                "bash", "-c",
+                "docker run -d " +
+                        "--network infrastructure-docker_default " +
+                        "-e TEST_CLASS=org.misarch.${workLoad.gatling.loadType} " +
+                        "-e ACCESS_TOKEN=$token " +
+                        "-e BASE_URL=${workLoad.gatling.endpointHost} " +
+                        "-e TEST_UUID=${testUUID} " +
+                        "-v ${workLoad.gatling.pathUri}/gatling-usersteps.csv:/gatling/src/main/resources/gatling-usersteps.csv " +
+                        "gatling-test gradle gatlingRun forwardMetrics"
+            )
                 .redirectOutput(ProcessBuilder.Redirect.INHERIT)
                 .redirectError(ProcessBuilder.Redirect.INHERIT)
-                .apply {
-                    environment()["TEST_CLASS"] = "org.misarch.${workLoad.gatling.loadType}"
-                    environment()["ACCESS_TOKEN"] = token
-                    environment()["BASE_URL"] = workLoad.gatling.endpointHost
-                    environment()["TEST_UUID"] = testUUID.toString()
-                }
                 .start()
             val exitCode = process.waitFor()
             exitCode == 0

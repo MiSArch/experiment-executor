@@ -18,10 +18,9 @@ class GatlingMetricPlugin(private val webClient: WebClient) : MetricPluginInterf
 
     suspend fun collectAndExportMetrics(workLoad: WorkLoad, testUUID: UUID) {
 
-        val pathUri = workLoad.gatling!!.pathUri
-        val latest = File("$pathUri/build/reports/gatling").listFiles()?.filter { it.isDirectory }?.maxOfOrNull { it.name } ?: ""
+        val pathUri = workLoad.gatling?.pathUri ?: (System.getenv("BASE_PATH") + "/" + testUUID.toString())
 
-        val responseTimeStats = parseGatlingResponseTimeStats(pathUri, latest)
+        val responseTimeStats = parseGatlingResponseTimeStats(pathUri)
         val registry = CollectorRegistry.defaultRegistry
         registry.clear()
 
@@ -30,7 +29,7 @@ class GatlingMetricPlugin(private val webClient: WebClient) : MetricPluginInterf
             registry.registerResponseTimeGauges(requestStats, suffix = "_${request.split("-").first().replace("-", "_")}")
         }
 
-        val indexPath = "$pathUri/build/reports/gatling/$latest/index.html"
+        val indexPath = "$pathUri/gatling-index.html"
 
         // TODO responsetimepercentilesovertimeokPercentiles -> list of maps with timestamp and list which represent the response time percentiles at the timepoint
         val dataSeries = extractDataSeries(indexPath)
@@ -51,8 +50,8 @@ class GatlingMetricPlugin(private val webClient: WebClient) : MetricPluginInterf
         println("🚀 Gatling Metrics pushed to Prometheus Pushgateway")
     }
 
-    private fun parseGatlingResponseTimeStats(pathUri: String, latest: String): GatlingStats {
-        val rawJs = File("$pathUri/build/reports/gatling/$latest/js/stats.js").readText()
+    private fun parseGatlingResponseTimeStats(pathUri: String): GatlingStats {
+        val rawJs = File("$pathUri/gatling-stats.js").readText()
         val json = rawJs.trimGatlingStatsJs()
 
         return ObjectMapper().readValue(json, GatlingStats::class.java)

@@ -45,7 +45,7 @@ class ExperimentConfigService {
             .replace("REPLACE_ME_LOADTYPE", loadType.toString())
             // TODO ENDPOINTS!!!
             .replace("REPLACE_ME_MISARCH_EXPERIMENT_CONFIG_ENDPOINT", "http://localhost:3000")
-            .replace("REPLACE_ME_GATLING_TARGET_ENDPOINT", "http://localhost:8080")
+            .replace("REPLACE_ME_GATLING_TARGET_ENDPOINT", "http://172.18.0.21:8080")
             .replace("REPLACE_ME_GATLING_TOKEN_ENDPOINT", "http://localhost:8081")
         File("$experimentDir/execution.json").writeText(executionTemplateUpdated)
 

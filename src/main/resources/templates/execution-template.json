@@ -11,7 +11,7 @@
   },
   "workLoad": {
     "gatling": {
-      "pathUri": "REPLACE_ME_BASE_PATH/gatling-test/untitled",
+      "pathUri": "REPLACE_ME_BASE_PATH",
       "loadType": "REPLACE_ME_LOADTYPE",
       "endpointHost": "REPLACE_ME_GATLING_TARGET_ENDPOINT",
       "tokenEndpointHost": "REPLACE_ME_GATLING_TOKEN_ENDPOINT"
