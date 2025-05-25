@@ -1,6 +1,6 @@
 package org.misarch.experimentexecutor.controller.experiment
 
-import org.misarch.experimentexecutor.executor.model.ExperimentConfig
+import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.service.experiment.ExperimentExecutionService
 import org.springframework.web.bind.annotation.*
 import java.util.*

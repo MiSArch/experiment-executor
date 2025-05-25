@@ -2,7 +2,7 @@ package org.misarch.experimentexecutor.plugin.failure.chaostoolkit
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.misarch.experimentexecutor.executor.model.Failure
+import org.misarch.experimentexecutor.model.Failure
 import org.misarch.experimentexecutor.plugin.failure.FailurePluginInterface
 import java.io.BufferedReader
 import java.io.InputStreamReader

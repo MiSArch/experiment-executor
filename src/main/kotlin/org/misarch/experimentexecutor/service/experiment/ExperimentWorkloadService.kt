@@ -3,7 +3,7 @@ package org.misarch.experimentexecutor.service.experiment
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.supervisorScope
-import org.misarch.experimentexecutor.executor.model.WorkLoad
+import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.misarch.experimentexecutor.plugin.workload.gatling.GatlingPlugin
 import org.springframework.stereotype.Service

@@ -1,8 +1,8 @@
 package org.misarch.experimentexecutor.service.experiment
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.misarch.experimentexecutor.executor.model.ExperimentConfig
-import org.misarch.experimentexecutor.executor.model.GatlingLoadType
+import org.misarch.experimentexecutor.model.ExperimentConfig
+import org.misarch.experimentexecutor.model.GatlingLoadType
 import org.springframework.stereotype.Service
 import java.io.File
 import java.util.*

@@ -1,6 +1,6 @@
 package org.misarch.experimentexecutor.plugin.result
 
-import org.misarch.experimentexecutor.executor.model.Goal
+import org.misarch.experimentexecutor.model.Goal
 import java.time.Instant
 import java.util.*
 

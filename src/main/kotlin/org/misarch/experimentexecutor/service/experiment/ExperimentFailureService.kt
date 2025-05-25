@@ -3,7 +3,7 @@ package org.misarch.experimentexecutor.service.experiment
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.supervisorScope
-import org.misarch.experimentexecutor.executor.model.Failure
+import org.misarch.experimentexecutor.model.Failure
 import org.misarch.experimentexecutor.plugin.failure.chaostoolkit.ChaosToolkitPlugin
 import org.misarch.experimentexecutor.plugin.failure.misarch.MisarchExperimentConfigPlugin
 import org.springframework.stereotype.Service

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.Gauge
 import io.prometheus.client.exporter.PushGateway
-import org.misarch.experimentexecutor.executor.model.WorkLoad
+import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.metrics.MetricPluginInterface
 import org.misarch.experimentexecutor.plugin.metrics.gatling.model.GatlingStats
 import org.springframework.http.MediaType

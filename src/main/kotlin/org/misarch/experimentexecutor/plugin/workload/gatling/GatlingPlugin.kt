@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.withContext
-import org.misarch.experimentexecutor.executor.model.WorkLoad
+import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient

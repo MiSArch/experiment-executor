@@ -7,7 +7,7 @@ import ServiceInvocationDeterioration
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.delay
-import org.misarch.experimentexecutor.executor.model.Failure
+import org.misarch.experimentexecutor.model.Failure
 import org.misarch.experimentexecutor.plugin.failure.FailurePluginInterface
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient

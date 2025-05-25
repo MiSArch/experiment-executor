@@ -4,7 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import org.misarch.experimentexecutor.executor.model.ExperimentConfig
+import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.*

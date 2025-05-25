@@ -1,4 +1,4 @@
-package org.misarch.experimentexecutor.executor.model
+package org.misarch.experimentexecutor.model
 
 data class ExperimentConfig(
     val testUUID: String,
@@ -22,7 +22,7 @@ data class MiSArchExperimentConfig(
 )
 
 data class WorkLoad(
-   val gatling: GatlingConfig?,
+    val gatling: GatlingConfig?,
 )
 
 data class GatlingConfig(

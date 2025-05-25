@@ -1,6 +1,6 @@
 package org.misarch.experimentexecutor.plugin.failure
 
-import org.misarch.experimentexecutor.executor.model.Failure
+import org.misarch.experimentexecutor.model.Failure
 import java.util.UUID
 
 interface FailurePluginInterface {

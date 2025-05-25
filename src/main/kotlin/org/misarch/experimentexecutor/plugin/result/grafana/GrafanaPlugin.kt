@@ -1,7 +1,7 @@
 package org.misarch.experimentexecutor.plugin.result.grafana
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.misarch.experimentexecutor.executor.model.Goal
+import org.misarch.experimentexecutor.model.Goal
 import org.misarch.experimentexecutor.plugin.result.ExportPluginInterface
 import org.misarch.experimentexecutor.plugin.result.grafana.model.GrafanaDashboardConfig
 import org.springframework.http.MediaType
