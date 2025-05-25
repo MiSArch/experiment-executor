@@ -72,7 +72,7 @@ class ExperimentController(
     }
 
     @PutMapping("/experiment/{testUUID}/gatlingConfig/work")
-    suspend fun putGatlingWork(@PathVariable testUUID: UUID, @RequestBody work: String): String {
+    suspend fun putGatlingWork(@PathVariable testUUID: UUID, @RequestBody work: String) {
         return experimentConfigService.updateGatlingWork(testUUID, work)
     }
 

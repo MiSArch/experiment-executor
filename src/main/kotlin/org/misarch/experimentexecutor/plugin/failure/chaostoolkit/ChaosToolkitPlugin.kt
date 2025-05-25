@@ -1,16 +1,18 @@
 package org.misarch.experimentexecutor.plugin.failure.chaostoolkit
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.misarch.experimentexecutor.executor.model.Failure
 import org.misarch.experimentexecutor.plugin.failure.FailurePluginInterface
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.util.UUID
+import java.util.*
 
 class ChaosToolkitPlugin : FailurePluginInterface {
     private var containerId: String? = null
 
     override suspend fun executeFailure(failure: Failure, testUUID: UUID): Boolean {
-        return runCatching {
+        withContext(Dispatchers.IO) {
             val filePath = failure.chaosToolkit!!.pathUri
             val process = ProcessBuilder(
                 "bash", "-c",
@@ -27,12 +29,8 @@ class ChaosToolkitPlugin : FailurePluginInterface {
                 ProcessBuilder("bash", "-c", "docker wait $containerId").start().waitFor()
                 ProcessBuilder("bash", "-c", "docker rm $containerId").start().waitFor()
             }
-
-            containerId != null
-        }.getOrElse {
-            println("Error executing Chaos Toolkit: ${it.message}")
-            false
         }
+        return containerId != null
     }
 
     override suspend fun startExperiment(): Boolean {

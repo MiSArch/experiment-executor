@@ -1,22 +1,28 @@
 package org.misarch.experimentexecutor.plugin.workload.gatling
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.withContext
 import org.misarch.experimentexecutor.executor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.util.UUID
 
 class GatlingPlugin(private val webClient: WebClient) : WorkloadPluginInterface {
+    private var containerId: String? = null
+
     override suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID): Boolean {
-        val token = getOAuthAccessToken(
-            clientId = "frontend",
-            url = "${workLoad.gatling!!.tokenEndpointHost}/keycloak/realms/Misarch/protocol/openid-connect/token",
-            username = "eliasmueller",
-            password = "123",
-        )
-        return runCatching {
+        withContext(Dispatchers.IO) {
+            val token = getOAuthAccessToken(
+                clientId = "frontend",
+                url = "${workLoad.gatling!!.tokenEndpointHost}/keycloak/realms/Misarch/protocol/openid-connect/token",
+                username = "eliasmueller",
+                password = "123",
+            )
             val process = ProcessBuilder(
                 "bash", "-c",
                 "docker run -d " +
@@ -25,18 +31,25 @@ class GatlingPlugin(private val webClient: WebClient) : WorkloadPluginInterface 
                         "-e ACCESS_TOKEN=$token " +
                         "-e BASE_URL=${workLoad.gatling.endpointHost} " +
                         "-e TEST_UUID=${testUUID} " +
+                        "-e EXPERIMENT_EXECUTOR_URL=http://192.168.178.155:8888 " +
                         "-v ${workLoad.gatling.pathUri}/gatling-usersteps.csv:/gatling/src/main/resources/gatling-usersteps.csv " +
+                        "-v ${workLoad.gatling.pathUri}/GatlingScenario.kt:/gatling/src/main/kotlin/scenarios/GatlingScenario.kt " +
                         "gatling-test gradle gatlingRun forwardMetrics"
-            )
-                .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+            ).redirectOutput(ProcessBuilder.Redirect.PIPE)
                 .redirectError(ProcessBuilder.Redirect.INHERIT)
                 .start()
-            val exitCode = process.waitFor()
-            exitCode == 0
-        }.getOrElse { e ->
-            e.printStackTrace()
-            false
+
+            BufferedReader(InputStreamReader(process.inputStream)).use { reader ->
+                containerId = reader.readLine()?.trim()
+            }
+
+            if (containerId != null) {
+                ProcessBuilder("bash", "-c", "docker wait $containerId").start().waitFor()
+                ProcessBuilder("bash", "-c", "docker rm $containerId").start().waitFor()
+            }
+
         }
+        return containerId != null
     }
 
     private suspend fun getOAuthAccessToken(clientId: String, url: String, username: String, password: String): String {

@@ -36,7 +36,8 @@ class ExperimentConfigService {
         val userstepsTemplate = File("$TEMPLATE_PATH/gatling-usersteps-template.csv").readText()
         File("$experimentDir/gatling-usersteps.csv").writeText(userstepsTemplate)
 
-        // todo make work configurable
+        val workTemplate = File("$TEMPLATE_PATH/GatlingScenarioTemplate.kt").readText()
+        File("$experimentDir/GatlingScenario.kt").writeText(workTemplate)
 
         val executionTemplate = File("$TEMPLATE_PATH/execution-template.json").readText()
         val executionTemplateUpdated = executionTemplate
@@ -107,10 +108,15 @@ class ExperimentConfigService {
     }
 
     fun getGatlingWork(testUUID: UUID): String {
-        TODO("Not yet implemented")
+        val basePath = System.getenv("BASE_PATH")
+        val experimentDir = "$basePath/$testUUID"
+        return File("$experimentDir/GatlingScenario.kt").readText()
     }
 
-    fun updateGatlingWork(testUUID: UUID, work: String): String {
-        TODO("Not yet implemented")
+    fun updateGatlingWork(testUUID: UUID, work: String) {
+        val basePath = System.getenv("BASE_PATH")
+        val experimentDir = "$basePath/$testUUID"
+        val filePath = "$experimentDir/GatlingScenario.kt"
+        File(filePath).writeText(work)
     }
 }
