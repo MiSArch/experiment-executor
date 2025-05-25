@@ -2,7 +2,7 @@ package org.misarch.experimentexecutor.controller.experiment
 
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.model.GatlingLoadType
-import org.misarch.experimentexecutor.service.experiment.ExperimentConfigService
+import org.misarch.experimentexecutor.service.ExperimentConfigService
 import org.springframework.web.bind.annotation.*
 import java.util.*
 

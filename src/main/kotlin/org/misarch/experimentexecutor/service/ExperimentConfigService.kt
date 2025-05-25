@@ -1,4 +1,4 @@
-package org.misarch.experimentexecutor.service.experiment
+package org.misarch.experimentexecutor.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.misarch.experimentexecutor.model.ExperimentConfig

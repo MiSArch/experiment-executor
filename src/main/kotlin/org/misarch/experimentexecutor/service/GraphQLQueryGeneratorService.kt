@@ -1,4 +1,4 @@
-package org.misarch.experimentexecutor.service.experiment
+package org.misarch.experimentexecutor.service
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers

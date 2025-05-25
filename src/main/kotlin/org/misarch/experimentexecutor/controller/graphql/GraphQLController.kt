@@ -1,6 +1,6 @@
 package org.misarch.experimentexecutor.controller.graphql
 
-import org.misarch.experimentexecutor.service.experiment.GraphQLQueryGeneratorService
+import org.misarch.experimentexecutor.service.GraphQLQueryGeneratorService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam

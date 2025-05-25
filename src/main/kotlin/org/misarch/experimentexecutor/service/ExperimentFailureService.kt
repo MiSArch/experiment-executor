@@ -1,4 +1,4 @@
-package org.misarch.experimentexecutor.service.experiment
+package org.misarch.experimentexecutor.service
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
