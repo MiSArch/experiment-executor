@@ -1,4 +1,4 @@
-package org.misarch.experimentexecutor.config.graphql
+package org.misarch.experimentexecutor.config
 
 import io.netty.channel.ChannelOption
 import org.springframework.context.annotation.Bean

@@ -3,37 +3,20 @@ package org.misarch.experimentexecutor.controller.experiment
 import org.misarch.experimentexecutor.executor.model.ExperimentConfig
 import org.misarch.experimentexecutor.executor.model.GatlingLoadType
 import org.misarch.experimentexecutor.service.experiment.ExperimentConfigService
-import org.misarch.experimentexecutor.service.experiment.ExperimentExecutionService
-import org.misarch.experimentexecutor.service.experiment.GraphQLQueryGeneratorService
 import org.springframework.web.bind.annotation.*
-import java.net.URI
 import java.util.*
 
 @RestController
 @CrossOrigin(origins = ["http://localhost:5173"])
-class ExperimentController(
-    private val graphQLQueryGeneratorService: GraphQLQueryGeneratorService,
-    private val experimentExecutionService: ExperimentExecutionService,
+class ExperimentConfigController(
     private val experimentConfigService: ExperimentConfigService,
 ) {
-    @GetMapping("/generateGraphQL")
-    suspend fun createLayout(@RequestParam graphQLURL: String) {
-        graphQLQueryGeneratorService.generateGraphQL(URI(graphQLURL))
-    }
-
+    /**
+     * Generates and stores a new experiment configuration based on the specified load type.
+     */
     @PostMapping("/experiment/generate/{loadType}")
     suspend fun generateExperiment(@PathVariable loadType: GatlingLoadType): String {
         return experimentConfigService.generateExperiment(loadType)
-    }
-
-    @PostMapping("/experiment")
-    suspend fun runExperimentWithConfigFile(@RequestBody experimentConfig: ExperimentConfig): String {
-        return experimentExecutionService.executeExperiment(experimentConfig, UUID.fromString(experimentConfig.testUUID))
-    }
-
-    @PostMapping("/experiment/{testUUID}")
-    suspend fun runExperiment(@PathVariable testUUID: UUID): String {
-        return experimentExecutionService.executeStoredExperiment(testUUID)
     }
 
     @GetMapping("/experiment/{testUUID}/chaosToolkitConfig")
@@ -47,7 +30,7 @@ class ExperimentController(
     }
 
     @GetMapping("/experiment/{testUUID}/misarchExperimentConfig")
-    suspend fun getMisarchExperimentConfig(@PathVariable testUUID: UUID,): String {
+    suspend fun getMisarchExperimentConfig(@PathVariable testUUID: UUID): String {
         return experimentConfigService.getMisarchExperimentConfig(testUUID)
     }
 
@@ -62,8 +45,8 @@ class ExperimentController(
     }
 
     @PutMapping("/experiment/{testUUID}/gatlingConfig/userSteps")
-    suspend fun putGatlingUsersteps(@PathVariable testUUID: UUID, @RequestBody usersteps: String) {
-        return experimentConfigService.updateGatlingUsersteps(testUUID, usersteps)
+    suspend fun putGatlingUsersteps(@PathVariable testUUID: UUID, @RequestBody userSteps: String) {
+        return experimentConfigService.updateGatlingUsersteps(testUUID, userSteps)
     }
 
     @GetMapping("/experiment/{testUUID}/gatlingConfig/work")
@@ -84,10 +67,5 @@ class ExperimentController(
     @PutMapping("/experiment/{testUUID}/config")
     suspend fun putExperimentConfig(@PathVariable testUUID: UUID, @RequestBody experimentConfig: ExperimentConfig) {
         return experimentConfigService.updateExperimentConfig(testUUID, experimentConfig)
-    }
-
-    @GetMapping("/trigger/{testUUID}")
-    suspend fun trigger(@PathVariable testUUID: UUID): String {
-        return experimentExecutionService.getTriggerState(testUUID).toString()
     }
 }
