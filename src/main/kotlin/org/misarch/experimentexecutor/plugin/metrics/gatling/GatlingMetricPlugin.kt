@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.Gauge
 import io.prometheus.client.exporter.PushGateway
+import org.misarch.experimentexecutor.config.INFLUX_URL
+import org.misarch.experimentexecutor.config.PUSHGATEWAY_URL
 import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.metrics.MetricPluginInterface
 import org.misarch.experimentexecutor.plugin.metrics.gatling.model.GatlingStats
@@ -18,7 +20,8 @@ class GatlingMetricPlugin(private val webClient: WebClient) : MetricPluginInterf
 
     suspend fun collectAndExportMetrics(workLoad: WorkLoad, testUUID: UUID) {
 
-        val pathUri = workLoad.gatling?.pathUri ?: (System.getenv("BASE_PATH") + "/" + testUUID.toString())
+        val filePath = workLoad.gatling.workPathUri
+        val pathUri = File(filePath).parent ?: filePath
 
         val responseTimeStats = parseGatlingResponseTimeStats(pathUri)
         val registry = CollectorRegistry.defaultRegistry
@@ -44,7 +47,7 @@ class GatlingMetricPlugin(private val webClient: WebClient) : MetricPluginInterf
 
         println("🚀 Gatling Metrics pushed to InfluxDB")
 
-        val pushGateway = PushGateway("localhost:9091")
+        val pushGateway = PushGateway(PUSHGATEWAY_URL)
         pushGateway.pushAdd(registry, "gatling_metrics", mapOf("testUUID" to testUUID.toString()))
 
         println("🚀 Gatling Metrics pushed to Prometheus Pushgateway")
@@ -189,9 +192,8 @@ class GatlingMetricPlugin(private val webClient: WebClient) : MetricPluginInterf
     }
 
     private suspend fun postToInflux(lineProtocol: String) {
-        val url = "http://localhost:8086/api/v2/write?org=misarch&bucket=gatling&precision=ms"
         webClient.post()
-            .uri(url)
+            .uri(INFLUX_URL)
             .header("Authorization", "Token my-secret-token")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.TEXT_PLAIN)

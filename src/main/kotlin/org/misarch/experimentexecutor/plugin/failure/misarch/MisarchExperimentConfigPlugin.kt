@@ -7,6 +7,7 @@ import ServiceInvocationDeterioration
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.delay
+import org.misarch.experimentexecutor.config.MISARCH_EXPERIMENT_CONFIG_HOST
 import org.misarch.experimentexecutor.model.Failure
 import org.misarch.experimentexecutor.plugin.failure.FailurePluginInterface
 import org.springframework.http.MediaType
@@ -18,30 +19,14 @@ import java.util.UUID
 class MisarchExperimentConfigPlugin(private val webClient: WebClient) : FailurePluginInterface {
     private var config: List<MiSArchFailureConfig> = emptyList()
 
-    override suspend fun executeFailure(failure: Failure, testUUID: UUID): Boolean {
-        return runCatching {
-            config = readConfigFile(failure.experimentConfig!!.pathUri)
-            true
-        }.getOrElse {
-            false
-        }
+    override suspend fun initalizeFailure(failure: Failure, testUUID: UUID) {
+        config = readConfigFile(failure.experimentConfig.pathUri)
     }
 
-    override suspend fun startExperiment(): Boolean {
-        return runCatching {
-            configureVariables(config)
-            true
-        }.getOrElse {
-            false
-        }
-    }
+    override suspend fun startTimedExperiment() = configureVariables(config)
 
     private fun readConfigFile(pathUri: String): List<MiSArchFailureConfig> {
         val file = File(pathUri)
-        if (!file.exists()) {
-            throw IllegalArgumentException("Configuration file not found at $pathUri")
-        }
-
         val objectMapper = ObjectMapper()
         return objectMapper.readValue(file, object : TypeReference<List<MiSArchFailureConfig>>() {})
     }
@@ -108,7 +93,7 @@ class MisarchExperimentConfigPlugin(private val webClient: WebClient) : FailureP
         bodyValue: Any,
     ) {
         val response = webClient.put()
-            .uri("http://localhost:3000/configuration/$component/variables/$variable")
+            .uri("$MISARCH_EXPERIMENT_CONFIG_HOST/configuration/$component/variables/$variable")
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(bodyValue)
             .retrieve()

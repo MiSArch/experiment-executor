@@ -22,7 +22,7 @@ class ExperimentFailureService(webClient: WebClient) {
     suspend fun setupExperimentFailure(failure: Failure, testUUID: UUID) {
         supervisorScope {
             registry.map { plugin ->
-                async { plugin.executeFailure(failure, testUUID) }
+                async { plugin.initalizeFailure(failure, testUUID) }
             }
         }.awaitAll()
     }
@@ -30,7 +30,7 @@ class ExperimentFailureService(webClient: WebClient) {
     suspend fun startExperimentFailure() {
         supervisorScope {
             registry.map { plugin ->
-                async { plugin.startExperiment() }
+                async { plugin.startTimedExperiment() }
             }
         }.awaitAll()
     }

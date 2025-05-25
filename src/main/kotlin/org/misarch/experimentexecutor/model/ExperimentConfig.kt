@@ -8,8 +8,8 @@ data class ExperimentConfig(
 )
 
 data class Failure(
-    val chaosToolkit: ChaosToolKitConfig?,
-    val experimentConfig: MiSArchExperimentConfig?,
+    val chaosToolkit: ChaosToolKitConfig,
+    val experimentConfig: MiSArchExperimentConfig,
 )
 
 data class ChaosToolKitConfig(
@@ -22,12 +22,13 @@ data class MiSArchExperimentConfig(
 )
 
 data class WorkLoad(
-    val gatling: GatlingConfig?,
+    val gatling: GatlingConfig,
 )
 
 data class GatlingConfig(
     val loadType: GatlingLoadType,
-    val pathUri: String,
+    val userStepsPathUri: String,
+    val workPathUri: String,
     val endpointHost: String,
     val tokenEndpointHost: String,
 )

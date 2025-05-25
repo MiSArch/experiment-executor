@@ -1,5 +1,6 @@
 package org.misarch.experimentexecutor.controller.experiment
 
+import org.misarch.experimentexecutor.config.CORS_URL
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.model.GatlingLoadType
 import org.misarch.experimentexecutor.service.ExperimentConfigService
@@ -7,7 +8,7 @@ import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
-@CrossOrigin(origins = ["http://localhost:5173"])
+@CrossOrigin(origins = [CORS_URL])
 class ExperimentConfigController(
     private val experimentConfigService: ExperimentConfigService,
 ) {

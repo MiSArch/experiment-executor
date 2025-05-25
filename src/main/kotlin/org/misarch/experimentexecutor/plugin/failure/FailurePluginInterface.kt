@@ -5,7 +5,7 @@ import java.util.UUID
 
 interface FailurePluginInterface {
 
-    suspend fun executeFailure(failure: Failure, testUUID: UUID): Boolean
+    suspend fun initalizeFailure(failure: Failure, testUUID: UUID)
 
-    suspend fun startExperiment(): Boolean
+    suspend fun startTimedExperiment()
 }

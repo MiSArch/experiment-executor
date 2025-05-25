@@ -1,11 +1,13 @@
 package org.misarch.experimentexecutor.controller.experiment
 
+import org.misarch.experimentexecutor.config.BASE_PATH
+import org.misarch.experimentexecutor.config.CORS_URL
 import org.springframework.web.bind.annotation.*
 import java.io.File
 import java.util.*
 
 @RestController
-@CrossOrigin(origins = ["http://localhost:5173"])
+@CrossOrigin(origins = [CORS_URL])
 class GatlingMetricsController {
 
     /**
@@ -28,8 +30,7 @@ class GatlingMetricsController {
     }
 
     private suspend fun writeFile(testUUID: UUID, fileName: String, content: String) {
-        val basePath = System.getenv("BASE_PATH")
-        val experimentDir = "$basePath/$testUUID"
+        val experimentDir = "$BASE_PATH/$testUUID"
         val filePath = "$experimentDir/$fileName"
         File(filePath).writeText(content)
     }

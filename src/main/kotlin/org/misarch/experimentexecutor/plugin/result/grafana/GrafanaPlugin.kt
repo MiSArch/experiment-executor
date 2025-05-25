@@ -1,6 +1,10 @@
 package org.misarch.experimentexecutor.plugin.result.grafana
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import org.misarch.experimentexecutor.config.GRAFANA_DASHBOARD_FILENAME
+import org.misarch.experimentexecutor.config.GRAFANA_URL
+import org.misarch.experimentexecutor.config.TEMPLATE_PATH
+import org.misarch.experimentexecutor.config.TEMPLATE_PREFIX
 import org.misarch.experimentexecutor.model.Goal
 import org.misarch.experimentexecutor.plugin.result.ExportPluginInterface
 import org.misarch.experimentexecutor.plugin.result.grafana.model.GrafanaDashboardConfig
@@ -14,8 +18,7 @@ import java.util.*
 class GrafanaPlugin(private val webClient: WebClient, private val grafanaApiToken: String) : ExportPluginInterface {
 
     override suspend fun createReport(testUUID: UUID, startTime: Instant, endTime: Instant, goals: List<Goal>): Boolean {
-        // TODO
-        val filePath = "src/main/resources/templates/experiment-dashboard-template.json"
+        val filePath = "$TEMPLATE_PATH/${TEMPLATE_PREFIX}${GRAFANA_DASHBOARD_FILENAME}"
         return updateDashboardTemplate(filePath, testUUID, startTime, endTime, goals)
     }
 
@@ -65,14 +68,14 @@ class GrafanaPlugin(private val webClient: WebClient, private val grafanaApiToke
         )
 
         webClient.post()
-            .uri("http://localhost:3001/api/dashboards/db")
+            .uri("$GRAFANA_URL/api/dashboards/db")
             .contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", "Bearer $grafanaApiToken")
             .bodyValue(jacksonObjectMapper().writeValueAsString(updatedDashboard))
             .retrieve()
             .awaitBodilessEntity()
 
-        println("\uD83D\uDCC8 Result dashboard exported to Grafana\n http://localhost:3001/d/$testUUID")
+        println("\uD83D\uDCC8 Result dashboard exported to Grafana\n $GRAFANA_URL/d/$testUUID")
 
         return true
     }
