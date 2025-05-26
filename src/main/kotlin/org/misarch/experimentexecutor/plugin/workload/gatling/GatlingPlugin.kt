@@ -11,14 +11,18 @@ import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 import java.util.UUID
 
-class GatlingPlugin(private val webClient: WebClient) : WorkloadPluginInterface {
+class GatlingPlugin(
+    private val webClient: WebClient,
+    private val tokenConfig: TokenConfig,
+    private val experimentExecutorHost: String,
+) : WorkloadPluginInterface {
 
     override suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID) {
         val token = getOAuthAccessToken(
-            clientId = CLIENT_ID,
-            url = "${workLoad.gatling.tokenEndpointHost}/$TOKEN_ENDPOINT_PATH",
-            username = USERNAME,
-            password = PASSWORD,
+            clientId = tokenConfig.clientId,
+            url = "${workLoad.gatling.tokenEndpointHost}/${tokenConfig.endpoint}",
+            username = tokenConfig.username,
+            password = tokenConfig.password,
         )
         runBlocking {
             DockerExecutor().executeDocker(
@@ -28,7 +32,7 @@ class GatlingPlugin(private val webClient: WebClient) : WorkloadPluginInterface 
                         "-e ACCESS_TOKEN=$token " +
                         "-e BASE_URL=${workLoad.gatling.endpointHost} " +
                         "-e TEST_UUID=${testUUID} " +
-                        "-e EXPERIMENT_EXECUTOR_URL=$EXPERIMENT_EXECUTOR_HOST " +
+                        "-e EXPERIMENT_EXECUTOR_URL=$experimentExecutorHost " +
                         "-v ${workLoad.gatling.userStepsPathUri}:/gatling/src/main/resources/$GATLING_USERSTEPS_FILENAME " +
                         "-v ${workLoad.gatling.workPathUri}:/gatling/src/main/kotlin/scenarios/$GATLING_WORK_FILENAME " +
                         "gatling-test gradle gatlingRun forwardMetrics"

@@ -1,6 +1,6 @@
 package org.misarch.experimentexecutor.controller.graphql
 
-import org.misarch.experimentexecutor.config.CORS_URL
+import org.misarch.experimentexecutor.config.CORS_ORIGIN
 import org.misarch.experimentexecutor.service.GraphQLQueryGeneratorService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
 @RestController
-@CrossOrigin(origins = [CORS_URL])
+@CrossOrigin(origins = [CORS_ORIGIN])
 class ExperimentController(
     private val graphQLQueryGeneratorService: GraphQLQueryGeneratorService,
 ) {

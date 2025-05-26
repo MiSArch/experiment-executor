@@ -6,16 +6,21 @@ import kotlinx.coroutines.supervisorScope
 import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.metrics.MetricPluginInterface
 import org.misarch.experimentexecutor.plugin.metrics.gatling.GatlingMetricPlugin
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import java.util.*
 
 @Service
-class ExperimentMetricsService(webClient: WebClient) : MetricPluginInterface {
+class ExperimentMetricsService(
+    webClient: WebClient,
+    @Value("\${influxdb.url}") private val influxUrl: String,
+    @Value("\${pushgateway.url}") private val pushGatewayUrl: String,
+) : MetricPluginInterface {
 
     // TODO implement a plugin registry based on a configuration file
     private val registry = listOf(
-        GatlingMetricPlugin(webClient),
+        GatlingMetricPlugin(webClient, influxUrl, pushGatewayUrl),
     )
 
     suspend fun collectAndExportMetrics(workLoad: WorkLoad, testUUID: UUID) {

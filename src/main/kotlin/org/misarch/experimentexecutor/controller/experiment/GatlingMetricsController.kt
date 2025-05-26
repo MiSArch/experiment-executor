@@ -1,14 +1,16 @@
 package org.misarch.experimentexecutor.controller.experiment
 
-import org.misarch.experimentexecutor.config.BASE_PATH
-import org.misarch.experimentexecutor.config.CORS_URL
+import org.misarch.experimentexecutor.config.CORS_ORIGIN
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.*
 import java.io.File
 import java.util.*
 
 @RestController
-@CrossOrigin(origins = [CORS_URL])
-class GatlingMetricsController {
+@CrossOrigin(origins = [CORS_ORIGIN])
+class GatlingMetricsController(
+    @Value("\${experiment-executor.base-path:}") val basePath: String,
+) {
 
     /**
      * Collects Gatling metrics from Gatling's index.html and saves them to a file.
@@ -30,7 +32,7 @@ class GatlingMetricsController {
     }
 
     private suspend fun writeFile(testUUID: UUID, fileName: String, content: String) {
-        val experimentDir = "$BASE_PATH/$testUUID"
+        val experimentDir = "$basePath/$testUUID"
         val filePath = "$experimentDir/$fileName"
         File(filePath).writeText(content)
     }

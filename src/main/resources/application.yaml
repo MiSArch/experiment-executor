@@ -1,7 +1,28 @@
 spring:
   application:
     name: experiment-executor
-grafana:
-  apitoken: ${GRAFANA_API_TOKEN}
 server:
   port: 8888
+
+grafana:
+  api-token: ${GRAFANA_API_TOKEN}
+  url:  "http://localhost:3001"
+pushgateway:
+  url: "localhost:9091"
+influxdb:
+  url: "http://localhost:8086/api/v2/write?org=misarch&bucket=gatling&precision=ms"
+misarch:
+  experiment-config:
+    host: "http://localhost:3000"
+gatling:
+  target-endpoint: "http://172.18.0.23:8080"
+  token:
+    endpoint: "http://localhost:8081"
+    client-id: "frontend"
+    path: "/keycloak/realms/Misarch/protocol/openid-connect/token"
+    username: "eliasmueller"
+    password: "123"
+experiment-executor:
+  url: "http://192.168.178.155:8888"
+  base-path: "/Users/p371728/master/thesis/misarch/tests"
+  template-path: "src/main/resources/templates"

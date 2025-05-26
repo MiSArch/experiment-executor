@@ -1,13 +1,13 @@
 package org.misarch.experimentexecutor.controller.experiment
 
-import org.misarch.experimentexecutor.config.CORS_URL
+import org.misarch.experimentexecutor.config.CORS_ORIGIN
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.service.ExperimentExecutionService
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
-@CrossOrigin(origins = [CORS_URL])
+@CrossOrigin(origins = [CORS_ORIGIN])
 class ExperimentExecutionController(
     private val experimentExecutionService: ExperimentExecutionService,
 ) {

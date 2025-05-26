@@ -7,7 +7,6 @@ import ServiceInvocationDeterioration
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.delay
-import org.misarch.experimentexecutor.config.MISARCH_EXPERIMENT_CONFIG_HOST
 import org.misarch.experimentexecutor.model.Failure
 import org.misarch.experimentexecutor.plugin.failure.FailurePluginInterface
 import org.springframework.http.MediaType
@@ -16,7 +15,10 @@ import org.springframework.web.reactive.function.client.awaitBody
 import java.io.File
 import java.util.UUID
 
-class MisarchExperimentConfigPlugin(private val webClient: WebClient) : FailurePluginInterface {
+class MisarchExperimentConfigPlugin(
+    private val webClient: WebClient,
+    private val misarchExperimentConfigHost: String,
+) : FailurePluginInterface {
     private var config: List<MiSArchFailureConfig> = emptyList()
 
     override suspend fun initalizeFailure(failure: Failure, testUUID: UUID) {
@@ -93,7 +95,7 @@ class MisarchExperimentConfigPlugin(private val webClient: WebClient) : FailureP
         bodyValue: Any,
     ) {
         val response = webClient.put()
-            .uri("$MISARCH_EXPERIMENT_CONFIG_HOST/configuration/$component/variables/$variable")
+            .uri("$misarchExperimentConfigHost/configuration/$component/variables/$variable")
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(bodyValue)
             .retrieve()
