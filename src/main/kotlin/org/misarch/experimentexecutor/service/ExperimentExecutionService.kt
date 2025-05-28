@@ -1,9 +1,6 @@
 package org.misarch.experimentexecutor.service
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.misarch.experimentexecutor.config.ExperimentExecutorConfig
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.springframework.stereotype.Service
@@ -34,12 +31,12 @@ class ExperimentExecutionService(
     suspend fun executeExperiment(experimentConfig: ExperimentConfig, testUUID: UUID): String {
         triggerState[testUUID] = false
 
-        withContext(Dispatchers.Default) {
-            val failureJob = async {
+        coroutineScope {
+            val failureJobs = async {
                 experimentFailureService.setupExperimentFailure(experimentConfig.failure, testUUID)
             }
 
-            val workloadJob = async {
+            val workloadJobs = async {
                 experimentWorkloadService.executeWorkLoad(experimentConfig.workLoad, testUUID)
             }
 
@@ -50,8 +47,8 @@ class ExperimentExecutionService(
 
             experimentFailureService.startExperimentFailure()
 
-            failureJob.await()
-            workloadJob.await()
+            failureJobs.await()
+            workloadJobs.await()
 
             val endTime = Instant.now().plusSeconds(60)
 

@@ -2,7 +2,7 @@ package org.misarch.experimentexecutor.service
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.coroutineScope
 import org.misarch.experimentexecutor.model.Failure
 import org.misarch.experimentexecutor.plugin.failure.chaostoolkit.ChaosToolkitPlugin
 import org.misarch.experimentexecutor.plugin.failure.misarch.MisarchExperimentConfigPlugin
@@ -12,8 +12,10 @@ import org.springframework.web.reactive.function.client.WebClient
 import java.util.*
 
 @Service
-class ExperimentFailureService(webClient: WebClient,
-    @Value("\${misarch.experiment-config.host}") private val misarchExperimentConfigHost: String) {
+class ExperimentFailureService(
+    webClient: WebClient,
+    @Value("\${misarch.experiment-config.host}") private val misarchExperimentConfigHost: String,
+) {
 
     val registry = listOf(
         ChaosToolkitPlugin(),
@@ -21,7 +23,7 @@ class ExperimentFailureService(webClient: WebClient,
     )
 
     suspend fun setupExperimentFailure(failure: Failure, testUUID: UUID) {
-        supervisorScope {
+        coroutineScope {
             registry.map { plugin ->
                 async { plugin.initalizeFailure(failure, testUUID) }
             }
@@ -29,7 +31,7 @@ class ExperimentFailureService(webClient: WebClient,
     }
 
     suspend fun startExperimentFailure() {
-        supervisorScope {
+        coroutineScope {
             registry.map { plugin ->
                 async { plugin.startTimedExperiment() }
             }

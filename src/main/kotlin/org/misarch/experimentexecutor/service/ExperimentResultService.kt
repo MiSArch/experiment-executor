@@ -2,7 +2,7 @@ package org.misarch.experimentexecutor.service
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.coroutineScope
 import org.misarch.experimentexecutor.config.GrafanaConfig
 import org.misarch.experimentexecutor.model.Goal
 import org.misarch.experimentexecutor.plugin.export.grafana.GrafanaPlugin
@@ -24,7 +24,7 @@ class ExperimentResultService(
     )
 
     suspend fun createAndExportReports(testUUID: UUID, startTime: Instant, endTime: Instant, goals: List<Goal>) {
-        supervisorScope {
+        coroutineScope {
             registry.map { plugin ->
                 async { plugin.createReport(testUUID, startTime, endTime, goals) }
             }

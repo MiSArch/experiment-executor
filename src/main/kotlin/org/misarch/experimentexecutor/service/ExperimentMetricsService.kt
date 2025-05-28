@@ -2,7 +2,7 @@ package org.misarch.experimentexecutor.service
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.coroutineScope
 import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.metrics.MetricPluginInterface
 import org.misarch.experimentexecutor.plugin.metrics.gatling.GatlingMetricPlugin
@@ -23,7 +23,7 @@ class ExperimentMetricsService(
     )
 
     suspend fun collectAndExportMetrics(workLoad: WorkLoad, testUUID: UUID) {
-        supervisorScope {
+        coroutineScope {
             registry.map { plugin ->
                 async { plugin.collectAndExportMetrics(workLoad, testUUID) }
             }
