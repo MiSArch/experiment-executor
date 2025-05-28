@@ -5,8 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
 
-const val CORS_ORIGIN = "http://localhost:5173"
-
 @Configuration
 @ConfigurationPropertiesScan
 @EnableConfigurationProperties(GatlingConfig::class, GrafanaConfig::class, ExperimentExecutorConfig::class)
@@ -38,4 +36,5 @@ data class ExperimentExecutorConfig(
     val templatePath: String,
     val basePath: String,
     val url: String,
+    val corsOrigins: List<String>,
 )

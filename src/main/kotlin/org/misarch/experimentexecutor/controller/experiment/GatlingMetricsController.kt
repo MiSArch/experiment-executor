@@ -1,13 +1,11 @@
 package org.misarch.experimentexecutor.controller.experiment
 
-import org.misarch.experimentexecutor.config.CORS_ORIGIN
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.*
 import java.io.File
 import java.util.*
 
 @RestController
-@CrossOrigin(origins = [CORS_ORIGIN])
 class GatlingMetricsController(
     @Value("\${experiment-executor.base-path:}") val basePath: String,
 ) {

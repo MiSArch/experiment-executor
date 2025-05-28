@@ -44,7 +44,7 @@ class ExperimentConfigService(
         val executionTemplate = File("$templatePath/${TEMPLATE_PREFIX}${EXECUTION_FILENAME}").readText()
         val executionTemplateUpdated = executionTemplate
             .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
-            .replace("REPLACE_ME_basePath", experimentDir)
+            .replace("REPLACE_ME_BASE_PATH", experimentDir)
             .replace("REPLACE_ME_LOADTYPE", loadType.toString())
             .replace("REPLACE_ME_CHAOSTOOLKIT_FILENAME", CHAOSTOOLKIT_FILENAME)
             .replace("REPLACE_ME_MISARCH_EXPERIMENT_CONFIG_ENDPOINT", misarchExperimentConfigHost)

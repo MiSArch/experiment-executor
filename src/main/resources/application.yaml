@@ -26,3 +26,5 @@ experiment-executor:
   url: "http://192.168.178.155:8888"
   base-path: "/Users/p371728/master/thesis/misarch/tests"
   template-path: "src/main/resources/templates"
+  cors-origins:
+    - "http://localhost:5173"
