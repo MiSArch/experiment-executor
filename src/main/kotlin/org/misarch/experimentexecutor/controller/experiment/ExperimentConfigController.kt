@@ -18,9 +18,10 @@ class ExperimentConfigController(
         @PathVariable loadType: GatlingLoadType,
         @RequestParam(required = false, defaultValue = "10") sessionDuration: Int,
         @RequestParam(required = false, defaultValue = "1800") testDuration: Int,
+        @RequestParam(required = false) rate: Float?,
     ): String {
-        val rate = 2.0F / sessionDuration
-        return experimentConfigService.generateExperiment(loadType, testDuration, sessionDuration, rate)
+        val defaultRate = rate ?: (2.0F / sessionDuration)
+        return experimentConfigService.generateExperiment(loadType, testDuration, sessionDuration, defaultRate)
     }
 
     @GetMapping("/experiment/{testUUID}/chaosToolkitConfig")
