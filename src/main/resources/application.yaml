@@ -17,7 +17,7 @@ misarch:
 gatling:
   target-endpoint: "http://172.18.0.23:8080"
   token:
-    endpoint: "http://localhost:8081"
+    host: "http://localhost:8081"
     client-id: "frontend"
     path: "/keycloak/realms/Misarch/protocol/openid-connect/token"
     username: "eliasmueller"

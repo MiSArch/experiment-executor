@@ -30,7 +30,6 @@ data class GatlingConfig(
     val userStepsPathUri: String,
     val workPathUri: String,
     val endpointHost: String,
-    val tokenEndpointHost: String,
 )
 
 enum class GatlingLoadType {
@@ -39,7 +38,6 @@ enum class GatlingLoadType {
     ElasticityLoadTest,
     NormalLoadTest,
 }
-
 
 data class Goal(
     val metric: String,

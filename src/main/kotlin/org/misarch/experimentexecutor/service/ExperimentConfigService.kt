@@ -16,7 +16,6 @@ class ExperimentConfigService(
     @Value("\${experiment-executor.url}") private val experimentExecutorURL: String,
     @Value("\${misarch.experiment-config.host}") private val misarchExperimentConfigHost: String,
     @Value("\${gatling.target-endpoint}") private val gitlabTargetEndpoint: String,
-    @Value("\${gatling.token.endpoint}") private val gitlabTokenEndpoint: String,
 ) {
     suspend fun generateExperiment(loadType: GatlingLoadType, testDuration: Int, sessionDuration: Int, rate: Float): String {
         val testUUID = UUID.randomUUID()
@@ -49,7 +48,6 @@ class ExperimentConfigService(
             .replace("REPLACE_ME_MISARCH_EXPERIMENT_CONFIG_ENDPOINT", misarchExperimentConfigHost)
             .replace("REPLACE_ME_MISARCH_EXPERIMENT_CONFIG_FILENAME", MISARCH_EXPERIMENT_CONFIG_FILENAME)
             .replace("REPLACE_ME_GATLING_TARGET_ENDPOINT", gitlabTargetEndpoint)
-            .replace("REPLACE_ME_GATLING_TOKEN_ENDPOINT", gitlabTokenEndpoint)
             .replace("REPLACE_ME_GATLING_WORK_FILENAME", GATLING_WORK_FILENAME)
             .replace("REPLACE_ME_GATLING_USERSTEPS_FILENAME", GATLING_USERSTEPS_FILENAME)
         File("$experimentDir/$EXECUTION_FILENAME").writeText(executionTemplateUpdated)

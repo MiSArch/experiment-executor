@@ -18,7 +18,7 @@ data class GatlingConfig(
 
 @ConfigurationProperties(prefix = "gatling.token")
 data class TokenConfig(
-    val endpoint: String,
+    val host: String,
     val clientId: String,
     val path: String,
     val username: String,
