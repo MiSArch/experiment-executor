@@ -1,24 +1,21 @@
 package org.misarch.experimentexecutor.plugin.failure.chaostoolkit
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.reactor.awaitSingle
 import org.misarch.experimentexecutor.model.Failure
 import org.misarch.experimentexecutor.plugin.failure.FailurePluginInterface
-import org.misarch.experimentexecutor.plugin.util.DockerExecutor
+import org.springframework.web.reactive.function.client.WebClient
+import java.io.File
 import java.util.UUID
 
-class ChaosToolkitPlugin : FailurePluginInterface {
+class ChaosToolkitPlugin(private val webClient: WebClient, private val chaosToolkitExecutorHost: String) : FailurePluginInterface {
     override suspend fun initalizeFailure(failure: Failure, testUUID: UUID) {
-        val filePath = failure.chaosToolkit.pathUri
-        runBlocking {
-            DockerExecutor().executeDocker(
-                "docker run -d " +
-                        "-e TEST_UUID=$testUUID " +
-                        "-v $filePath:/app/experiment.yaml " +
-                        // TODO make this configurable for windows/linux
-                        "-v /var/run/docker.sock:/var/run/docker.sock " +
-                        "custom-chaostoolkit"
-            )
-        }
+        val experimentYaml = File(failure.chaosToolkit.pathUri).readText()
+        webClient.post()
+            .uri("$chaosToolkitExecutorHost/start-experiment?testUUID=$testUUID")
+            .bodyValue(experimentYaml)
+            .retrieve()
+            .toBodilessEntity()
+            .awaitSingle()
     }
 
     override suspend fun startTimedExperiment() {}

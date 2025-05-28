@@ -15,10 +15,11 @@ import java.util.*
 class ExperimentFailureService(
     webClient: WebClient,
     @Value("\${misarch.experiment-config.host}") private val misarchExperimentConfigHost: String,
+    @Value("\${chaostoolkit.executor-host}") private val chaosToolkitExecutorHost : String,
 ) {
 
     val registry = listOf(
-        ChaosToolkitPlugin(),
+        ChaosToolkitPlugin(webClient, chaosToolkitExecutorHost),
         MisarchExperimentConfigPlugin(webClient, misarchExperimentConfigHost),
     )
 

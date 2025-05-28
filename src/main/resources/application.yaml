@@ -14,9 +14,11 @@ influxdb:
 misarch:
   experiment-config:
     host: "http://localhost:3000"
+chaostoolkit:
+  executor-host: "http://localhost:8890"
 gatling:
-  target-endpoint: "http://172.18.0.23:8080"
-  executor-url: "http://localhost:8889"
+  target-endpoint: "http://gateway:8080"
+  executor-host: "http://localhost:8889"
   token:
     host: "http://localhost:8081"
     client-id: "frontend"
@@ -27,6 +29,6 @@ experiment-executor:
   url: "http://192.168.178.155:8888"
   base-path: "/Users/p371728/master/thesis/misarch/tests"
   template-path: "src/main/resources/templates"
-  trigger-delay: 30000
+  trigger-delay: 40000
   cors-origins:
     - "http://localhost:5173"

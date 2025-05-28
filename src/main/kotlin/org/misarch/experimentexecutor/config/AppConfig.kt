@@ -13,7 +13,7 @@ class AppConfig
 @ConfigurationProperties(prefix = "gatling")
 data class GatlingConfig(
     val targetEndpoint: String,
-    val executorUrl: String,
+    val executorHost: String,
     val token: TokenConfig
 )
 
