@@ -15,6 +15,7 @@ class GatlingPlugin(
     private val webClient: WebClient,
     private val tokenConfig: TokenConfig,
     private val experimentExecutorHost: String,
+    private val triggerDelay: Long,
 ) : WorkloadPluginInterface {
 
     override suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID) {
@@ -28,7 +29,7 @@ class GatlingPlugin(
             DockerExecutor().executeDocker(
                 "docker run -d " +
                         "--network infrastructure-docker_default " +
-                        "-e TEST_CLASS=org.misarch.${workLoad.gatling.loadType} " +
+                        "-e TRIGGER_DELAY=$triggerDelay " +
                         "-e ACCESS_TOKEN=$token " +
                         "-e BASE_URL=${workLoad.gatling.endpointHost} " +
                         "-e TEST_UUID=${testUUID} " +
