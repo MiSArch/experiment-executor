@@ -37,7 +37,7 @@ enum class GatlingLoadType {
     ScalabilityLoadTest,
     ResilienceLoadTest,
     ElasticityLoadTest,
-    RampUpListLoadTest,
+    NormalLoadTest,
 }
 
 

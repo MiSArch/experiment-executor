@@ -18,7 +18,7 @@ class ExperimentConfigService(
     @Value("\${gatling.target-endpoint}") private val gitlabTargetEndpoint: String,
     @Value("\${gatling.token.endpoint}") private val gitlabTokenEndpoint: String,
 ) {
-    suspend fun generateExperiment(loadType: GatlingLoadType): String {
+    suspend fun generateExperiment(loadType: GatlingLoadType, testDuration: Int, sessionDuration: Int, rate: Float): String {
         val testUUID = UUID.randomUUID()
         val experimentDir = "$basePath/$testUUID"
 
@@ -27,6 +27,8 @@ class ExperimentConfigService(
             throw IllegalStateException("Failed to create directory at $experimentDir")
         }
 
+        generateUserStepsCSV(experimentDir, testUUID, loadType, testDuration, sessionDuration, rate)
+
         val chaostoolkitTemplate = File("$templatePath/${TEMPLATE_PREFIX}${CHAOSTOOLKIT_FILENAME}").readText()
         val updatedChaostoolkitTemplate = chaostoolkitTemplate.replace("REPLACE_ME_TEST_UUID", testUUID.toString())
             .replace("REPLACE_ME_EXPERIMENT_EXECUTOR_HOST", experimentExecutorURL)
@@ -34,9 +36,6 @@ class ExperimentConfigService(
 
         val misarchTemplate = File("$templatePath/${TEMPLATE_PREFIX}${MISARCH_EXPERIMENT_CONFIG_FILENAME}").readText()
         File("$experimentDir/$MISARCH_EXPERIMENT_CONFIG_FILENAME").writeText(misarchTemplate)
-
-        val userstepsTemplate = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_USERSTEPS_FILENAME}").readText()
-        File("$experimentDir/$GATLING_USERSTEPS_FILENAME").writeText(userstepsTemplate)
 
         val workTemplate = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_WORK_FILENAME}").readText()
         File("$experimentDir/$GATLING_WORK_FILENAME").writeText(workTemplate)
@@ -102,5 +101,46 @@ class ExperimentConfigService(
     fun updateGatlingWork(testUUID: UUID, work: String) {
         val filePath = "$basePath/$testUUID/$GATLING_WORK_FILENAME"
         File(filePath).writeText(work)
+    }
+
+    fun generateUserStepsCSV(
+        experimentDir: String,
+        testUUID: UUID,
+        loadType: GatlingLoadType,
+        testDuration: Int,
+        sessionDuration: Int,
+        rate: Float
+    ) {
+        val userSteps = when (loadType) {
+            GatlingLoadType.NormalLoadTest -> {
+                val normalUsersteps = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_USERSTEPS_FILENAME}").readText()
+                val values = normalUsersteps.replace("usersteps\n", "").split("\n").map { it.trim().toIntOrNull() ?: 0 }
+                values.subList(0, testDuration)
+            }
+
+            GatlingLoadType.ScalabilityLoadTest -> {
+                List(testDuration) { step -> (step * rate).toInt().coerceAtLeast(sessionDuration) }
+            }
+
+            GatlingLoadType.ElasticityLoadTest -> {
+                val growth = List(size = testDuration / 6) { step -> (step * rate).toInt().coerceAtLeast(sessionDuration) }
+                val decay = List(size = testDuration / 6) { sessionDuration }
+                growth + decay + growth + decay + growth + decay
+            }
+
+            GatlingLoadType.ResilienceLoadTest -> {
+                val growth = List(size = testDuration / 6) { step -> (step * (rate/2)).toInt().coerceAtLeast(sessionDuration) }
+                val decay = List(size = testDuration / 6) { sessionDuration }
+                val spikeUp = List(size = testDuration / 24) { step -> (step * rate * 25).toInt().coerceAtLeast(sessionDuration) }
+                val spikeDown = spikeUp.reversed()
+                val lowPlateau = List(size = testDuration / 6) { sessionDuration }
+                val highPlateauPattern = listOf(sessionDuration * 50) + List(size = sessionDuration - 1) { 0 }
+                val highPlateau = List(testDuration / 3) { index -> highPlateauPattern[index % highPlateauPattern.size] }
+                val final = List(size = testDuration / 12) { sessionDuration }
+                growth + decay + spikeUp + spikeDown + lowPlateau + highPlateau + final
+            }
+        }
+
+        File("$experimentDir/$GATLING_USERSTEPS_FILENAME").writeText("usersteps\n" + userSteps.joinToString("\n"))
     }
 }

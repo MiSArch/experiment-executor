@@ -14,8 +14,13 @@ class ExperimentConfigController(
      * Generates and stores a new experiment configuration based on the specified load type.
      */
     @PostMapping("/experiment/generate/{loadType}")
-    suspend fun generateExperiment(@PathVariable loadType: GatlingLoadType): String {
-        return experimentConfigService.generateExperiment(loadType)
+    suspend fun generateExperiment(
+        @PathVariable loadType: GatlingLoadType,
+        @RequestParam(required = false, defaultValue = "10") sessionDuration: Int,
+        @RequestParam(required = false, defaultValue = "1800") testDuration: Int,
+    ): String {
+        val rate = 2.0F / sessionDuration
+        return experimentConfigService.generateExperiment(loadType, testDuration, sessionDuration, rate)
     }
 
     @GetMapping("/experiment/{testUUID}/chaosToolkitConfig")
