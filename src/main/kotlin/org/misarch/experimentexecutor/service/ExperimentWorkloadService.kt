@@ -19,7 +19,6 @@ class ExperimentWorkloadService(
     @Value("\${experiment-executor.url}") private val experimentExecutorHost: String,
 ) {
 
-    // TODO implement a plugin registry based on a configuration file
     val registry = listOf<WorkloadPluginInterface>(
         GatlingPlugin(webClient, tokenConfig, experimentExecutorHost)
     )

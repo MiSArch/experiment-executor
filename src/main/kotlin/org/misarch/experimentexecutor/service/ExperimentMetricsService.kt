@@ -18,7 +18,6 @@ class ExperimentMetricsService(
     @Value("\${pushgateway.url}") private val pushGatewayUrl: String,
 ) : MetricPluginInterface {
 
-    // TODO implement a plugin registry based on a configuration file
     private val registry = listOf(
         GatlingMetricPlugin(webClient, influxUrl, pushGatewayUrl),
     )

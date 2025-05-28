@@ -19,7 +19,6 @@ class ExperimentResultService(
     @Value("\${experiment-executor.template-path}") private val templatePath: String,
 ) {
 
-    // TODO implement a plugin registry based on a configuration file
     val registry = listOf(
         GrafanaPlugin(webClient, grafanaConfig, templatePath),
     )

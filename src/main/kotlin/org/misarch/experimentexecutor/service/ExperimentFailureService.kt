@@ -15,7 +15,6 @@ import java.util.*
 class ExperimentFailureService(webClient: WebClient,
     @Value("\${misarch.experiment-config.host}") private val misarchExperimentConfigHost: String) {
 
-    // TODO implement a plugin registry based on a configuration file
     val registry = listOf(
         ChaosToolkitPlugin(),
         MisarchExperimentConfigPlugin(webClient, misarchExperimentConfigHost),
