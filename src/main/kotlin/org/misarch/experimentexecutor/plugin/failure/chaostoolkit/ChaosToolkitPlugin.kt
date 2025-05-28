@@ -14,6 +14,7 @@ class ChaosToolkitPlugin : FailurePluginInterface {
                 "docker run -d " +
                         "-e TEST_UUID=$testUUID " +
                         "-v $filePath:/app/experiment.yaml " +
+                        // TODO make this configurable for windows/linux
                         "-v /var/run/docker.sock:/var/run/docker.sock " +
                         "custom-chaostoolkit"
             )

@@ -12,7 +12,7 @@ steady-state-hypothesis:
       tolerance: true
       provider:
         type: python
-        module: docker_helpers
+        module: chaostoolkit_docker
         func: are_containers_running
         arguments:
           names:
@@ -25,7 +25,7 @@ method:
     name: wait-for-trigger
     provider:
       type: python
-      module: docker_helpers
+      module: chaostoolkit_docker
       func: wait_for_trigger
       arguments:
         url: REPLACE_ME_EXPERIMENT_EXECUTOR_HOST/trigger/{UUID}
@@ -35,7 +35,7 @@ method:
     name: kill-container
     provider:
       type: python
-      module: docker_helpers
+      module: chaostoolkit_docker
       func: kill_containers
       arguments:
         names:
@@ -50,7 +50,7 @@ method:
     name: restart-container
     provider:
       type: python
-      module: docker_helpers
+      module: chaostoolkit_docker
       func: start_containers
       arguments:
         names:
