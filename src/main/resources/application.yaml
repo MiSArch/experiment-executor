@@ -16,6 +16,7 @@ misarch:
     host: "http://localhost:3000"
 gatling:
   target-endpoint: "http://172.18.0.23:8080"
+  executor-url: "http://localhost:8889"
   token:
     host: "http://localhost:8081"
     client-id: "frontend"

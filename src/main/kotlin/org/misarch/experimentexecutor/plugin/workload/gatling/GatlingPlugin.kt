@@ -2,19 +2,18 @@ package org.misarch.experimentexecutor.plugin.workload.gatling
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.runBlocking
 import org.misarch.experimentexecutor.config.*
 import org.misarch.experimentexecutor.model.WorkLoad
-import org.misarch.experimentexecutor.plugin.util.DockerExecutor
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
+import java.io.File
 import java.util.UUID
 
 class GatlingPlugin(
     private val webClient: WebClient,
     private val tokenConfig: TokenConfig,
-    private val experimentExecutorHost: String,
+    private val gatlingExecutorHost: String,
     private val triggerDelay: Long,
 ) : WorkloadPluginInterface {
 
@@ -25,20 +24,14 @@ class GatlingPlugin(
             username = tokenConfig.username,
             password = tokenConfig.password,
         )
-        runBlocking {
-            DockerExecutor().executeDocker(
-                "docker run -d " +
-                        "--network infrastructure-docker_default " +
-                        "-e TRIGGER_DELAY=$triggerDelay " +
-                        "-e ACCESS_TOKEN=$token " +
-                        "-e BASE_URL=${workLoad.gatling.endpointHost} " +
-                        "-e TEST_UUID=${testUUID} " +
-                        "-e EXPERIMENT_EXECUTOR_URL=$experimentExecutorHost " +
-                        "-v ${workLoad.gatling.userStepsPathUri}:/gatling/src/main/resources/$GATLING_USERSTEPS_FILENAME " +
-                        "-v ${workLoad.gatling.workPathUri}:/gatling/src/main/kotlin/scenarios/$GATLING_WORK_FILENAME " +
-                        "gatling-test gradle gatlingRun forwardMetrics"
-            )
-        }
+        val userSteps = File(workLoad.gatling.userStepsPathUri).readText()
+        webClient.post()
+            .uri(
+                "$gatlingExecutorHost/execute?testUUID=$testUUID&accessToken=$token&triggerDelay=$triggerDelay&targetUrl=${workLoad.gatling.endpointHost}"
+            ).bodyValue(userSteps)
+            .retrieve()
+            .toBodilessEntity()
+            .awaitSingle()
     }
 
     private suspend fun getOAuthAccessToken(clientId: String, url: String, username: String, password: String): String {
