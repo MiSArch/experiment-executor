@@ -5,7 +5,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.supervisorScope
 import org.misarch.experimentexecutor.config.GrafanaConfig
 import org.misarch.experimentexecutor.model.Goal
-import org.misarch.experimentexecutor.plugin.result.grafana.GrafanaPlugin
+import org.misarch.experimentexecutor.plugin.export.grafana.GrafanaPlugin
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient

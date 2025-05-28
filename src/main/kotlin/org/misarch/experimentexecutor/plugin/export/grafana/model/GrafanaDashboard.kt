@@ -1,4 +1,4 @@
-package org.misarch.experimentexecutor.plugin.result.grafana.model
+package org.misarch.experimentexecutor.plugin.export.grafana.model
 
 data class GrafanaDashboardConfig(
     val dashboard: GrafanaDashboard,

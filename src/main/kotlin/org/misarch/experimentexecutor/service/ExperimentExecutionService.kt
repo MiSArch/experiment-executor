@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import org.misarch.experimentexecutor.config.ExperimentExecutorConfig
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -16,11 +17,8 @@ class ExperimentExecutionService(
     private val experimentWorkloadService: ExperimentWorkloadService,
     private val experimentMetricsService: ExperimentMetricsService,
     private val experimentResultService: ExperimentResultService,
+    private val experimentExecutorConfig: ExperimentExecutorConfig,
 ) {
-    companion object {
-        // TODO CONFIGURABLE
-        const val TRIGGER_DELAY = 15000L
-    }
 
     private val triggerState: MutableMap<UUID, Boolean> = mutableMapOf()
 
@@ -45,7 +43,7 @@ class ExperimentExecutionService(
                 experimentWorkloadService.executeWorkLoad(experimentConfig.workLoad, testUUID)
             }
 
-            delay(TRIGGER_DELAY)
+            delay(experimentExecutorConfig.triggerDelay)
             triggerState[testUUID] = true
 
             val startTime = Instant.now()

@@ -1,12 +1,12 @@
-package org.misarch.experimentexecutor.plugin.result.grafana
+package org.misarch.experimentexecutor.plugin.export.grafana
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.misarch.experimentexecutor.config.GRAFANA_DASHBOARD_FILENAME
 import org.misarch.experimentexecutor.config.GrafanaConfig
 import org.misarch.experimentexecutor.config.TEMPLATE_PREFIX
 import org.misarch.experimentexecutor.model.Goal
-import org.misarch.experimentexecutor.plugin.result.ExportPluginInterface
-import org.misarch.experimentexecutor.plugin.result.grafana.model.GrafanaDashboardConfig
+import org.misarch.experimentexecutor.plugin.export.ExportPluginInterface
+import org.misarch.experimentexecutor.plugin.export.grafana.model.GrafanaDashboardConfig
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodilessEntity

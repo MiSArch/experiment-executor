@@ -37,4 +37,5 @@ data class ExperimentExecutorConfig(
     val basePath: String,
     val url: String,
     val corsOrigins: List<String>,
+    val triggerDelay: Long,
 )
