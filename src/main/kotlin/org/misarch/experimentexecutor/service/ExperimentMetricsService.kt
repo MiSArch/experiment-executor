@@ -3,7 +3,6 @@ package org.misarch.experimentexecutor.service
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.metrics.MetricPluginInterface
 import org.misarch.experimentexecutor.plugin.metrics.gatling.GatlingMetricPlugin
 import org.springframework.beans.factory.annotation.Value
@@ -22,10 +21,10 @@ class ExperimentMetricsService(
         GatlingMetricPlugin(webClient, influxUrl, pushGatewayUrl),
     )
 
-    suspend fun collectAndExportMetrics(workLoad: WorkLoad, testUUID: UUID) {
+    suspend fun exportMetrics(testUUID: UUID, gatlingStatsJs: String, gatlingStatsHtml: String) {
         coroutineScope {
             registry.map { plugin ->
-                async { plugin.collectAndExportMetrics(workLoad, testUUID) }
+                async { plugin.exportMetrics(testUUID, gatlingStatsJs, gatlingStatsHtml) }
             }
         }.awaitAll()
     }

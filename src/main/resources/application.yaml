@@ -1,6 +1,9 @@
 spring:
   application:
     name: experiment-executor
+  data:
+    redis:
+      password: "redis"
 server:
   port: 8888
 

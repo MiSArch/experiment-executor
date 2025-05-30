@@ -5,6 +5,7 @@ import org.misarch.experimentexecutor.service.ExperimentExecutionService
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
+// TODO implement server side events to handle the experiment execution state and notify the frontend once an experiment is finished
 @RestController
 class ExperimentExecutionController(
     private val experimentExecutionService: ExperimentExecutionService,
@@ -34,6 +35,14 @@ class ExperimentExecutionController(
         return experimentExecutionService.getTriggerState(testUUID).toString()
     }
 
-
-
+    /**
+     * Collects Gatling metrics from Gatling's index.html and stats.js files transferred as concatenated plaintext strings.
+     */
+    @PostMapping("/experiment/{testUUID}/gatling/metrics")
+    private suspend fun collectGatingMetrics(@PathVariable testUUID: UUID, @RequestBody data: String) {
+        val test = data.split("\nSPLIT_HERE\n")
+        val rawHtml = test[0]
+        val rawJs = test[1]
+        experimentExecutionService.finishExperiment(testUUID, rawJs, rawHtml)
+    }
 }

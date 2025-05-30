@@ -1,6 +1,7 @@
 package org.misarch.experimentexecutor.plugin.export.grafana
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.misarch.experimentexecutor.config.GRAFANA_DASHBOARD_FILENAME
 import org.misarch.experimentexecutor.config.GrafanaConfig
 import org.misarch.experimentexecutor.config.TEMPLATE_PREFIX
@@ -13,6 +14,8 @@ import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import java.io.File
 import java.time.Instant
 import java.util.*
+
+private val logger = KotlinLogging.logger {}
 
 class GrafanaPlugin(
     private val webClient: WebClient,
@@ -78,7 +81,7 @@ class GrafanaPlugin(
             .retrieve()
             .awaitBodilessEntity()
 
-        println("\uD83D\uDCC8 Result dashboard exported to Grafana\n ${grafanaConfig.url}/d/$testUUID")
+        logger.info { "\uD83D\uDCC8 Result dashboard exported to Grafana\n ${grafanaConfig.url}/d/$testUUID" }
 
         return true
     }

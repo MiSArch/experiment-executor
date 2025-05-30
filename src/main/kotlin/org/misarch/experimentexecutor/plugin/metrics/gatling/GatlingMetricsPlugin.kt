@@ -2,17 +2,18 @@ package org.misarch.experimentexecutor.plugin.metrics.gatling
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.Gauge
 import io.prometheus.client.exporter.PushGateway
-import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.metrics.MetricPluginInterface
 import org.misarch.experimentexecutor.plugin.metrics.gatling.model.GatlingStats
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodilessEntity
-import java.io.File
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 class GatlingMetricPlugin(
     private val webClient: WebClient,
@@ -20,12 +21,9 @@ class GatlingMetricPlugin(
     private val pushGatewayUrl: String,
 ) : MetricPluginInterface {
 
-    suspend fun collectAndExportMetrics(workLoad: WorkLoad, testUUID: UUID) {
+    suspend fun exportMetrics(testUUID: UUID, gatlingStatsJs: String, gatlingStatsHtml: String ) {
 
-        val filePath = workLoad.gatling.workPathUri
-        val pathUri = File(filePath).parent ?: filePath
-
-        val responseTimeStats = parseGatlingResponseTimeStats(pathUri)
+        val responseTimeStats = parseGatlingResponseTimeStats(gatlingStatsJs)
         val registry = CollectorRegistry.defaultRegistry
         registry.clear()
 
@@ -34,41 +32,36 @@ class GatlingMetricPlugin(
             registry.registerResponseTimeGauges(requestStats, suffix = "_${request.split("-").first().replace("-", "_")}")
         }
 
-        val indexPath = "$pathUri/gatling-index.html"
-
         // TODO responsetimepercentilesovertimeokPercentiles -> list of maps with timestamp and list which represent the response time percentiles at the timepoint
-        val dataSeries = extractDataSeries(indexPath)
+        val dataSeries = extractDataSeries(gatlingStatsHtml)
         dataSeries.forEach { (series, data) ->
             if (series == "requests" || series == "responses") {
                 postTotalOkKoSeriesToInflux(data, series, testUUID)
             }
         }
 
-        val activeUsers = extractActiveUsers(indexPath)
+        val activeUsers = extractActiveUsers(gatlingStatsHtml)
         activeUsers.forEach { (scenario, data) -> postActiveUsersToInflux(data, scenario, "activeUsers", testUUID) }
 
-        println("🚀 Gatling Metrics pushed to InfluxDB")
+        logger.info { "🚀 Gatling Metrics pushed to InfluxDB" }
 
         val pushGateway = PushGateway(pushGatewayUrl)
         pushGateway.pushAdd(registry, "gatling_metrics", mapOf("testUUID" to testUUID.toString()))
 
-        println("🚀 Gatling Metrics pushed to Prometheus Pushgateway")
+        logger.info { "🚀 Gatling Metrics pushed to Prometheus Pushgateway" }
     }
 
-    private fun parseGatlingResponseTimeStats(pathUri: String): GatlingStats {
-        val rawJs = File("$pathUri/gatling-stats.js").readText()
-        val json = rawJs.trimGatlingStatsJs()
-
+    private fun parseGatlingResponseTimeStats(gatlingStatsJs: String): GatlingStats {
+        val json = gatlingStatsJs.trimGatlingStatsJs()
         return ObjectMapper().readValue(json, GatlingStats::class.java)
     }
 
-    private fun extractDataSeries(filePath: String): Map<String, Map<Long, List<Int>>> {
-        val fileContent = File(filePath).readText()
+    private fun extractDataSeries(gatlingStatsHtml: String): Map<String, Map<Long, List<Int>>> {
 
         val dataSeries = mutableMapOf<String, Map<Long, List<Int>>>()
         val regex = """(?s)var (\w+)\s*=\s*unpack\(\s*(\[.*?])\s*\);""".toRegex()
 
-        regex.findAll(fileContent).forEach { matchResult ->
+        regex.findAll(gatlingStatsHtml).forEach { matchResult ->
             val variableName = matchResult.groupValues[1]
             val arrayContents = matchResult.groupValues[2]
 
@@ -88,15 +81,14 @@ class GatlingMetricPlugin(
         return dataSeries
     }
 
-    private fun extractActiveUsers(filePath: String): Map<String, List<Pair<Long, Int>>> {
-        val fileContent = File(filePath).readText()
+    private fun extractActiveUsers(gatlingStatsHtml: String): Map<String, List<Pair<Long, Int>>> {
 
         val regex = Regex(
             """name:\s*'([^']+)'\s*,\s*data:\s*\[((?:\s*\[[^\[\]]+],?\s*)+)]""",
             RegexOption.DOT_MATCHES_ALL
         )
 
-        return regex.findAll(fileContent).map { matchResult ->
+        return regex.findAll(gatlingStatsHtml).map { matchResult ->
             val name = matchResult.groupValues[1] // Extract the name
             val dataArray = "[${matchResult.groupValues[2]}]" // Extract the data array
 

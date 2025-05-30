@@ -8,7 +8,7 @@ import java.io.File
 import java.util.UUID
 
 class ChaosToolkitPlugin(private val webClient: WebClient, private val chaosToolkitExecutorHost: String) : FailurePluginInterface {
-    override suspend fun initalizeFailure(failure: Failure, testUUID: UUID) {
+    override suspend fun initializeFailure(failure: Failure, testUUID: UUID) {
         val experimentYaml = File(failure.chaosToolkit.pathUri).readText()
         webClient.post()
             .uri("$chaosToolkitExecutorHost/start-experiment?testUUID=$testUUID")

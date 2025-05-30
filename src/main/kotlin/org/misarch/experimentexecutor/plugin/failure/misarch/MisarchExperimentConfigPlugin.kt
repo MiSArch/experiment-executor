@@ -6,6 +6,7 @@ import PubSubDeterioration
 import ServiceInvocationDeterioration
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import org.misarch.experimentexecutor.model.Failure
 import org.misarch.experimentexecutor.plugin.failure.FailurePluginInterface
@@ -15,13 +16,15 @@ import org.springframework.web.reactive.function.client.awaitBody
 import java.io.File
 import java.util.UUID
 
+private val logger = KotlinLogging.logger {}
+
 class MisarchExperimentConfigPlugin(
     private val webClient: WebClient,
     private val misarchExperimentConfigHost: String,
 ) : FailurePluginInterface {
     private var config: List<MiSArchFailureConfig> = emptyList()
 
-    override suspend fun initalizeFailure(failure: Failure, testUUID: UUID) {
+    override suspend fun initializeFailure(failure: Failure, testUUID: UUID) {
         config = readConfigFile(failure.experimentConfig.pathUri)
     }
 
@@ -100,6 +103,6 @@ class MisarchExperimentConfigPlugin(
             .bodyValue(bodyValue)
             .retrieve()
             .awaitBody<String>()
-        println("Configured Variable: $response")
+        logger.info { "Configured Variable: $response" }
     }
 }
