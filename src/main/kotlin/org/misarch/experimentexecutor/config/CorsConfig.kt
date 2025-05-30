@@ -14,7 +14,7 @@ class CorsGlobalConfiguration(
     override fun addCorsMappings(corsRegistry: CorsRegistry) {
         corsRegistry.addMapping("/**")
             .allowedOrigins(*experimentExecutorConfig.corsOrigins.toTypedArray())
-            .allowedMethods("PUT", "POST", "GET")
+            .allowedMethods("PUT", "POST", "GET", "DELETE", "OPTIONS")
             .maxAge(3600)
     }
 }
