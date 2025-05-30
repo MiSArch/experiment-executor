@@ -38,7 +38,7 @@ class ExperimentExecutionService(
         val experimentState = ExperimentState(testUUID = testUUID, triggerState = INITIALIZING, goals = experimentConfig.goals)
         redisCacheService.cacheExperimentState(experimentState)
 
-        coroutineScope {
+        CoroutineScope(Dispatchers.Default).launch {
             val failureJobs = async {
                 experimentFailureService.setupExperimentFailure(experimentConfig.failure, testUUID)
             }

@@ -1,6 +1,7 @@
 package org.misarch.experimentexecutor.plugin.workload.gatling
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.reactor.awaitSingle
 import org.misarch.experimentexecutor.config.*
 import org.misarch.experimentexecutor.model.WorkLoad
@@ -10,6 +11,8 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import java.io.File
 import java.util.UUID
+
+private val logger = KotlinLogging.logger { }
 
 class GatlingPlugin(
     private val webClient: WebClient,
@@ -36,6 +39,7 @@ class GatlingPlugin(
     }
 
     override suspend fun stopWorkLoad(testUUID: UUID) {
+        logger.info("Stopping gatling workload for testUUID: $testUUID")
         webClient.post()
             .uri("$gatlingExecutorHost/stop-experiment?testUUID=$testUUID")
             .retrieve()
