@@ -40,7 +40,7 @@ class ExperimentExecutionService(
 
         CoroutineScope(Dispatchers.Default).launch {
             val failureJobs = async {
-                experimentFailureService.setupExperimentFailure(experimentConfig.failure, testUUID)
+                experimentFailureService.setupExperimentFailure(testUUID)
             }
 
             val workloadJobs = async {

@@ -18,6 +18,7 @@ class GatlingPlugin(
     private val webClient: WebClient,
     private val tokenConfig: TokenConfig,
     private val gatlingExecutorHost: String,
+    private val basePath: String,
     private val triggerDelay: Long,
 ) : WorkloadPluginInterface {
 
@@ -28,7 +29,8 @@ class GatlingPlugin(
             username = tokenConfig.username,
             password = tokenConfig.password,
         )
-        val userSteps = File(workLoad.gatling.userStepsPathUri).readText()
+
+        val userSteps = File("$basePath/$testUUID/$GATLING_USERSTEPS_FILENAME").readText()
         webClient.post()
             .uri(
                 "$gatlingExecutorHost/start-experiment?testUUID=$testUUID&accessToken=$token&triggerDelay=$triggerDelay&targetUrl=${workLoad.gatling.endpointHost}"
@@ -39,7 +41,7 @@ class GatlingPlugin(
     }
 
     override suspend fun stopWorkLoad(testUUID: UUID) {
-        logger.info("Stopping gatling workload for testUUID: $testUUID")
+        logger.info { "Stopping gatling workload for testUUID: $testUUID" }
         webClient.post()
             .uri("$gatlingExecutorHost/stop-experiment?testUUID=$testUUID")
             .retrieve()

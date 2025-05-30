@@ -18,10 +18,11 @@ class ExperimentWorkloadService(
     tokenConfig: TokenConfig,
     @Value("\${gatling.executor-host}") private val gatlingExecutorHost: String,
     @Value("\${experiment-executor.trigger-delay}") private val triggerDelay: Long,
+    @Value("\${experiment-executor.base-path}") private val basePath: String,
 ) {
 
     val registry = listOf<WorkloadPluginInterface>(
-        GatlingPlugin(webClient, tokenConfig, gatlingExecutorHost, triggerDelay)
+        GatlingPlugin(webClient, tokenConfig, gatlingExecutorHost, basePath, triggerDelay)
     )
 
     suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID) {

@@ -11,7 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.misarch.experimentexecutor.model.Failure
+import org.misarch.experimentexecutor.config.MISARCH_EXPERIMENT_CONFIG_FILENAME
 import org.misarch.experimentexecutor.plugin.failure.FailurePluginInterface
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
@@ -24,12 +24,13 @@ private val logger = KotlinLogging.logger {}
 class MisarchExperimentConfigPlugin(
     private val webClient: WebClient,
     private val misarchExperimentConfigHost: String,
+    private val basePath: String,
 ) : FailurePluginInterface {
     private val configMap: MutableMap<UUID, List<MiSArchFailureConfig>> = mutableMapOf()
     private val stoppableJobs: MutableMap<UUID, Job> = mutableMapOf()
 
-    override suspend fun initializeFailure(failure: Failure, testUUID: UUID) {
-        configMap[testUUID] = readConfigFile(failure.experimentConfig.pathUri)
+    override suspend fun initializeFailure(testUUID: UUID) {
+        configMap[testUUID] = readConfigFile("$basePath/$testUUID/$MISARCH_EXPERIMENT_CONFIG_FILENAME")
     }
 
     override suspend fun startTimedExperiment(testUUID: UUID) {
