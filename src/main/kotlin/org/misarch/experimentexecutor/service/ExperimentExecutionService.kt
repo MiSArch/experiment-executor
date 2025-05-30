@@ -35,7 +35,6 @@ class ExperimentExecutionService(
     }
 
     suspend fun executeExperiment(experimentConfig: ExperimentConfig, testUUID: UUID): String {
-
         val experimentState = ExperimentState(testUUID = testUUID, triggerState = INITIALIZING, goals = experimentConfig.goals)
         redisCacheService.cacheExperimentState(experimentState)
 
@@ -48,19 +47,28 @@ class ExperimentExecutionService(
                 experimentWorkloadService.executeWorkLoad(experimentConfig.workLoad, testUUID)
             }
 
-            logger.info { "Wait for trigger for test with testUUID: $testUUID" }
+            logger.info { "Started experiment and waiting for trigger for testUUID: $testUUID" }
 
             delay(experimentExecutorConfig.triggerDelay)
             redisCacheService.cacheExperimentState(experimentState.copy(triggerState = STARTED, startTime = Instant.now().toString()))
 
-            logger.info { "Started Experiment run for testUUID: $testUUID" }
-
-            experimentFailureService.startExperimentFailure()
+            experimentFailureService.startExperimentFailure(testUUID)
 
             failureJobs.await()
             workloadJobs.await()
         }
         return testUUID.toString()
+    }
+
+    suspend fun cancelExperiment(testUUID: UUID) {
+        coroutineScope {
+            val failureJob = async { experimentFailureService.stopExperimentFailure(testUUID) }
+            val workLoadJob = async { experimentWorkloadService.stopWorkLoad(testUUID) }
+
+            workLoadJob.await()
+            failureJob.await()
+        }
+        redisCacheService.deleteExperimentState(testUUID)
     }
 
     suspend fun finishExperiment(testUUID: UUID, gatlingStatsJs: String, gatlingStatsHtml: String) {

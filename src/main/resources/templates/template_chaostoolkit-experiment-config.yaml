@@ -22,16 +22,6 @@ steady-state-hypothesis:
 
 method:
   - type: action
-    name: wait-for-trigger
-    provider:
-      type: python
-      module: chaostoolkit_docker
-      func: wait_for_trigger
-      arguments:
-        url: REPLACE_ME_EXPERIMENT_EXECUTOR_HOST/trigger/{UUID}
-        check_interval: 0.1
-
-  - type: action
     name: kill-container
     provider:
       type: python

@@ -2,6 +2,7 @@ package org.misarch.experimentexecutor.service
 
 import org.misarch.experimentexecutor.service.model.ExperimentState
 import org.springframework.data.redis.core.ReactiveRedisTemplate
+import org.springframework.data.redis.core.deleteAndAwait
 import org.springframework.data.redis.core.getAndAwait
 import org.springframework.data.redis.core.setAndAwait
 import org.springframework.stereotype.Service
@@ -22,5 +23,9 @@ class RedisCacheService(
         key: UUID,
     ): ExperimentState {
         return experimentStateRedisTemplate.opsForValue().getAndAwait(key.toString()) ?: throw IllegalStateException("Experiment state not found for key: $key")
+    }
+
+    suspend fun deleteExperimentState(testUUID: UUID) {
+        experimentStateRedisTemplate.opsForValue().deleteAndAwait(testUUID.toString())
     }
 }

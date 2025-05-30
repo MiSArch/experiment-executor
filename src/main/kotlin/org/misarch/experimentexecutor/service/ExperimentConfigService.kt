@@ -13,7 +13,6 @@ import java.util.*
 class ExperimentConfigService(
     @Value("\${experiment-executor.base-path}") private val basePath: String,
     @Value("\${experiment-executor.template-path}") private val templatePath: String,
-    @Value("\${experiment-executor.url}") private val experimentExecutorURL: String,
     @Value("\${misarch.experiment-config.host}") private val misarchExperimentConfigHost: String,
     @Value("\${gatling.target-endpoint}") private val gatlingTargetEndpoint: String,
 ) {
@@ -30,7 +29,6 @@ class ExperimentConfigService(
 
         val chaostoolkitTemplate = File("$templatePath/${TEMPLATE_PREFIX}${CHAOSTOOLKIT_FILENAME}").readText()
         val updatedChaostoolkitTemplate = chaostoolkitTemplate.replace("REPLACE_ME_TEST_UUID", testUUID.toString())
-            .replace("REPLACE_ME_EXPERIMENT_EXECUTOR_HOST", experimentExecutorURL)
         File("$experimentDir/$CHAOSTOOLKIT_FILENAME").writeText(updatedChaostoolkitTemplate)
 
         val misarchTemplate = File("$templatePath/${TEMPLATE_PREFIX}${MISARCH_EXPERIMENT_CONFIG_FILENAME}").readText()

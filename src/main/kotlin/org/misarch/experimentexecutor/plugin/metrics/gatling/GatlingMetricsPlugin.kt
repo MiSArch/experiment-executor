@@ -15,7 +15,7 @@ import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
 
-class GatlingMetricPlugin(
+class GatlingMetricsPlugin(
     private val webClient: WebClient,
     private val influxUrl: String,
     private val pushGatewayUrl: String,

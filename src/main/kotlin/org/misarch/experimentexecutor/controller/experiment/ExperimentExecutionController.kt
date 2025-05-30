@@ -27,6 +27,15 @@ class ExperimentExecutionController(
     }
 
     /**
+     * Stops the currently running experiment identified by its UUID.
+     * This will stop the workload and the failure plugins.
+     */
+    @DeleteMapping("/experiment/{testUUID}")
+    private suspend fun stopExperiment(@PathVariable testUUID: UUID) {
+        experimentExecutionService.cancelExperiment(testUUID)
+    }
+
+    /**
      * Returns the current state of the trigger for the specified test UUID.
      * Used for synchronizing all plugins that are waiting for the trigger to be ready.
      */

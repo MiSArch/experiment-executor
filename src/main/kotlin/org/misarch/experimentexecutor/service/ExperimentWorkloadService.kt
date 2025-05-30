@@ -31,4 +31,12 @@ class ExperimentWorkloadService(
             }
         }.awaitAll()
     }
+
+    suspend fun stopWorkLoad(testUUID: UUID) {
+        coroutineScope {
+            registry.map { plugin ->
+                async { plugin.stopWorkLoad(testUUID) }
+            }
+        }.awaitAll()
+    }
 }

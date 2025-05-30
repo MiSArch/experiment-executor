@@ -5,4 +5,6 @@ import java.util.UUID
 
 interface WorkloadPluginInterface {
     suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID)
+
+    suspend fun stopWorkLoad(testUUID: UUID)
 }

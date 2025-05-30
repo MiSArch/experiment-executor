@@ -7,7 +7,10 @@ import ServiceInvocationDeterioration
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.misarch.experimentexecutor.model.Failure
 import org.misarch.experimentexecutor.plugin.failure.FailurePluginInterface
 import org.springframework.http.MediaType
@@ -22,13 +25,34 @@ class MisarchExperimentConfigPlugin(
     private val webClient: WebClient,
     private val misarchExperimentConfigHost: String,
 ) : FailurePluginInterface {
-    private var config: List<MiSArchFailureConfig> = emptyList()
+    private val configMap: MutableMap<UUID, List<MiSArchFailureConfig>> = mutableMapOf()
+    private val stoppableJobs: MutableMap<UUID, Job> = mutableMapOf()
 
     override suspend fun initializeFailure(failure: Failure, testUUID: UUID) {
-        config = readConfigFile(failure.experimentConfig.pathUri)
+        configMap[testUUID] = readConfigFile(failure.experimentConfig.pathUri)
     }
 
-    override suspend fun startTimedExperiment() = configureVariables(config)
+    override suspend fun startTimedExperiment(testUUID: UUID) {
+        if (configMap.containsKey(testUUID)) {
+            coroutineScope {
+                stoppableJobs[testUUID] = launch {
+                    val config = configMap.getValue(testUUID)
+                    configMap.remove(testUUID)
+                    configureVariables(config)
+                }
+            }
+        }
+    }
+
+    override suspend fun stopExperiment(testUUID: UUID) {
+        if (!stoppableJobs.containsKey(testUUID) && configMap.containsKey(testUUID)) {
+            configMap.remove(testUUID)
+        } else {
+            stoppableJobs[testUUID]?.cancel()
+            stoppableJobs.remove(testUUID)
+        }
+        logger.info { "Stopped Misarch Experiment Configuration for testUUID: $testUUID" }
+    }
 
     private fun readConfigFile(pathUri: String): List<MiSArchFailureConfig> {
         val file = File(pathUri)

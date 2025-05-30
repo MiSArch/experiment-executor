@@ -31,10 +31,18 @@ class ExperimentFailureService(
         }.awaitAll()
     }
 
-    suspend fun startExperimentFailure() {
+    suspend fun startExperimentFailure(testUUID: UUID) {
         coroutineScope {
             registry.map { plugin ->
-                async { plugin.startTimedExperiment() }
+                async { plugin.startTimedExperiment(testUUID) }
+            }
+        }.awaitAll()
+    }
+
+    suspend fun stopExperimentFailure(testUUID: UUID) {
+        coroutineScope {
+            registry.map { plugin ->
+                async { plugin.stopExperiment(testUUID) }
             }
         }.awaitAll()
     }

@@ -4,7 +4,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import org.misarch.experimentexecutor.plugin.metrics.MetricPluginInterface
-import org.misarch.experimentexecutor.plugin.metrics.gatling.GatlingMetricPlugin
+import org.misarch.experimentexecutor.plugin.metrics.gatling.GatlingMetricsPlugin
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
@@ -18,7 +18,7 @@ class ExperimentMetricsService(
 ) : MetricPluginInterface {
 
     private val registry = listOf(
-        GatlingMetricPlugin(webClient, influxUrl, pushGatewayUrl),
+        GatlingMetricsPlugin(webClient, influxUrl, pushGatewayUrl),
     )
 
     suspend fun exportMetrics(testUUID: UUID, gatlingStatsJs: String, gatlingStatsHtml: String) {

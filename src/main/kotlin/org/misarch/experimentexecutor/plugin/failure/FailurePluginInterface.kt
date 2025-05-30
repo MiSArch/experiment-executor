@@ -7,5 +7,7 @@ interface FailurePluginInterface {
 
     suspend fun initializeFailure(failure: Failure, testUUID: UUID)
 
-    suspend fun startTimedExperiment()
+    suspend fun startTimedExperiment(testUUID: UUID)
+
+    suspend fun stopExperiment(testUUID: UUID)
 }

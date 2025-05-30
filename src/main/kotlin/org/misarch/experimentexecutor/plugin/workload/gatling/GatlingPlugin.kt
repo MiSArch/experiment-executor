@@ -7,6 +7,7 @@ import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Mono
 import java.io.File
 import java.util.UUID
 
@@ -27,9 +28,18 @@ class GatlingPlugin(
         val userSteps = File(workLoad.gatling.userStepsPathUri).readText()
         webClient.post()
             .uri(
-                "$gatlingExecutorHost/execute?testUUID=$testUUID&accessToken=$token&triggerDelay=$triggerDelay&targetUrl=${workLoad.gatling.endpointHost}"
+                "$gatlingExecutorHost/start-experiment?testUUID=$testUUID&accessToken=$token&triggerDelay=$triggerDelay&targetUrl=${workLoad.gatling.endpointHost}"
             ).bodyValue(userSteps)
             .retrieve()
+            .toBodilessEntity()
+            .awaitSingle()
+    }
+
+    override suspend fun stopWorkLoad(testUUID: UUID) {
+        webClient.post()
+            .uri("$gatlingExecutorHost/stop-experiment?testUUID=$testUUID")
+            .retrieve()
+            .onStatus({ it.value() == 404 }) { Mono.empty() }
             .toBodilessEntity()
             .awaitSingle()
     }
