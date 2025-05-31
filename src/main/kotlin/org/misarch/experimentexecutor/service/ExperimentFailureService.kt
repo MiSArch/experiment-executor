@@ -23,26 +23,26 @@ class ExperimentFailureService(
         MisarchExperimentConfigPlugin(webClient, misarchExperimentConfigHost, basePath),
     )
 
-    suspend fun setupExperimentFailure(testUUID: UUID) {
+    suspend fun setupExperimentFailure(testUUID: UUID, testVersion: String) {
         coroutineScope {
             registry.map { plugin ->
-                async { plugin.initializeFailure(testUUID) }
+                async { plugin.initializeFailure(testUUID, testVersion) }
             }
         }.awaitAll()
     }
 
-    suspend fun startExperimentFailure(testUUID: UUID) {
+    suspend fun startExperimentFailure(testUUID: UUID, testVersion: String) {
         coroutineScope {
             registry.map { plugin ->
-                async { plugin.startTimedExperiment(testUUID) }
+                async { plugin.startTimedExperiment(testUUID, testVersion) }
             }
         }.awaitAll()
     }
 
-    suspend fun stopExperimentFailure(testUUID: UUID) {
+    suspend fun stopExperimentFailure(testUUID: UUID, testVersion: String) {
         coroutineScope {
             registry.map { plugin ->
-                async { plugin.stopExperiment(testUUID) }
+                async { plugin.stopExperiment(testUUID, testVersion) }
             }
         }.awaitAll()
     }

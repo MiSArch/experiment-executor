@@ -24,53 +24,58 @@ class ExperimentConfigController(
         return experimentConfigService.generateExperiment(loadType, testDuration, sessionDuration, defaultRate)
     }
 
-    @GetMapping("/experiment/{testUUID}/chaosToolkitConfig")
-    suspend fun getChaosToolkit(@PathVariable testUUID: UUID): String {
-        return experimentConfigService.getChaosToolkitConfig(testUUID)
+    @PostMapping("/experiment/{testUUID}/{testVersion}/newVersion")
+    suspend fun newExperimentVersion(@PathVariable testUUID: UUID, @PathVariable testVersion: String): String {
+        return experimentConfigService.newExperimentVersion(testUUID, testVersion)
     }
 
-    @PutMapping("/experiment/{testUUID}/chaosToolkitConfig")
-    suspend fun putChaosToolkit(@PathVariable testUUID: UUID, @RequestBody chaosToolKitConfig: String) {
-        return experimentConfigService.updateChaosToolkitConfig(testUUID, chaosToolKitConfig)
+    @GetMapping("/experiment/{testUUID}/{testVersion}/chaosToolkitConfig")
+    suspend fun getChaosToolkit(@PathVariable testUUID: UUID, @PathVariable testVersion: String): String {
+        return experimentConfigService.getChaosToolkitConfig(testUUID, testVersion)
     }
 
-    @GetMapping("/experiment/{testUUID}/misarchExperimentConfig")
-    suspend fun getMisarchExperimentConfig(@PathVariable testUUID: UUID): String {
-        return experimentConfigService.getMisarchExperimentConfig(testUUID)
+    @PutMapping("/experiment/{testUUID}/{testVersion}/chaosToolkitConfig")
+    suspend fun putChaosToolkit(@PathVariable testUUID: UUID, @PathVariable testVersion: String, @RequestBody chaosToolKitConfig: String) {
+        return experimentConfigService.updateChaosToolkitConfig(testUUID, testVersion, chaosToolKitConfig)
     }
 
-    @PutMapping("/experiment/{testUUID}/misarchExperimentConfig")
-    suspend fun putMisarchExperimentConfig(@PathVariable testUUID: UUID, @RequestBody misarchExperimentConfig: String) {
-        return experimentConfigService.updateMisarchExperimentConfig(testUUID, misarchExperimentConfig)
+    @GetMapping("/experiment/{testUUID}/{testVersion}/misarchExperimentConfig")
+    suspend fun getMisarchExperimentConfig(@PathVariable testUUID: UUID, @PathVariable testVersion: String): String {
+        return experimentConfigService.getMisarchExperimentConfig(testUUID, testVersion)
     }
 
-    @GetMapping("/experiment/{testUUID}/gatlingConfig/userSteps")
-    suspend fun getGatlingUserSteps(@PathVariable testUUID: UUID): String {
-        return experimentConfigService.getGatlingUsersteps(testUUID)
+    @PutMapping("/experiment/{testUUID}/{testVersion}/misarchExperimentConfig")
+    suspend fun putMisarchExperimentConfig(@PathVariable testUUID: UUID, @PathVariable testVersion: String, @RequestBody misarchExperimentConfig: String) {
+        return experimentConfigService.updateMisarchExperimentConfig(testUUID, testVersion, misarchExperimentConfig)
     }
 
-    @PutMapping("/experiment/{testUUID}/gatlingConfig/userSteps")
-    suspend fun putGatlingUsersteps(@PathVariable testUUID: UUID, @RequestBody userSteps: String) {
-        return experimentConfigService.updateGatlingUsersteps(testUUID, userSteps)
+    @GetMapping("/experiment/{testUUID}/{testVersion}/gatlingConfig/userSteps")
+    suspend fun getGatlingUserSteps(@PathVariable testUUID: UUID, @PathVariable testVersion: String): String {
+        return experimentConfigService.getGatlingUsersteps(testUUID, testVersion)
     }
 
-    @GetMapping("/experiment/{testUUID}/gatlingConfig/work")
-    suspend fun getGatlingWork(@PathVariable testUUID: UUID): String {
-        return experimentConfigService.getGatlingWork(testUUID)
+    @PutMapping("/experiment/{testUUID}/{testVersion}/gatlingConfig/userSteps")
+    suspend fun putGatlingUsersteps(@PathVariable testUUID: UUID, @PathVariable testVersion: String, @RequestBody userSteps: String) {
+        return experimentConfigService.updateGatlingUsersteps(testUUID, testVersion, userSteps)
     }
 
-    @PutMapping("/experiment/{testUUID}/gatlingConfig/work")
-    suspend fun putGatlingWork(@PathVariable testUUID: UUID, @RequestBody work: String) {
-        return experimentConfigService.updateGatlingWork(testUUID, work)
+    @GetMapping("/experiment/{testUUID}/{testVersion}/gatlingConfig/work")
+    suspend fun getGatlingWork(@PathVariable testUUID: UUID, @PathVariable testVersion: String): String {
+        return experimentConfigService.getGatlingWork(testUUID, testVersion)
     }
 
-    @GetMapping("/experiment/{testUUID}/config")
-    suspend fun getExperimentConfig(@PathVariable testUUID: UUID): ExperimentConfig {
-        return experimentConfigService.getExperimentConfig(testUUID)
+    @PutMapping("/experiment/{testUUID}/{testVersion}/gatlingConfig/work")
+    suspend fun putGatlingWork(@PathVariable testUUID: UUID, @PathVariable testVersion: String, @RequestBody work: String) {
+        return experimentConfigService.updateGatlingWork(testUUID, testVersion, work)
     }
 
-    @PutMapping("/experiment/{testUUID}/config")
-    suspend fun putExperimentConfig(@PathVariable testUUID: UUID, @RequestBody experimentConfig: ExperimentConfig) {
-        return experimentConfigService.updateExperimentConfig(testUUID, experimentConfig)
+    @GetMapping("/experiment/{testUUID}/{testVersion}/config")
+    suspend fun getExperimentConfig(@PathVariable testUUID: UUID, @PathVariable testVersion: String): ExperimentConfig {
+        return experimentConfigService.getExperimentConfig(testUUID, testVersion)
+    }
+
+    @PutMapping("/experiment/{testUUID}/{testVersion}/config")
+    suspend fun putExperimentConfig(@PathVariable testUUID: UUID, @PathVariable testVersion: String, @RequestBody experimentConfig: ExperimentConfig) {
+        return experimentConfigService.updateExperimentConfig(testUUID, testVersion, experimentConfig)
     }
 }

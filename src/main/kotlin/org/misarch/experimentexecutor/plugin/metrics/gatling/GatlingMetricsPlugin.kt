@@ -21,7 +21,7 @@ class GatlingMetricsPlugin(
     private val pushGatewayUrl: String,
 ) : MetricPluginInterface {
 
-    suspend fun exportMetrics(testUUID: UUID, gatlingStatsJs: String, gatlingStatsHtml: String ) {
+    suspend fun exportMetrics(testUUID: UUID, testVersion: String, gatlingStatsJs: String, gatlingStatsHtml: String ) {
 
         val responseTimeStats = parseGatlingResponseTimeStats(gatlingStatsJs)
         val registry = CollectorRegistry.defaultRegistry
@@ -36,17 +36,17 @@ class GatlingMetricsPlugin(
         val dataSeries = extractDataSeries(gatlingStatsHtml)
         dataSeries.forEach { (series, data) ->
             if (series == "requests" || series == "responses") {
-                postTotalOkKoSeriesToInflux(data, series, testUUID)
+                postTotalOkKoSeriesToInflux(data, series, testUUID, testVersion)
             }
         }
 
         val activeUsers = extractActiveUsers(gatlingStatsHtml)
-        activeUsers.forEach { (scenario, data) -> postActiveUsersToInflux(data, scenario, "activeUsers", testUUID) }
+        activeUsers.forEach { (scenario, data) -> postActiveUsersToInflux(data, scenario, "activeUsers", testUUID, testVersion) }
 
         logger.info { "🚀 Gatling Metrics pushed to InfluxDB" }
 
         val pushGateway = PushGateway(pushGatewayUrl)
-        pushGateway.pushAdd(registry, "gatling_metrics", mapOf("testUUID" to testUUID.toString()))
+        pushGateway.pushAdd(registry, "gatling_metrics", mapOf("testUUID" to testUUID.toString(), "testVersion" to testVersion))
 
         logger.info { "🚀 Gatling Metrics pushed to Prometheus Pushgateway" }
     }
@@ -179,25 +179,25 @@ class GatlingMetricsPlugin(
     private fun CollectorRegistry.register(name: String, help: String) =
         Gauge.build().name(name).help(help).register(this)
 
-    private suspend fun postActiveUsersToInflux(data: List<Pair<Long, Int>>, scenario: String, metricName: String, testUUID: UUID) {
+    private suspend fun postActiveUsersToInflux(data: List<Pair<Long, Int>>, scenario: String, metricName: String, testUUID: UUID, testVersion: String) {
         val lineProtocol = data.joinToString("\n") { (timestamp, value) ->
-            "$metricName,scenario=${scenario.replace(" ", "")},testUUID=$testUUID value=${value.toDouble()} $timestamp"
+            "$metricName,scenario=${scenario.replace(" ", "")},testUUID=$testUUID,testVersion=$testVersion value=${value.toDouble()} $timestamp"
         }
         postToInflux(lineProtocol)
     }
 
-    private suspend fun postTotalOkKoSeriesToInflux(data: Map<Long, List<Int>>, metricName: String, testUUID: UUID) {
+    private suspend fun postTotalOkKoSeriesToInflux(data: Map<Long, List<Int>>, metricName: String, testUUID: UUID, testVersion: String) {
         val all = data.map { (k, v) -> k to v[0] }.toMap()
         val ok = data.map { (k, v) -> k to v[1] }.toMap()
         val ko = data.map { (k, v) -> k to v[2] }.toMap()
         val lineProtocolAll = all.map { (timestamp, value) ->
-            "$metricName,flavor=all,testUUID=$testUUID value=${value.toDouble()} ${timestamp * 1000}"
+            "$metricName,flavor=all,testUUID=$testUUID,testVersion=$testVersion value=${value.toDouble()} ${timestamp * 1000}"
         }.joinToString("\n")
         val lineProtocolOk = ok.map { (timestamp, value) ->
-            "$metricName,flavor=ok,testUUID=$testUUID value=${value.toDouble()} ${timestamp * 1000}"
+            "$metricName,flavor=ok,testUUID=$testUUID,testVersion=$testVersion value=${value.toDouble()} ${timestamp * 1000}"
         }.joinToString("\n")
         val lineProtocolKo = ko.map { (timestamp, value) ->
-            "$metricName,flavor=ko,testUUID=$testUUID value=${value.toDouble()} ${timestamp * 1000}"
+            "$metricName,flavor=ko,testUUID=$testUUID,testVersion=$testVersion value=${value.toDouble()} ${timestamp * 1000}"
         }.joinToString("\n")
         postToInflux(lineProtocolAll)
         postToInflux(lineProtocolOk)
@@ -207,7 +207,7 @@ class GatlingMetricsPlugin(
     private suspend fun postToInflux(lineProtocol: String) {
         webClient.post()
             .uri(influxUrl)
-            .header("Authorization", "Token my-secret-token")
+            .header("Authorization", "Token my-secret-token")  // TODO CONFIG
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.TEXT_PLAIN)
             .bodyValue(lineProtocol)

@@ -22,7 +22,7 @@ class GatlingPlugin(
     private val triggerDelay: Long,
 ) : WorkloadPluginInterface {
 
-    override suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID) {
+    override suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID, testVersion: String) {
         val token = getOAuthAccessToken(
             clientId = tokenConfig.clientId,
             url = "${tokenConfig.host}/${tokenConfig.path}",
@@ -30,20 +30,25 @@ class GatlingPlugin(
             password = tokenConfig.password,
         )
 
-        val userSteps = File("$basePath/$testUUID/$GATLING_USERSTEPS_FILENAME").readText()
+        val userSteps = File("$basePath/$testUUID/$testVersion/$GATLING_USERSTEPS_FILENAME").readText()
         webClient.post()
             .uri(
-                "$gatlingExecutorHost/start-experiment?testUUID=$testUUID&accessToken=$token&triggerDelay=$triggerDelay&targetUrl=${workLoad.gatling.endpointHost}"
+                "$gatlingExecutorHost/start-experiment" +
+                        "?testUUID=$testUUID" +
+                        "&testVersion=$testVersion" +
+                        "&accessToken=$token" +
+                        "&triggerDelay=$triggerDelay" +
+                        "&targetUrl=${workLoad.gatling.endpointHost}"
             ).bodyValue(userSteps)
             .retrieve()
             .toBodilessEntity()
             .awaitSingle()
     }
 
-    override suspend fun stopWorkLoad(testUUID: UUID) {
-        logger.info { "Stopping gatling workload for testUUID: $testUUID" }
+    override suspend fun stopWorkLoad(testUUID: UUID, testVersion: String) {
+        logger.info { "Stopping gatling workload for testUUID: $testUUID and testVersion: $testVersion" }
         webClient.post()
-            .uri("$gatlingExecutorHost/stop-experiment?testUUID=$testUUID")
+            .uri("$gatlingExecutorHost/stop-experiment?testUUID=$testUUID&testVersion=$testVersion")
             .retrieve()
             .onStatus({ it.value() == 404 }) { Mono.empty() }
             .toBodilessEntity()

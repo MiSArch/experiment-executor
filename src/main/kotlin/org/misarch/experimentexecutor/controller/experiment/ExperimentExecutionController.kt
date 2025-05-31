@@ -15,43 +15,43 @@ class ExperimentExecutionController(
      */
     @PostMapping("/experiment")
     suspend fun runExperimentWithConfigFile(@RequestBody experimentConfig: ExperimentConfig): String {
-        return experimentExecutionService.executeExperiment(experimentConfig, UUID.fromString(experimentConfig.testUUID))
+        return experimentExecutionService.executeExperiment(experimentConfig, UUID.fromString(experimentConfig.testUUID), experimentConfig.testVersion)
     }
 
     /**
      * Runs an experiment based on a stored test configuration identified by its UUID.
      */
-    @PostMapping("/experiment/{testUUID}")
-    suspend fun runExperiment(@PathVariable testUUID: UUID): String {
-        return experimentExecutionService.executeStoredExperiment(testUUID)
+    @PostMapping("/experiment/{testUUID}/{testVersion}")
+    suspend fun runExperiment(@PathVariable testUUID: UUID, @PathVariable testVersion: String): String {
+        return experimentExecutionService.executeStoredExperiment(testUUID, testVersion)
     }
 
     /**
      * Stops the currently running experiment identified by its UUID.
      * This will stop the workload and the failure plugins.
      */
-    @DeleteMapping("/experiment/{testUUID}")
-    private suspend fun stopExperiment(@PathVariable testUUID: UUID) {
-        experimentExecutionService.cancelExperiment(testUUID)
+    @DeleteMapping("/experiment/{testUUID}/{testVersion}")
+    private suspend fun stopExperiment(@PathVariable testUUID: UUID, @PathVariable testVersion: String) {
+        experimentExecutionService.cancelExperiment(testUUID, testVersion)
     }
 
     /**
      * Returns the current state of the trigger for the specified test UUID.
      * Used for synchronizing all plugins that are waiting for the trigger to be ready.
      */
-    @GetMapping("/trigger/{testUUID}")
-    suspend fun trigger(@PathVariable testUUID: UUID): String {
-        return experimentExecutionService.getTriggerState(testUUID).toString()
+    @GetMapping("/trigger/{testUUID}/{testVersion}")
+    suspend fun trigger(@PathVariable testUUID: UUID, @PathVariable testVersion: String): String {
+        return experimentExecutionService.getTriggerState(testUUID, testVersion).toString()
     }
 
     /**
      * Collects Gatling metrics from Gatling's index.html and stats.js files transferred as concatenated plaintext strings.
      */
-    @PostMapping("/experiment/{testUUID}/gatling/metrics")
-    private suspend fun collectGatingMetrics(@PathVariable testUUID: UUID, @RequestBody data: String) {
+    @PostMapping("/experiment/{testUUID}/{testVersion}/gatling/metrics")
+    private suspend fun collectGatingMetrics(@PathVariable testUUID: UUID, @PathVariable testVersion: String, @RequestBody data: String) {
         val test = data.split("\nSPLIT_HERE\n")
         val rawHtml = test[0]
         val rawJs = test[1]
-        experimentExecutionService.finishExperiment(testUUID, rawJs, rawHtml)
+        experimentExecutionService.finishExperiment(testUUID, testVersion, rawJs, rawHtml)
     }
 }

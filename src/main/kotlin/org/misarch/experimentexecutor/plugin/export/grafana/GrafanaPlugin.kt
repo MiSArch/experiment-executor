@@ -23,14 +23,15 @@ class GrafanaPlugin(
     private val templatePath: String,
     ) : ExportPluginInterface {
 
-    override suspend fun createReport(testUUID: UUID, startTime: Instant, endTime: Instant, goals: List<Goal>): Boolean {
+    override suspend fun createReport(testUUID: UUID, testVersion: String, startTime: Instant, endTime: Instant, goals: List<Goal>): Boolean {
         val filePath = "$templatePath/${TEMPLATE_PREFIX}${GRAFANA_DASHBOARD_FILENAME}"
-        return updateDashboardTemplate(filePath, testUUID, startTime, endTime, goals)
+        return updateDashboardTemplate(filePath, testUUID, testVersion, startTime, endTime, goals)
     }
 
     private suspend fun updateDashboardTemplate(
         filePath: String,
         testUUID: UUID,
+        testVersion: String,
         startTime: Instant,
         endTime: Instant,
         goals: List<Goal>,
@@ -43,6 +44,7 @@ class GrafanaPlugin(
 
         val updatedContent = content
             .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
+            .replace("REPLACE_ME_TEST_VERSION", testVersion)
             .replace("REPLACE_ME_TEST_START_TIME", startTime.toString())
             .replace("REPLACE_ME_TEST_END_TIME", endTime.toString())
 
@@ -81,7 +83,7 @@ class GrafanaPlugin(
             .retrieve()
             .awaitBodilessEntity()
 
-        logger.info { "\uD83D\uDCC8 Result dashboard exported to Grafana\n ${grafanaConfig.url}/d/$testUUID" }
+        logger.info { "\uD83D\uDCC8 Result dashboard exported to Grafana\n ${grafanaConfig.url}/d/$testUUID:$testVersion" }
 
         return true
     }

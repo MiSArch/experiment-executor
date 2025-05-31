@@ -23,10 +23,10 @@ class ExperimentResultService(
         GrafanaPlugin(webClient, grafanaConfig, templatePath),
     )
 
-    suspend fun createAndExportReports(testUUID: UUID, startTime: Instant, endTime: Instant, goals: List<Goal>) {
+    suspend fun createAndExportReports(testUUID: UUID, testVersion: String, startTime: Instant, endTime: Instant, goals: List<Goal>) {
         coroutineScope {
             registry.map { plugin ->
-                async { plugin.createReport(testUUID, startTime, endTime, goals) }
+                async { plugin.createReport(testUUID, testVersion, startTime, endTime, goals) }
             }
         }.awaitAll()
     }

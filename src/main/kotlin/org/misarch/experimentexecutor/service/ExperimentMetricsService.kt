@@ -21,10 +21,10 @@ class ExperimentMetricsService(
         GatlingMetricsPlugin(webClient, influxUrl, pushGatewayUrl),
     )
 
-    suspend fun exportMetrics(testUUID: UUID, gatlingStatsJs: String, gatlingStatsHtml: String) {
+    suspend fun exportMetrics(testUUID: UUID, testVersion: String, gatlingStatsJs: String, gatlingStatsHtml: String) {
         coroutineScope {
             registry.map { plugin ->
-                async { plugin.exportMetrics(testUUID, gatlingStatsJs, gatlingStatsHtml) }
+                async { plugin.exportMetrics(testUUID, testVersion, gatlingStatsJs, gatlingStatsHtml) }
             }
         }.awaitAll()
     }

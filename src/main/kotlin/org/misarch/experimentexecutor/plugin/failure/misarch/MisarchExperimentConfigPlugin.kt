@@ -26,33 +26,36 @@ class MisarchExperimentConfigPlugin(
     private val misarchExperimentConfigHost: String,
     private val basePath: String,
 ) : FailurePluginInterface {
-    private val configMap: MutableMap<UUID, List<MiSArchFailureConfig>> = mutableMapOf()
-    private val stoppableJobs: MutableMap<UUID, Job> = mutableMapOf()
+    private val configMap: MutableMap<String, List<MiSArchFailureConfig>> = mutableMapOf()
+    private val stoppableJobs: MutableMap<String, Job> = mutableMapOf()
 
-    override suspend fun initializeFailure(testUUID: UUID) {
-        configMap[testUUID] = readConfigFile("$basePath/$testUUID/$MISARCH_EXPERIMENT_CONFIG_FILENAME")
+    override suspend fun initializeFailure(testUUID: UUID, testVersion: String) {
+        val testId = "$testUUID:$testVersion"
+        configMap[testId] = readConfigFile("$basePath/$testUUID/$testVersion/$MISARCH_EXPERIMENT_CONFIG_FILENAME")
     }
 
-    override suspend fun startTimedExperiment(testUUID: UUID) {
-        if (configMap.containsKey(testUUID)) {
+    override suspend fun startTimedExperiment(testUUID: UUID, testVersion: String) {
+        val testId = "$testUUID:$testVersion"
+        if (configMap.containsKey(testId)) {
             coroutineScope {
-                stoppableJobs[testUUID] = launch {
-                    val config = configMap.getValue(testUUID)
-                    configMap.remove(testUUID)
+                stoppableJobs[testId] = launch {
+                    val config = configMap.getValue(testId)
+                    configMap.remove(testId)
                     configureVariables(config)
                 }
             }
         }
     }
 
-    override suspend fun stopExperiment(testUUID: UUID) {
-        if (!stoppableJobs.containsKey(testUUID) && configMap.containsKey(testUUID)) {
-            configMap.remove(testUUID)
+    override suspend fun stopExperiment(testUUID: UUID, testVersion: String) {
+        val testId = "$testUUID:$testVersion"
+        if (!stoppableJobs.containsKey(testId) && configMap.containsKey(testId)) {
+            configMap.remove(testId)
         } else {
-            stoppableJobs[testUUID]?.cancel()
-            stoppableJobs.remove(testUUID)
+            stoppableJobs[testId]?.cancel()
+            stoppableJobs.remove(testId)
         }
-        logger.info { "Stopped Misarch Experiment Configuration for testUUID: $testUUID" }
+        logger.info { "Stopped Misarch Experiment Configuration for testUUID: $testUUID and testVersion: $testVersion" }
     }
 
     private fun readConfigFile(pathUri: String): List<MiSArchFailureConfig> {

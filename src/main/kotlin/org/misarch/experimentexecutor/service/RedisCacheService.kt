@@ -16,16 +16,17 @@ class RedisCacheService(
     suspend fun cacheExperimentState(
         experimentState: ExperimentState
     ) {
-        experimentStateRedisTemplate.opsForValue().setAndAwait(experimentState.testUUID.toString(), experimentState, Duration.ofDays(1))
+        experimentStateRedisTemplate
+            .opsForValue()
+            .setAndAwait("${experimentState.testUUID}:${experimentState.testVersion}", experimentState, Duration.ofDays(1))
     }
 
-    suspend fun retrieveExperimentState(
-        key: UUID,
-    ): ExperimentState {
-        return experimentStateRedisTemplate.opsForValue().getAndAwait(key.toString()) ?: throw IllegalStateException("Experiment state not found for key: $key")
+    suspend fun retrieveExperimentState(testUUID: UUID, testVersion: String): ExperimentState {
+        return experimentStateRedisTemplate.opsForValue().getAndAwait("$testUUID:$testVersion")
+            ?: throw IllegalStateException("Experiment state not found for key: $testUUID:$testVersion")
     }
 
-    suspend fun deleteExperimentState(testUUID: UUID) {
-        experimentStateRedisTemplate.opsForValue().deleteAndAwait(testUUID.toString())
+    suspend fun deleteExperimentState(testUUID: UUID, testVersion: String) {
+        experimentStateRedisTemplate.opsForValue().deleteAndAwait("$testUUID:$testVersion")
     }
 }

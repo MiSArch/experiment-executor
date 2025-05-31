@@ -25,18 +25,18 @@ class ExperimentWorkloadService(
         GatlingPlugin(webClient, tokenConfig, gatlingExecutorHost, basePath, triggerDelay)
     )
 
-    suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID) {
+    suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID, testVersion: String) {
         coroutineScope {
             registry.map { plugin ->
-                async { plugin.executeWorkLoad(workLoad, testUUID) }
+                async { plugin.executeWorkLoad(workLoad, testUUID, testVersion) }
             }
         }.awaitAll()
     }
 
-    suspend fun stopWorkLoad(testUUID: UUID) {
+    suspend fun stopWorkLoad(testUUID: UUID, testVersion: String) {
         coroutineScope {
             registry.map { plugin ->
-                async { plugin.stopWorkLoad(testUUID) }
+                async { plugin.stopWorkLoad(testUUID, testVersion) }
             }
         }.awaitAll()
     }

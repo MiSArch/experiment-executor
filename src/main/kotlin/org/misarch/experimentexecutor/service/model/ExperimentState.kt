@@ -5,6 +5,7 @@ import java.util.UUID
 
 data class ExperimentState(
     val testUUID: UUID,
+    val testVersion: String,
     val triggerState: TriggerState,
     val startTime: String? = null,
     val endTime: String? = null,

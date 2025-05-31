@@ -2823,8 +2823,8 @@
         },
         {
           "current": {
-            "text": "REPLACE_ME_TEST_UUID",
-            "value": "REPLACE_ME_TEST_UUID"
+            "text": "REPLACE_ME_TEST_UUID:REPLACE_ME_TEST_VERSION",
+            "value": "REPLACE_ME_TEST_UUID:REPLACE_ME_TEST_VERSION"
           },
           "definition": "label_values(testUUID)",
           "name": "testUUID",
@@ -2899,8 +2899,8 @@
     },
     "timepicker": {},
     "timezone": "browser",
-    "title": "Experiment Dashboard REPLACE_ME_TEST_UUID",
-    "uid": "REPLACE_ME_TEST_UUID",
+    "title": "Experiment Dashboard REPLACE_ME_TEST_UUID REPLACE_ME_TEST_UUID",
+    "uid": "REPLACE_ME_TEST_UUID:REPLACE_ME_TEST_UUID",
     "version": 1,
     "weekStart": ""
   },
