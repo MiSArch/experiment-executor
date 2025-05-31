@@ -3,34 +3,36 @@ spring:
     name: experiment-executor
   data:
     redis:
-      password: "redis"
+      password: ${REDIS_PASSWORD}
+      host: ${REDIS_HOST}
+      port: 6379
 server:
   port: 8888
 
 grafana:
   api-token: ${GRAFANA_API_TOKEN}
-  url:  "http://localhost:3001"
+  url:  ${GRAFANA_HOST}
 pushgateway:
-  url: "localhost:9091"
+  url: ${PUSHGATEWAY_HOST}
 influxdb:
-  url: "http://localhost:8086/api/v2/write?org=misarch&bucket=gatling&precision=ms"
+  url: ${INFLUXDB_URL}
 misarch:
   experiment-config:
-    host: "http://localhost:3000"
+    host: ${MISARCH_EXPERIMENT_CONFIG_HOST}
 chaostoolkit:
-  executor-host: "http://localhost:8890"
+  executor-host: ${CHAOSTOOLKIT_EXECUTOR_HOST}
 gatling:
-  target-endpoint: "http://gateway:8080"
-  executor-host: "http://localhost:8889"
+  target-endpoint: ${GATLING_TARGET_ENDPOINT}
+  executor-host: ${GATLING_EXECUTOR_HOST}
   token:
-    host: "http://localhost:8081"
-    client-id: "frontend"
-    path: "/keycloak/realms/Misarch/protocol/openid-connect/token"
-    username: "eliasmueller"
-    password: "123"
+    host: ${GATLING_TOKEN_HOST}
+    path: ${GATLING_TOKEN_PATH}
+    client-id: ${GATLING_TOKEN_CLIENT_ID}
+    username: ${GATLING_TOKEN_USERNAME}
+    password: ${GATLING_TOKEN_PASSWORD}
 experiment-executor:
-  base-path: "/Users/p371728/master/thesis/misarch/tests"
+  base-path: "/home/java"
   template-path: "src/main/resources/templates"
-  trigger-delay: 40000
+  trigger-delay: ${EXPERIMENT_TRIGGER_DELAY}
   cors-origins:
     - "http://localhost:5173"
