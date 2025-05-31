@@ -15,15 +15,20 @@ class ExperimentExecutionController(
      */
     @PostMapping("/experiment")
     suspend fun runExperimentWithConfigFile(@RequestBody experimentConfig: ExperimentConfig): String {
-        return experimentExecutionService.executeExperiment(experimentConfig, UUID.fromString(experimentConfig.testUUID), experimentConfig.testVersion)
+        return experimentExecutionService.executeExperiment(
+            experimentConfig,
+            UUID.fromString(experimentConfig.testUUID),
+            experimentConfig.testVersion
+        )
     }
 
     /**
      * Runs an experiment based on a stored test configuration identified by its UUID.
      */
     @PostMapping("/experiment/{testUUID}/{testVersion}")
-    suspend fun runExperiment(@PathVariable testUUID: UUID, @PathVariable testVersion: String): String {
-        return experimentExecutionService.executeStoredExperiment(testUUID, testVersion)
+    suspend fun runExperiment(@PathVariable testUUID: UUID, @PathVariable testVersion: String, @RequestBody endpointAccessToken: String? = null):
+            String {
+        return experimentExecutionService.executeStoredExperiment(testUUID, testVersion, endpointAccessToken)
     }
 
     /**

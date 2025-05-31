@@ -23,7 +23,7 @@ class GatlingPlugin(
 ) : WorkloadPluginInterface {
 
     override suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID, testVersion: String) {
-        val token = getOAuthAccessToken(
+        val token = workLoad.gatling.endpointAccessToken ?: getOAuthAccessToken(
             clientId = tokenConfig.clientId,
             url = "${tokenConfig.host}/${tokenConfig.path}",
             username = tokenConfig.username,

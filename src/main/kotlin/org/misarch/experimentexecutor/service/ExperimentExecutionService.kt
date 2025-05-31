@@ -29,9 +29,23 @@ class ExperimentExecutionService(
         return redisCacheService.retrieveExperimentState(testUUID, testVersion).triggerState == STARTED
     }
 
-    suspend fun executeStoredExperiment(testUUID: UUID, testVersion: String): String {
+    suspend fun executeStoredExperiment(testUUID: UUID, testVersion: String, endpointAccessToken: String?): String {
         val experimentConfig = experimentConfigService.getExperimentConfig(testUUID, testVersion)
-        return executeExperiment(experimentConfig, testUUID, testVersion)
+        return if (endpointAccessToken == null) {
+            executeExperiment(experimentConfig, testUUID, testVersion)
+        }
+        else {
+            executeExperiment(
+                experimentConfig.copy(
+                    workLoad = experimentConfig.workLoad.copy(
+                        gatling = experimentConfig.workLoad.gatling.copy
+                            (endpointAccessToken = endpointAccessToken)
+                    )
+                ),
+                testUUID,
+                testVersion
+            )
+        }
     }
 
     suspend fun executeExperiment(experimentConfig: ExperimentConfig, testUUID: UUID, testVersion: String): String {

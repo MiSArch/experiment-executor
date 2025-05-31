@@ -14,6 +14,7 @@ data class WorkLoad(
 data class GatlingConfig(
     val loadType: GatlingLoadType,
     val endpointHost: String,
+    val endpointAccessToken: String? = null,
 )
 
 enum class GatlingLoadType {
