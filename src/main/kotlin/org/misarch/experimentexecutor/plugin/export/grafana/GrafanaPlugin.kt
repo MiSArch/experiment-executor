@@ -83,7 +83,7 @@ class GrafanaPlugin(
             .retrieve()
             .awaitBodilessEntity()
 
-        logger.info { "\uD83D\uDCC8 Result dashboard exported to Grafana\n ${grafanaConfig.url}/d/$testUUID:$testVersion" }
+        logger.info { "\uD83D\uDCC8 Result dashboard exported to Grafana\n http://localhost:3001/d/$testUUID-$testVersion" }
 
         return true
     }
