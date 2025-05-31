@@ -31,7 +31,7 @@ gatling:
     username: ${GATLING_TOKEN_USERNAME}
     password: ${GATLING_TOKEN_PASSWORD}
 experiment-executor:
-  base-path: "/home/java"
+  base-path: "/home/java/tests"
   template-path: "src/main/resources/templates"
   trigger-delay: ${EXPERIMENT_TRIGGER_DELAY}
   cors-origins:
