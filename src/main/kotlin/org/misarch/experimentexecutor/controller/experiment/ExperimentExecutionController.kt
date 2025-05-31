@@ -26,7 +26,7 @@ class ExperimentExecutionController(
      * Runs an experiment based on a stored test configuration identified by its UUID.
      */
     @PostMapping("/experiment/{testUUID}/{testVersion}")
-    suspend fun runExperiment(@PathVariable testUUID: UUID, @PathVariable testVersion: String, @RequestBody endpointAccessToken: String? = null):
+    suspend fun runExperiment(@PathVariable testUUID: UUID, @PathVariable testVersion: String, @RequestParam endpointAccessToken: String? = null):
             String {
         return experimentExecutionService.executeStoredExperiment(testUUID, testVersion, endpointAccessToken)
     }
