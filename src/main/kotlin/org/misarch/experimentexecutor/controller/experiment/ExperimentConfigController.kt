@@ -24,6 +24,18 @@ class ExperimentConfigController(
         return experimentConfigService.generateExperiment(loadType, testDuration, sessionDuration, defaultRate)
     }
 
+    @GetMapping("/experiments")
+    suspend fun getExistingExperiments(): List<String> {
+        return experimentConfigService.getExistingExperiments()
+    }
+
+
+    @GetMapping("/experiment/{testUUID}/versions")
+    suspend fun getExperimentVersions(@PathVariable testUUID: UUID): List<String> {
+        return experimentConfigService.getExperimentVersions(testUUID)
+    }
+
+
     @PostMapping("/experiment/{testUUID}/{testVersion}/newVersion")
     suspend fun newExperimentVersion(@PathVariable testUUID: UUID, @PathVariable testVersion: String): String {
         return experimentConfigService.newExperimentVersion(testUUID, testVersion)
@@ -45,7 +57,11 @@ class ExperimentConfigController(
     }
 
     @PutMapping("/experiment/{testUUID}/{testVersion}/misarchExperimentConfig")
-    suspend fun putMisarchExperimentConfig(@PathVariable testUUID: UUID, @PathVariable testVersion: String, @RequestBody misarchExperimentConfig: String) {
+    suspend fun putMisarchExperimentConfig(
+        @PathVariable testUUID: UUID,
+        @PathVariable testVersion: String,
+        @RequestBody misarchExperimentConfig: String
+    ) {
         return experimentConfigService.updateMisarchExperimentConfig(testUUID, testVersion, misarchExperimentConfig)
     }
 
@@ -75,7 +91,11 @@ class ExperimentConfigController(
     }
 
     @PutMapping("/experiment/{testUUID}/{testVersion}/config")
-    suspend fun putExperimentConfig(@PathVariable testUUID: UUID, @PathVariable testVersion: String, @RequestBody experimentConfig: ExperimentConfig) {
+    suspend fun putExperimentConfig(
+        @PathVariable testUUID: UUID,
+        @PathVariable testVersion: String,
+        @RequestBody experimentConfig: ExperimentConfig
+    ) {
         return experimentConfigService.updateExperimentConfig(testUUID, testVersion, experimentConfig)
     }
 }

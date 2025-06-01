@@ -16,6 +16,22 @@ class ExperimentConfigService(
     @Value("\${misarch.experiment-config.host}") private val misarchExperimentConfigHost: String,
     @Value("\${gatling.target-endpoint}") private val gatlingTargetEndpoint: String,
 ) {
+    suspend fun getExistingExperiments(): List<String> {
+        val experimentsDir = File(basePath)
+        return experimentsDir.listFiles()
+            ?.filter { it.isDirectory }
+            ?.map { it.name }
+            ?: emptyList()
+    }
+
+    suspend fun getExperimentVersions(testUUID: UUID): List<String> {
+        val testDir = File("$basePath/$testUUID")
+        return testDir.listFiles()
+            ?.filter { it.isDirectory && it.name.startsWith("v") }
+            ?.map { it.name }
+            ?: emptyList()
+    }
+
     suspend fun generateExperiment(loadType: GatlingLoadType, testDuration: Int, sessionDuration: Int, rate: Float): String {
         val testUUID = UUID.randomUUID()
         val testVersion = "v1"
