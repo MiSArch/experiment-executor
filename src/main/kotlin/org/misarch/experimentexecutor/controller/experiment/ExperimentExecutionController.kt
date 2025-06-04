@@ -2,19 +2,43 @@ package org.misarch.experimentexecutor.controller.experiment
 
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.service.ExperimentExecutionService
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Flux
+import reactor.core.publisher.FluxSink
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
-// TODO implement server side events to handle the experiment execution state and notify the frontend once an experiment is finished
+@Configuration
+class EventEmitterConfig {
+
+    @Bean
+    fun eventEmitters(): ConcurrentHashMap<String, FluxSink<String>> {
+        return ConcurrentHashMap()
+    }
+}
+
 @RestController
 class ExperimentExecutionController(
     private val experimentExecutionService: ExperimentExecutionService,
+    private val eventEmitters: ConcurrentHashMap<String, FluxSink<String>>
 ) {
+    @GetMapping("/experiment/{testUUID}/{testVersion}/events", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    private fun registerEvent(@PathVariable testUUID: UUID, @PathVariable testVersion: String): Flux<String> {
+        val key = "$testUUID:$testVersion"
+        return Flux.create { sink ->
+            eventEmitters[key] = sink
+            sink.onDispose { eventEmitters.remove(key) }
+        }
+    }
+
     /**
      * Runs an experiment with the provided configuration file.
      */
     @PostMapping("/experiment")
-    suspend fun runExperimentWithConfigFile(@RequestBody experimentConfig: ExperimentConfig): String {
+    private suspend fun runExperimentWithConfigFile(@RequestBody experimentConfig: ExperimentConfig) {
         return experimentExecutionService.executeExperiment(
             experimentConfig,
             UUID.fromString(experimentConfig.testUUID),
@@ -26,8 +50,11 @@ class ExperimentExecutionController(
      * Runs an experiment based on a stored test configuration identified by its UUID.
      */
     @PostMapping("/experiment/{testUUID}/{testVersion}")
-    suspend fun runExperiment(@PathVariable testUUID: UUID, @PathVariable testVersion: String, @RequestParam endpointAccessToken: String? = null):
-            String {
+    private suspend fun runExperiment(
+        @PathVariable testUUID: UUID,
+        @PathVariable testVersion: String,
+        @RequestParam endpointAccessToken: String? = null
+    ) {
         return experimentExecutionService.executeStoredExperiment(testUUID, testVersion, endpointAccessToken)
     }
 
@@ -45,7 +72,7 @@ class ExperimentExecutionController(
      * Used for synchronizing all plugins that are waiting for the trigger to be ready.
      */
     @GetMapping("/trigger/{testUUID}/{testVersion}")
-    suspend fun trigger(@PathVariable testUUID: UUID, @PathVariable testVersion: String): String {
+    private suspend fun trigger(@PathVariable testUUID: UUID, @PathVariable testVersion: String): String {
         return experimentExecutionService.getTriggerState(testUUID, testVersion).toString()
     }
 
@@ -54,9 +81,14 @@ class ExperimentExecutionController(
      */
     @PostMapping("/experiment/{testUUID}/{testVersion}/gatling/metrics")
     private suspend fun collectGatingMetrics(@PathVariable testUUID: UUID, @PathVariable testVersion: String, @RequestBody data: String) {
+        val key = "$testUUID:$testVersion"
         val test = data.split("\nSPLIT_HERE\n")
         val rawHtml = test[0]
         val rawJs = test[1]
         experimentExecutionService.finishExperiment(testUUID, testVersion, rawJs, rawHtml)
+
+        val eventSink = eventEmitters[key]
+        eventSink?.next("http://localhost:3001/d/$testUUID-$testVersion")
+        eventEmitters.remove(key)
     }
 }

@@ -3,6 +3,7 @@ package org.misarch.experimentexecutor.service
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.*
 import org.misarch.experimentexecutor.config.ExperimentExecutorConfig
+import org.misarch.experimentexecutor.controller.error.AsyncEventErrorHandler
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.service.model.ExperimentState
 import org.misarch.experimentexecutor.service.model.ExperimentState.TriggerState.COMPLETED
@@ -23,18 +24,18 @@ class ExperimentExecutionService(
     private val experimentResultService: ExperimentResultService,
     private val experimentExecutorConfig: ExperimentExecutorConfig,
     private val redisCacheService: RedisCacheService,
+    private val asyncEventErrorHandler: AsyncEventErrorHandler,
 ) {
 
     suspend fun getTriggerState(testUUID: UUID, testVersion: String): Boolean {
         return redisCacheService.retrieveExperimentState(testUUID, testVersion).triggerState == STARTED
     }
 
-    suspend fun executeStoredExperiment(testUUID: UUID, testVersion: String, endpointAccessToken: String?): String {
+    suspend fun executeStoredExperiment(testUUID: UUID, testVersion: String, endpointAccessToken: String?) {
         val experimentConfig = experimentConfigService.getExperimentConfig(testUUID, testVersion)
         return if (endpointAccessToken == null) {
             executeExperiment(experimentConfig, testUUID, testVersion)
-        }
-        else {
+        } else {
             executeExperiment(
                 experimentConfig.copy(
                     workLoad = experimentConfig.workLoad.copy(
@@ -48,7 +49,7 @@ class ExperimentExecutionService(
         }
     }
 
-    suspend fun executeExperiment(experimentConfig: ExperimentConfig, testUUID: UUID, testVersion: String): String {
+    suspend fun executeExperiment(experimentConfig: ExperimentConfig, testUUID: UUID, testVersion: String) {
 
         val experimentState = ExperimentState(
             testUUID = testUUID,
@@ -59,7 +60,12 @@ class ExperimentExecutionService(
 
         redisCacheService.cacheExperimentState(experimentState)
 
-        CoroutineScope(Dispatchers.Default).launch {
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            logger.error { "Failed to execute experiment for testUUID: $testUUID and testVersion: $testVersion" }
+            asyncEventErrorHandler.handleError(testUUID, testVersion, throwable.message ?: "Unknown error")
+        }
+
+        CoroutineScope(Dispatchers.Default + exceptionHandler).launch {
             val failureJobs = async {
                 experimentFailureService.setupExperimentFailure(testUUID, testVersion)
             }
@@ -78,7 +84,6 @@ class ExperimentExecutionService(
             failureJobs.await()
             workloadJobs.await()
         }
-        return testUUID.toString()
     }
 
     suspend fun cancelExperiment(testUUID: UUID, testVersion: String) {
