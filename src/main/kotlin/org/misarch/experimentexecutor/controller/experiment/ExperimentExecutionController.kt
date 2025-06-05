@@ -87,6 +87,7 @@ class ExperimentExecutionController(
         val rawJs = test[1]
         experimentExecutionService.finishExperiment(testUUID, testVersion, rawJs, rawHtml)
 
+        // TODO do not emit here, but only when no error occurred in async part
         val eventSink = eventEmitters[key]
         eventSink?.next("http://localhost:3001/d/$testUUID-$testVersion")
         eventEmitters.remove(key)

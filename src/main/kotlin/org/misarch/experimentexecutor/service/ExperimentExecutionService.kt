@@ -98,19 +98,25 @@ class ExperimentExecutionService(
     }
 
     suspend fun finishExperiment(testUUID: UUID, testVersion: String, gatlingStatsJs: String, gatlingStatsHtml: String) {
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            logger.error { "Failed to finish experiment for testUUID: $testUUID and testVersion: $testVersion" }
+            asyncEventErrorHandler.handleError(testUUID, testVersion, throwable.message ?: "Unknown error")
+        }
 
-        val experimentState = redisCacheService.retrieveExperimentState(testUUID, testVersion)
+        CoroutineScope(Dispatchers.Default + exceptionHandler).launch {
+            val experimentState = redisCacheService.retrieveExperimentState(testUUID, testVersion)
 
-        val startTimeString = experimentState.startTime
-            ?: throw IllegalStateException("Experiment start time not found for testUUID: $testUUID and testVersion: $testVersion")
-        val startTime = Instant.parse(startTimeString)
-        val endTime = Instant.now().plusSeconds(60)
+            val startTimeString = experimentState.startTime
+                ?: throw IllegalStateException("Experiment start time not found for testUUID: $testUUID and testVersion: $testVersion")
+            val startTime = Instant.parse(startTimeString)
+            val endTime = Instant.now().plusSeconds(60)
 
-        redisCacheService.cacheExperimentState(experimentState.copy(endTime = endTime.toString(), triggerState = COMPLETED))
+            redisCacheService.cacheExperimentState(experimentState.copy(endTime = endTime.toString(), triggerState = COMPLETED))
 
-        experimentMetricsService.exportMetrics(testUUID, testVersion, gatlingStatsJs, gatlingStatsHtml)
-        experimentResultService.createAndExportReports(testUUID, testVersion, startTime, endTime, experimentState.goals)
+            experimentMetricsService.exportMetrics(testUUID, testVersion, startTime, endTime, gatlingStatsJs, gatlingStatsHtml)
+            experimentResultService.createAndExportReports(testUUID, testVersion, startTime, endTime, experimentState.goals)
 
-        logger.info { "Finished Experiment run for testUUID: $testUUID and testVersion: $testVersion" }
+            logger.info { "Finished Experiment run for testUUID: $testUUID and testVersion: $testVersion" }
+        }
     }
 }

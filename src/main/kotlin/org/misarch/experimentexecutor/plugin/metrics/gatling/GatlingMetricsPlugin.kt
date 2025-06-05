@@ -11,6 +11,7 @@ import org.misarch.experimentexecutor.plugin.metrics.gatling.model.GatlingStats
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodilessEntity
+import java.time.Instant
 import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
@@ -21,9 +22,23 @@ class GatlingMetricsPlugin(
     private val pushGatewayUrl: String,
 ) : MetricPluginInterface {
 
-    suspend fun exportMetrics(testUUID: UUID, testVersion: String, gatlingStatsJs: String, gatlingStatsHtml: String ) {
+    // TODO export Metrics also with a 0 timestamp for comparability
+    // TODO post per request gauges to InfluxDB
+    // TODO remove prometheus pushgateway
+
+    override suspend fun exportMetrics(
+        testUUID: UUID,
+        testVersion: String,
+        startTime: Instant,
+        endTime: Instant,
+        gatlingStatsJs: String,
+        gatlingStatsHtml: String,
+    ) {
 
         val responseTimeStats = parseGatlingResponseTimeStats(gatlingStatsJs)
+
+        postResponseTimeStatsToInflux(responseTimeStats, testUUID, testVersion)
+
         val registry = CollectorRegistry.defaultRegistry
         registry.clear()
 
@@ -202,6 +217,53 @@ class GatlingMetricsPlugin(
         postToInflux(lineProtocolAll)
         postToInflux(lineProtocolOk)
         postToInflux(lineProtocolKo)
+    }
+
+    private suspend fun postResponseTimeStatsToInflux(responseTimeStats: GatlingStats, testUUID: UUID, testVersion: String) {
+        val metrics = mapOf(
+            "meanResponseTime" to responseTimeStats.stats.meanResponseTime.total.toDoubleOrNull(),
+            "meanResponseTimeOk" to responseTimeStats.stats.meanResponseTime.ok.toDoubleOrNull(),
+            "meanResponseTimeKo" to responseTimeStats.stats.meanResponseTime.ko.toDoubleOrNull(),
+            "minResponseTime" to responseTimeStats.stats.minResponseTime.total.toDoubleOrNull(),
+            "minResponseTimeOk" to responseTimeStats.stats.minResponseTime.ok.toDoubleOrNull(),
+            "minResponseTimeKo" to responseTimeStats.stats.minResponseTime.ko.toDoubleOrNull(),
+            "maxResponseTime" to responseTimeStats.stats.maxResponseTime.total.toDoubleOrNull(),
+            "maxResponseTimeOk" to responseTimeStats.stats.maxResponseTime.ok.toDoubleOrNull(),
+            "maxResponseTimeKo" to responseTimeStats.stats.maxResponseTime.ko.toDoubleOrNull(),
+            "standardDeviation" to responseTimeStats.stats.standardDeviation.total.toDoubleOrNull(),
+            "standardDeviationOk" to responseTimeStats.stats.standardDeviation.ok.toDoubleOrNull(),
+            "standardDeviationKo" to responseTimeStats.stats.standardDeviation.ko.toDoubleOrNull(),
+            "percentiles1" to responseTimeStats.stats.percentiles1.total.toDoubleOrNull(),
+            "percentiles1Ok" to responseTimeStats.stats.percentiles1.ok.toDoubleOrNull(),
+            "percentiles1Ko" to responseTimeStats.stats.percentiles1.ko.toDoubleOrNull(),
+            "percentiles2" to responseTimeStats.stats.percentiles2.total.toDoubleOrNull(),
+            "percentiles2Ok" to responseTimeStats.stats.percentiles2.ok.toDoubleOrNull(),
+            "percentiles2Ko" to responseTimeStats.stats.percentiles2.ko.toDoubleOrNull(),
+            "percentiles3" to responseTimeStats.stats.percentiles3.total.toDoubleOrNull(),
+            "percentiles3Ok" to responseTimeStats.stats.percentiles3.ok.toDoubleOrNull(),
+            "percentiles3Ko" to responseTimeStats.stats.percentiles3.ko.toDoubleOrNull(),
+            "percentiles4" to responseTimeStats.stats.percentiles4.total.toDoubleOrNull(),
+            "percentiles4Ok" to responseTimeStats.stats.percentiles4.ok.toDoubleOrNull(),
+            "percentiles4Ko" to responseTimeStats.stats.percentiles4.ko.toDoubleOrNull(),
+            "numberOfRequestsTotal" to responseTimeStats.stats.numberOfRequests.total.toDoubleOrNull(),
+            "numberOfRequestsOk" to responseTimeStats.stats.numberOfRequests.ok.toDoubleOrNull(),
+            "numberOfRequestsKo" to responseTimeStats.stats.numberOfRequests.ko.toDoubleOrNull(),
+            "meanNumberOfRequestsPerSecondTotal" to responseTimeStats.stats.meanNumberOfRequestsPerSecond.total.toDoubleOrNull(),
+            "meanNumberOfRequestsPerSecondOk" to responseTimeStats.stats.meanNumberOfRequestsPerSecond.ok.toDoubleOrNull(),
+            "meanNumberOfRequestsPerSecondKo" to responseTimeStats.stats.meanNumberOfRequestsPerSecond.ko.toDoubleOrNull(),
+            "group1Count" to responseTimeStats.stats.group1.count.toDouble(),
+            "group2Count" to responseTimeStats.stats.group2.count.toDouble(),
+            "group3Count" to responseTimeStats.stats.group3.count.toDouble(),
+            "group4Count" to responseTimeStats.stats.group4.count.toDouble()
+        )
+        metrics.forEach { (metricName, value) ->
+            if (value != null) {
+                val lineProtocol = buildString {
+                    append("$metricName,testUUID=$testUUID,testVersion=$testVersion value=$value ${Instant.now().toEpochMilli()}")
+                }
+                postToInflux(lineProtocol)
+            }
+        }
     }
 
     private suspend fun postToInflux(lineProtocol: String) {
