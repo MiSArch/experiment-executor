@@ -19,9 +19,18 @@ class ExperimentConfigService(
     suspend fun getExistingExperiments(): List<String> {
         val experimentsDir = File(basePath)
         return experimentsDir.listFiles()
-            ?.filter { it.isDirectory }
+            ?.filter { it.isDirectory && isValidUUID(it.name) }
             ?.map { it.name }
             ?: emptyList()
+    }
+
+    private fun isValidUUID(name: String): Boolean {
+        return try {
+            UUID.fromString(name)
+            true
+        } catch (e: IllegalArgumentException) {
+            false
+        }
     }
 
     suspend fun getExperimentVersions(testUUID: UUID): List<String> {

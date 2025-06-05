@@ -28,7 +28,8 @@ data class TokenConfig(
 
 @ConfigurationProperties(prefix = "grafana")
 data class GrafanaConfig(
-    val apiToken: String,
+    val adminUser: String,
+    val adminPassword: String,
     val url: String
 )
 

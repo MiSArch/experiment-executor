@@ -2,6 +2,7 @@ package org.misarch.experimentexecutor.plugin.export.grafana
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.reactor.awaitSingle
 import org.misarch.experimentexecutor.config.GRAFANA_DASHBOARD_FILENAME
 import org.misarch.experimentexecutor.config.GrafanaConfig
 import org.misarch.experimentexecutor.config.TEMPLATE_PREFIX
@@ -22,6 +23,9 @@ class GrafanaPlugin(
     private val grafanaConfig: GrafanaConfig,
     private val templatePath: String,
     ) : ExportPluginInterface {
+
+    private var serviceAccountId: String? = null
+    private var apiToken: String? = null
 
     override suspend fun createReport(testUUID: UUID, testVersion: String, startTime: Instant, endTime: Instant, goals: List<Goal>): Boolean {
         val filePath = "$templatePath/${TEMPLATE_PREFIX}${GRAFANA_DASHBOARD_FILENAME}"
@@ -75,10 +79,11 @@ class GrafanaPlugin(
             )
         )
 
+        val grafanaToken = createApiToken("experiment-executor-${UUID.randomUUID()}")
         webClient.post()
             .uri("${grafanaConfig.url}/api/dashboards/db")
             .contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", "Bearer ${grafanaConfig.apiToken}")
+            .header("Authorization", "Bearer $grafanaToken")
             .bodyValue(jacksonObjectMapper().writeValueAsString(updatedDashboard))
             .retrieve()
             .awaitBodilessEntity()
@@ -86,5 +91,43 @@ class GrafanaPlugin(
         logger.info { "\uD83D\uDCC8 Result dashboard exported to Grafana\n http://localhost:3001/d/$testUUID-$testVersion" }
 
         return true
+    }
+
+    private suspend fun createServiceAccount(serviceAccountName: String, serviceAccountRole: String): String {
+        val payload = mapOf("name" to serviceAccountName, "role" to serviceAccountRole)
+
+        val response = webClient.post()
+            .uri("${grafanaConfig.url}/api/serviceaccounts")
+            .contentType(MediaType.APPLICATION_JSON)
+            .headers { it.setBasicAuth(grafanaConfig.adminUser, grafanaConfig.adminPassword) }
+            .bodyValue(payload)
+            .retrieve()
+            .bodyToMono(Map::class.java)
+            .awaitSingle()
+
+        serviceAccountId = response["id"]?.toString()
+            ?: throw IllegalStateException("Failed to parse service account ID.")
+        return serviceAccountId!!
+    }
+
+    private suspend fun createApiToken(tokenName: String): String {
+        if (serviceAccountId == null) {
+            createServiceAccount("experiment-executor", "Admin")
+        }
+
+        val payload = mapOf("name" to tokenName)
+
+        val response = webClient.post()
+            .uri("${grafanaConfig.url}/api/serviceaccounts/$serviceAccountId/tokens")
+            .contentType(MediaType.APPLICATION_JSON)
+            .headers { it.setBasicAuth(grafanaConfig.adminUser, grafanaConfig.adminPassword) }
+            .bodyValue(payload)
+            .retrieve()
+            .bodyToMono(Map::class.java)
+            .awaitSingle()
+
+        apiToken = response["key"]?.toString()
+            ?: throw IllegalStateException("Failed to parse API token.")
+        return apiToken!!
     }
 }

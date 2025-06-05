@@ -10,8 +10,9 @@ server:
   port: 8888
 
 grafana:
-  api-token: ${GRAFANA_API_TOKEN}
   url:  ${GRAFANA_HOST}
+  admin-user: ${GRAFANA_ADMIN_USER}
+  admin-password: ${GRAFANA_ADMIN_PASSWORD}
 pushgateway:
   url: ${PUSHGATEWAY_HOST}
 influxdb:
