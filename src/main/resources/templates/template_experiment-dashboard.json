@@ -2118,7 +2118,8 @@
                   "value": null
                 }
               ]
-            }
+            },
+            "unit": "ms"
           },
           "overrides": []
         },
@@ -2128,7 +2129,7 @@
           "x": 12,
           "y": 25
         },
-        "id": 12,
+        "id": 44,
         "options": {
           "legend": {
             "calcs": [],
@@ -2146,13 +2147,13 @@
         "targets": [
           {
             "editorMode": "code",
-            "expr": "rate(http_server_request_duration_count{exported_job=\"${service}\", http_response_status_code!=\"200\", http_response_status_code!=\"201\"}[20s])",
-            "legendFormat": "Path: {{http_route}}, Response Code: {{http_response_status_code}}",
+            "expr": "rate(dapr_http_server_latency_sum{app_id=\"${service}\"}[20s])",
+            "legendFormat": "Path: {{path}}, Status Code: {{status}}",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "${service} http server errors",
+        "title": "${service} dapr http server latency",
         "type": "timeseries"
       },
       {
@@ -2308,7 +2309,7 @@
           "x": 12,
           "y": 33
         },
-        "id": 10,
+        "id": 12,
         "options": {
           "legend": {
             "calcs": [],
@@ -2326,13 +2327,13 @@
         "targets": [
           {
             "editorMode": "code",
-            "expr": "rate(dapr_component_pubsub_egress_latencies_sum{app_id=\"${service}\"}[20s])",
-            "legendFormat": "__auto",
+            "expr": "rate(http_server_request_duration_count{exported_job=\"${service}\", http_response_status_code!=\"200\", http_response_status_code!=\"201\"}[20s])",
+            "legendFormat": "Path: {{http_route}}, Response Code: {{http_response_status_code}}",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "${service} dapr pubsub egress latency",
+        "title": "${service} http server errors",
         "type": "timeseries"
       },
       {
@@ -2497,7 +2498,7 @@
           "x": 12,
           "y": 41
         },
-        "id": 11,
+        "id": 10,
         "options": {
           "legend": {
             "calcs": [],
@@ -2515,13 +2516,13 @@
         "targets": [
           {
             "editorMode": "code",
-            "expr": "rate(dapr_http_client_roundtrip_latency_sum{app_id=\"${service}\", path!=\"/_ecs/variables-event\", path!=\"_ecs/defined-variables\", path!=\"/dapr/config\"}[20s])",
-            "legendFormat": "Path: {{path}}",
+            "expr": "rate(dapr_component_pubsub_egress_latencies_sum{app_id=\"${service}\"}[20s])",
+            "legendFormat": "__auto",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "${service} dapr http client roundtrip latency",
+        "title": "${service} dapr pubsub egress latency",
         "type": "timeseries"
       },
       {
@@ -2670,7 +2671,8 @@
                   "value": null
                 }
               ]
-            }
+            },
+            "unit": "ms"
           },
           "overrides": []
         },
@@ -2679,6 +2681,95 @@
           "w": 11,
           "x": 12,
           "y": 49
+        },
+        "id": 11,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": {
+            "hideZeros": false,
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "editorMode": "code",
+            "expr": "rate(dapr_http_client_roundtrip_latency_sum{app_id=\"${service}\", path!=\"/_ecs/variables-event\", path!=\"_ecs/defined-variables\", path!=\"/dapr/config\"}[20s])",
+            "legendFormat": "Path: {{path}}",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "${service} dapr http client roundtrip latency",
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisBorderShow": false,
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "barWidthFactor": 0.6,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 11,
+          "x": 12,
+          "y": 57
         },
         "id": 7,
         "options": {
@@ -2855,8 +2946,8 @@
             },
             {
               "selected": false,
-              "text": "placeordermuta",
-              "value": "placeordermuta"
+              "text": "placeordermutat",
+              "value": "placeordermutat"
             },
             {
               "selected": false,

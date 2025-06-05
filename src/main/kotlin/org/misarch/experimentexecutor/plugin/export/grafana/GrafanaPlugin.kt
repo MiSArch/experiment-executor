@@ -93,7 +93,28 @@ class GrafanaPlugin(
         return true
     }
 
+    private suspend fun fetchServiceAccountByName(serviceAccountName: String): String? {
+        val response = webClient.get()
+            .uri("${grafanaConfig.url}/api/serviceaccounts/search?perpage=10&page=1&query=$serviceAccountName")
+            .headers { it.setBasicAuth(grafanaConfig.adminUser, grafanaConfig.adminPassword) }
+            .retrieve()
+            .bodyToMono(Map::class.java)
+            .awaitSingle()
+
+        val serviceAccount = (response["serviceAccounts"] as List<*>)
+            .filterIsInstance<Map<*, *>>()
+            .find { it["name"] == serviceAccountName }
+
+        return serviceAccount?.get("id")?.toString()
+    }
+
     private suspend fun createServiceAccount(serviceAccountName: String, serviceAccountRole: String): String {
+        val existingServiceAccountId = fetchServiceAccountByName(serviceAccountName)
+        if (existingServiceAccountId != null) {
+            serviceAccountId = existingServiceAccountId
+            return serviceAccountId!!
+        }
+
         val payload = mapOf("name" to serviceAccountName, "role" to serviceAccountRole)
 
         val response = webClient.post()
@@ -111,6 +132,9 @@ class GrafanaPlugin(
     }
 
     private suspend fun createApiToken(tokenName: String): String {
+        if (apiToken != null) {
+            return apiToken!!
+        }
         if (serviceAccountId == null) {
             createServiceAccount("experiment-executor", "Admin")
         }
