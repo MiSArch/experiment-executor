@@ -37,7 +37,8 @@ class GatlingMetricsPlugin(
 
         val responseTimeStats = parseGatlingResponseTimeStats(gatlingStatsJs)
 
-        postResponseTimeStatsToInflux(responseTimeStats, testUUID, testVersion)
+        postResponseTimeStatsToInflux(responseTimeStats, testUUID, testVersion, Instant.now().toEpochMilli())
+        postResponseTimeStatsToInflux(responseTimeStats, testUUID, testVersion, 946684800000) // 2000-01-01T00:00:00Z
 
         val registry = CollectorRegistry.defaultRegistry
         registry.clear()
@@ -219,7 +220,7 @@ class GatlingMetricsPlugin(
         postToInflux(lineProtocolKo)
     }
 
-    private suspend fun postResponseTimeStatsToInflux(responseTimeStats: GatlingStats, testUUID: UUID, testVersion: String) {
+    private suspend fun postResponseTimeStatsToInflux(responseTimeStats: GatlingStats, testUUID: UUID, testVersion: String, epochTimestamp: Long) {
         val metrics = mapOf(
             "meanResponseTime" to responseTimeStats.stats.meanResponseTime.total.toDoubleOrNull(),
             "meanResponseTimeOk" to responseTimeStats.stats.meanResponseTime.ok.toDoubleOrNull(),
@@ -258,9 +259,7 @@ class GatlingMetricsPlugin(
         )
         metrics.forEach { (metricName, value) ->
             if (value != null) {
-                val lineProtocol = buildString {
-                    append("$metricName,testUUID=$testUUID,testVersion=$testVersion value=$value ${Instant.now().toEpochMilli()}")
-                }
+                val lineProtocol = "$metricName,testUUID=$testUUID,testVersion=$testVersion value=$value $epochTimestamp"
                 postToInflux(lineProtocol)
             }
         }
