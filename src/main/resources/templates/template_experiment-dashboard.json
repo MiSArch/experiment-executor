@@ -2511,11 +2511,16 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
+            "disableTextWrap": false,
             "editorMode": "code",
             "expr": "rate(dapr_component_pubsub_egress_latencies_sum{app_id=\"${service}\"}[20s])",
-            "legendFormat": "__auto",
+            "fullMetaSearch": false,
+            "includeNullMetadata": true,
+            "legendFormat": "Topic: {{topic}}, Success: {{success}}",
             "range": true,
-            "refId": "A"
+            "refId": "A",
+            "useBackend": false
+
           }
         ],
         "title": "${service} dapr pubsub egress latency",
@@ -2784,11 +2789,15 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
+            "disableTextWrap": false,
             "editorMode": "code",
             "expr": "rate(dapr_http_client_completed_count{app_id=\"${service}\", path!=\"/_ecs/variables-event\", path!=\"_ecs/defined-variables\", path!=\"/dapr/config\"}[20s])",
-            "legendFormat": "__auto",
+            "fullMetaSearch": false,
+            "includeNullMetadata": true,
+            "legendFormat": "Path: {{path}}, Status: {{status}}",
             "range": true,
-            "refId": "A"
+            "refId": "A",
+            "useBackend": false
           }
         ],
         "title": "${service} dapr http completed messages",
