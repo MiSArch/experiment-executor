@@ -2982,7 +2982,7 @@
               "value": "paymentinformat"
             }
           ],
-          "query": "createordermuta, createshoppingc, placeordermuta, product, products, shipmentmethods, users, paymentinformat",
+          "query": "createordermuta, createshoppingc, placeordermutat, product, products, shipmentmethods, users, paymentinformat",
           "type": "custom"
         },
         {

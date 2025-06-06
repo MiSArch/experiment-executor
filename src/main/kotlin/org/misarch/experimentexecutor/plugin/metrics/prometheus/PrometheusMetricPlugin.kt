@@ -6,7 +6,6 @@ import org.misarch.experimentexecutor.plugin.metrics.MetricPluginInterface
 import org.misarch.experimentexecutor.plugin.metrics.prometheus.model.PrometheusResponse
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import java.net.URI
 import java.net.URLEncoder
 import java.time.Instant
@@ -17,7 +16,6 @@ private val logger = KotlinLogging.logger {}
 
 class PrometheusMetricPlugin(
     private val webClient: WebClient,
-    private val influxUrl: String,
 ) : MetricPluginInterface {
     private val services = listOf(
         "address",
@@ -113,22 +111,7 @@ class PrometheusMetricPlugin(
         }
 
         val service = services.first { metricFilter.contains(it) }
-        if (data.isNotEmpty()) {
-            val lineProtocol = data.map { (timestamp, value) ->
-                "$metricName,testUUID=$testUUID,testVersion=$testVersion,service=$service value=${value} $timestamp"
-            }.joinToString("\n")
-            postToInflux(lineProtocol)
-        }
-    }
 
-    private suspend fun postToInflux(lineProtocol: String) {
-        webClient.post()
-            .uri(influxUrl)
-            .header("Authorization", "Token my-secret-token")  // TODO CONFIG
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.TEXT_PLAIN)
-            .bodyValue(lineProtocol)
-            .retrieve()
-            .awaitBodilessEntity()
+        // TODO write to file if config activated
     }
 }

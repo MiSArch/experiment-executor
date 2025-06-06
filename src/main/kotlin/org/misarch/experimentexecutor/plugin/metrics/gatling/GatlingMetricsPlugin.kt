@@ -18,6 +18,7 @@ class GatlingMetricsPlugin(
     private val influxUrl: String,
 ) : MetricPluginInterface {
 
+    // TODO write to file if config activated
     override suspend fun exportMetrics(
         testUUID: UUID,
         testVersion: String,
@@ -29,7 +30,7 @@ class GatlingMetricsPlugin(
 
         // Response Time Metrics
         val responseTimeStats = parseGatlingResponseTimeStats(gatlingStatsJs)
-        postResponseTimeStatsToInflux(responseTimeStats, testUUID, testVersion, endTime)
+        postResponseTimeStatsToInflux(responseTimeStats, testUUID, testVersion, endTime.minusSeconds(60))
 
         // TODO responsetimepercentilesovertimeokPercentiles -> list of maps with timestamp and list which represent the response time percentiles at the timepoint
         // Requests and Responses over Time

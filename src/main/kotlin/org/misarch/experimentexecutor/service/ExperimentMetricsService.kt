@@ -19,7 +19,7 @@ class ExperimentMetricsService(
 
     private val registry = listOf(
         GatlingMetricsPlugin(webClient, influxUrl),
-        PrometheusMetricPlugin(webClient, influxUrl),
+        PrometheusMetricPlugin(webClient),
     )
 
     suspend fun exportMetrics(
