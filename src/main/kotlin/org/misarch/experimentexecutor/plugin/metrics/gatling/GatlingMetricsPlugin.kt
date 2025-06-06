@@ -40,7 +40,6 @@ class GatlingMetricsPlugin(
         val responseTimeStats = parseGatlingResponseTimeStats(gatlingStatsJs)
         postResponseTimeStatsToInflux(responseTimeStats, testUUID, testVersion, endTime.minusSeconds(60))
 
-        // TODO responsetimepercentilesovertimeokPercentiles -> list of maps with timestamp and list which represent the response time percentiles at the timepoint
         // Requests and Responses over Time
         val dataSeries = extractDataSeries(gatlingStatsHtml)
         dataSeries.forEach { (series, data) ->
@@ -52,6 +51,10 @@ class GatlingMetricsPlugin(
         // Active Users Over Time
         val activeUsers = extractActiveUsers(gatlingStatsHtml)
         activeUsers.forEach { (scenario, data) -> postActiveUsersToInflux(data, scenario, "activeUsers", testUUID, testVersion) }
+
+        // responsetimepercentilesovertimeokPercentiles
+        // -> list of maps with timestamp and list which represent the response time percentiles at the timepoint
+        // -> could be added as well here
 
         logger.info { "🚀 Gatling Metrics pushed to InfluxDB" }
     }

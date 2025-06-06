@@ -2,7 +2,8 @@ package org.misarch.experimentexecutor.service
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.*
-import org.misarch.experimentexecutor.controller.error.AsyncEventErrorHandler
+import org.misarch.experimentexecutor.controller.experiment.AsyncEventErrorHandler
+import org.misarch.experimentexecutor.controller.experiment.AsyncEventResponder
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.service.model.ExperimentState
 import org.misarch.experimentexecutor.service.model.ExperimentState.TriggerState.COMPLETED
@@ -24,6 +25,7 @@ class ExperimentExecutionService(
     private val experimentResultService: ExperimentResultService,
     private val redisCacheService: RedisCacheService,
     private val asyncEventErrorHandler: AsyncEventErrorHandler,
+    private val asyncEventResponder: AsyncEventResponder,
     @Value("\${experiment-executor.trigger-delay}") private val triggerDelay: Long
 ) {
 
@@ -115,6 +117,8 @@ class ExperimentExecutionService(
 
             experimentMetricsService.exportMetrics(testUUID, testVersion, startTime, endTime, gatlingStatsJs, gatlingStatsHtml)
             experimentResultService.createAndExportReports(testUUID, testVersion, startTime, endTime, experimentState.goals)
+
+            asyncEventResponder.emitSuccess(testUUID, testVersion)
 
             logger.info { "Finished Experiment run for testUUID: $testUUID and testVersion: $testVersion" }
         }
