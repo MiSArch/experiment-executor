@@ -3,6 +3,7 @@ package org.misarch.experimentexecutor.model
 data class ExperimentConfig(
     val testUUID: String,
     val testVersion: String,
+    val testName: String,
     val workLoad: WorkLoad,
     val goals: List<Goal>
 )

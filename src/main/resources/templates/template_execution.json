@@ -1,6 +1,7 @@
 {
   "testUUID": "REPLACE_ME_TEST_UUID",
   "testVersion": "REPLACE_ME_TEST_VERSION",
+  "testName": "REPLACE_ME_TEST_NAME",
   "workLoad": {
     "gatling": {
       "loadType": "REPLACE_ME_LOADTYPE",

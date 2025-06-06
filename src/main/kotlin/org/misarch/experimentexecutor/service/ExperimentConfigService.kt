@@ -41,7 +41,7 @@ class ExperimentConfigService(
             ?: emptyList()
     }
 
-    suspend fun generateExperiment(loadType: GatlingLoadType, testDuration: Int, sessionDuration: Int, rate: Float): String {
+    suspend fun generateExperiment(testName: String, loadType: GatlingLoadType, testDuration: Int, sessionDuration: Int, rate: Float): String {
         val testUUID = UUID.randomUUID()
         val testVersion = "v1"
         val experimentDir = "$basePath/$testUUID/$testVersion"
@@ -67,6 +67,7 @@ class ExperimentConfigService(
         val executionTemplateUpdated = executionTemplate
             .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
             .replace("REPLACE_ME_TEST_VERSION", testVersion)
+            .replace("REPLACE_ME_TEST_NAME", testName)
             .replace("REPLACE_ME_BASE_PATH", experimentDir)
             .replace("REPLACE_ME_LOADTYPE", loadType.toString())
             .replace("REPLACE_ME_CHAOSTOOLKIT_FILENAME", CHAOSTOOLKIT_FILENAME)

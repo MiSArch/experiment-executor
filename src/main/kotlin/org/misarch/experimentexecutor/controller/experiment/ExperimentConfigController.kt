@@ -4,6 +4,7 @@ import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.model.GatlingLoadType
 import org.misarch.experimentexecutor.service.ExperimentConfigService
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.util.HtmlUtils
 import java.util.*
 
 @RestController
@@ -13,15 +14,17 @@ class ExperimentConfigController(
     /**
      * Generates and stores a new experiment configuration based on the specified load type.
      */
-    @PostMapping("/experiment/generate/{loadType}")
+    @PostMapping("/experiment/generate")
     suspend fun generateExperiment(
-        @PathVariable loadType: GatlingLoadType,
+        @RequestParam loadType: GatlingLoadType,
+        @RequestParam(required = false, defaultValue = "My Experiment") testName: String,
         @RequestParam(required = false, defaultValue = "10") sessionDuration: Int,
         @RequestParam(required = false, defaultValue = "1800") testDuration: Int,
         @RequestParam(required = false) rate: Float?,
     ): String {
+        val sanitizedTestName = HtmlUtils.htmlEscape(testName)
         val defaultRate = rate ?: (2.0F / sessionDuration)
-        return experimentConfigService.generateExperiment(loadType, testDuration, sessionDuration, defaultRate)
+        return experimentConfigService.generateExperiment(sanitizedTestName, loadType, testDuration, sessionDuration, defaultRate)
     }
 
     @GetMapping("/experiments")
