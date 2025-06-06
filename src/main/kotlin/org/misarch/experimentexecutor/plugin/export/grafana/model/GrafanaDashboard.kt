@@ -79,6 +79,7 @@ data class TemplateVar(
     val label: String? = null,
     val query: Any? = null,
     val current: CurrentSelection? = null,
+    val datasource: Any? = null,
     val options: List<Option>? = null,
     val description: String? = null,
     val definition: String? = null,
