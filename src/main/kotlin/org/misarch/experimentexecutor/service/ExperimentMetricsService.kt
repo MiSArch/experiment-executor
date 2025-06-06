@@ -15,11 +15,13 @@ import java.util.*
 class ExperimentMetricsService(
     webClient: WebClient,
     @Value("\${influxdb.url}") private val influxUrl: String,
+    @Value("\${influxdb.token}") private val influxToken: String,
+    @Value("\${experiment-executor.base-path}") private val basePath: String,
+    @Value("\${experiment-executor.store-result-data-in-files}") private val storeResultDataInFiles: Boolean,
 ) {
-
     private val registry = listOf(
-        GatlingMetricsPlugin(webClient, influxUrl),
-        PrometheusMetricPlugin(webClient),
+        GatlingMetricsPlugin(webClient, influxUrl, influxToken, storeResultDataInFiles, basePath),
+        PrometheusMetricPlugin(webClient, storeResultDataInFiles, basePath),
     )
 
     suspend fun exportMetrics(

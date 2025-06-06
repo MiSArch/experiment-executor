@@ -1,14 +1,17 @@
 package org.misarch.experimentexecutor.plugin.metrics.prometheus
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.reactor.awaitSingle
 import org.misarch.experimentexecutor.plugin.metrics.MetricPluginInterface
 import org.misarch.experimentexecutor.plugin.metrics.prometheus.model.PrometheusResponse
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
+import java.io.File
 import java.net.URI
 import java.net.URLEncoder
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.text.Charsets.UTF_8
 
@@ -16,6 +19,8 @@ private val logger = KotlinLogging.logger {}
 
 class PrometheusMetricPlugin(
     private val webClient: WebClient,
+    private val storeResultDataInFiles: Boolean,
+    private val basePath: String,
 ) : MetricPluginInterface {
     private val services = listOf(
         "address",
@@ -60,6 +65,10 @@ class PrometheusMetricPlugin(
         gatlingStatsJs: String,
         gatlingStatsHtml: String,
     ) {
+        if (!storeResultDataInFiles) {
+            return
+        }
+
         metrics.forEach { metricList ->
             metricList.forEach { (metricName, metricFilter) ->
                 queryPrometheus(
@@ -69,7 +78,8 @@ class PrometheusMetricPlugin(
                     end = endTime.toString(),
                     step = "1s",
                     testUUID = testUUID,
-                    testVersion = testVersion
+                    testVersion = testVersion,
+                    startTime = startTime,
                 )
             }
         }
@@ -79,10 +89,13 @@ class PrometheusMetricPlugin(
     private suspend fun queryPrometheus(
         metricName: String,
         metricFilter: String,
-        start: String, end:
-        String, step: String,
+        start: String,
+        end:
+        String,
+        step: String,
         testUUID: UUID,
-        testVersion: String
+        testVersion: String,
+        startTime: Instant,
     ) {
         val uri = URI.create(
             "http://localhost:9090/api/v1/query_range?" +
@@ -99,19 +112,11 @@ class PrometheusMetricPlugin(
             .bodyToMono(PrometheusResponse::class.java)
             .awaitSingle()
 
-        val values = response.data.result.firstOrNull()?.values
-        if (values.isNullOrEmpty()) {
-            return
-        }
-
-        val data = values.associate { value ->
-            val timestamp = value[0].split(".").first().toLongOrNull()
-            val datapoint = value[1].toDoubleOrNull()
-            timestamp to datapoint
-        }
-
         val service = services.first { metricFilter.contains(it) }
-
-        // TODO write to file if config activated
+        val folderName = startTime.truncatedTo(ChronoUnit.SECONDS).toString().replace(":", "-")
+        File("$basePath/$testUUID/$testVersion/reports/prometheus/$folderName/$service-$metricName.json").apply {
+            parentFile.mkdirs()
+            writeText(jacksonObjectMapper().writeValueAsString(response.toString()))
+        }
     }
 }

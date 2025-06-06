@@ -2,13 +2,13 @@ package org.misarch.experimentexecutor.service
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.*
-import org.misarch.experimentexecutor.config.ExperimentExecutorConfig
 import org.misarch.experimentexecutor.controller.error.AsyncEventErrorHandler
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.service.model.ExperimentState
 import org.misarch.experimentexecutor.service.model.ExperimentState.TriggerState.COMPLETED
 import org.misarch.experimentexecutor.service.model.ExperimentState.TriggerState.INITIALIZING
 import org.misarch.experimentexecutor.service.model.ExperimentState.TriggerState.STARTED
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.*
@@ -22,9 +22,9 @@ class ExperimentExecutionService(
     private val experimentWorkloadService: ExperimentWorkloadService,
     private val experimentMetricsService: ExperimentMetricsService,
     private val experimentResultService: ExperimentResultService,
-    private val experimentExecutorConfig: ExperimentExecutorConfig,
     private val redisCacheService: RedisCacheService,
     private val asyncEventErrorHandler: AsyncEventErrorHandler,
+    @Value("\${experiment-executor.trigger-delay}") private val triggerDelay: Long
 ) {
 
     suspend fun getTriggerState(testUUID: UUID, testVersion: String): Boolean {
@@ -76,7 +76,7 @@ class ExperimentExecutionService(
 
             logger.info { "Started experiment and waiting for trigger for testUUID: $testUUID and testVersion: $testVersion" }
 
-            delay(experimentExecutorConfig.triggerDelay)
+            delay(triggerDelay)
             redisCacheService.cacheExperimentState(experimentState.copy(triggerState = STARTED, startTime = Instant.now().toString()))
 
             experimentFailureService.startExperimentFailure(testUUID, testVersion)

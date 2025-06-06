@@ -37,6 +37,7 @@ data class GrafanaConfig(
 data class ExperimentExecutorConfig(
     val templatePath: String,
     val basePath: String,
+    val storeResultDataInFiles: Boolean,
     val corsOrigins: List<String>,
     val triggerDelay: Long,
 )

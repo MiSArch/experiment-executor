@@ -15,6 +15,7 @@ grafana:
   admin-password: ${GRAFANA_ADMIN_PASSWORD}
 influxdb:
   url: ${INFLUXDB_URL}
+  token: ${INFLUXDB_TOKEN}
 misarch:
   experiment-config:
     host: ${MISARCH_EXPERIMENT_CONFIG_HOST}
@@ -33,5 +34,6 @@ experiment-executor:
   base-path: "/home/java/tests"
   template-path: "src/main/resources/templates"
   trigger-delay: ${EXPERIMENT_TRIGGER_DELAY}
+  store-result-data-in-files: ${STORE_RESULT_DATA_IN_FILES}
   cors-origins:
     - "http://localhost:5173"

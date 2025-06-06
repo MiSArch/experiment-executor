@@ -8,7 +8,9 @@ import org.misarch.experimentexecutor.plugin.metrics.gatling.model.GatlingStats
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodilessEntity
+import java.io.File
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
@@ -16,9 +18,11 @@ private val logger = KotlinLogging.logger {}
 class GatlingMetricsPlugin(
     private val webClient: WebClient,
     private val influxUrl: String,
+    private val influxToken: String,
+    private val storeResultDataInFiles: Boolean,
+    private val basePath: String,
 ) : MetricPluginInterface {
 
-    // TODO write to file if config activated
     override suspend fun exportMetrics(
         testUUID: UUID,
         testVersion: String,
@@ -27,6 +31,10 @@ class GatlingMetricsPlugin(
         gatlingStatsJs: String,
         gatlingStatsHtml: String,
     ) {
+
+        if (storeResultDataInFiles) {
+            storeResultDataInFiles(testUUID, testVersion, startTime, gatlingStatsJs, gatlingStatsHtml)
+        }
 
         // Response Time Metrics
         val responseTimeStats = parseGatlingResponseTimeStats(gatlingStatsJs)
@@ -46,6 +54,16 @@ class GatlingMetricsPlugin(
         activeUsers.forEach { (scenario, data) -> postActiveUsersToInflux(data, scenario, "activeUsers", testUUID, testVersion) }
 
         logger.info { "🚀 Gatling Metrics pushed to InfluxDB" }
+    }
+
+    private fun storeResultDataInFiles(testUUID: UUID, testVersion: String, startTime: Instant, gatlingStatsJs: String, gatlingStatsHtml: String) {
+        val folderName = startTime.truncatedTo(ChronoUnit.SECONDS).toString().replace(":", "-")
+        val reportDir = File("$basePath/$testUUID/$testVersion/reports/gatling/$folderName").apply {
+            mkdirs()
+        }
+
+        File(reportDir, "stats.js").writeText(gatlingStatsJs)
+        File(reportDir, "index.html").writeText(gatlingStatsHtml)
     }
 
     private fun parseGatlingResponseTimeStats(gatlingStatsJs: String): GatlingStats {
@@ -201,7 +219,7 @@ class GatlingMetricsPlugin(
     private suspend fun postToInflux(lineProtocol: String) {
         webClient.post()
             .uri(influxUrl)
-            .header("Authorization", "Token my-secret-token")  // TODO CONFIG
+            .header("Authorization", "Token $influxToken")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.TEXT_PLAIN)
             .bodyValue(lineProtocol)
