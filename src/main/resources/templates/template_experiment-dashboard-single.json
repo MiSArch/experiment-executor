@@ -118,16 +118,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"activeUsers\")\n  |> filter(fn: (r) => r.scenario == \"BuyProcess\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n  |> group(columns: [\"label\"])",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"activeUsers\")\n  |> filter(fn: (r) => r.scenario == \"BuyProcess\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
-          },
-          {
-            "datasource": {
-              "type": "influxdb",
-              "uid": "influxdb_uid"
-            },
-            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"activeUsers\")\n  |> filter(fn: (r) => r.scenario == \"BuyProcess\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")\n  |> timeShift(duration: ${timeShift})\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n  |> group(columns: [\"label\"])",
-            "refId": "B"
           }
         ],
         "title": "active users",
@@ -187,7 +179,7 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group1Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group1Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group1Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -248,7 +240,7 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group2Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group2Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group2Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -309,7 +301,7 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group3Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group3Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group3Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -370,7 +362,7 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group4Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group4Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group4Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -460,16 +452,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"responses\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> map(fn: (r) => ({\n      _time: r._time,\n      _value: r._value,\n      label: r.flavor + \" (Now)\"\n  }))\n  |> group(columns: [\"label\"])",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"responses\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n",
             "refId": "A"
-          },
-          {
-            "datasource": {
-              "type": "influxdb",
-              "uid": "influxdb_uid"
-            },
-            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"responses\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> timeShift(duration: ${timeShift})\n  |> map(fn: (r) => ({\n      _time: r._time,\n      _value: r._value,\n      label: r.flavor + \" (${timeShift} ago)\"\n  }))\n  |> group(columns: [\"label\"])",
-            "refId": "B"
           }
         ],
         "title": "responses",
@@ -529,7 +513,7 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondTotal\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondTotal\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondTotal\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -590,7 +574,7 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -651,7 +635,7 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -713,7 +697,7 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTime\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTime\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTime\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -775,7 +759,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTime\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTime\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTime\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "mean response time",
@@ -836,7 +821,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTime\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTime\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTime\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "max response time",
@@ -897,7 +883,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "min response time ok",
@@ -958,7 +945,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "mean response time ok",
@@ -1019,7 +1007,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "max response time ok",
@@ -1080,7 +1069,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "min response time ko",
@@ -1141,7 +1131,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "mean response time ko",
@@ -1202,7 +1193,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "max response time ko",
@@ -1275,7 +1267,7 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"numberOfRequestsTotal_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"numberOfRequestsTotal_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"numberOfRequestsTotal_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -1337,7 +1329,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTime_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTime_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTime_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "min response time",
@@ -1398,7 +1391,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTime_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTime_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTime_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "mean response time",
@@ -1459,7 +1453,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTime_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTime_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTime_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "max response time",
@@ -1519,7 +1514,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"numberOfRequestsOk_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"numberOfRequestsOk_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"numberOfRequestsOk_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "number of requests ok",
@@ -1580,7 +1576,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeOk_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeOk_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeOk_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "min response time ok",
@@ -1641,7 +1638,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeOk_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeOk_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeOk_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "mean response time ok",
@@ -1702,7 +1700,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeOk_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeOk_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeOk_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "max response time ok",
@@ -1762,7 +1761,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"numberOfRequestsKo_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"numberOfRequestsKo_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"numberOfRequestsKo_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "number of requests ko",
@@ -1823,7 +1823,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeKo_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeKo_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeKo_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "min response time ko",
@@ -1884,7 +1885,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeKo_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeKo_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeKo_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "mean response time ko",
@@ -1945,7 +1947,8 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeKo_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeKo_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",            "refId": "A"
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeKo_${gatling_request}\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "max response time ko",
@@ -2046,10 +2049,6 @@
         "targets": [
           {
             "disableTextWrap": false,
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus_uid"
-            },
             "editorMode": "code",
             "expr": "rate(container_cpu_usage_seconds_total{name=\"infrastructure-docker-${service}-1\"}[20s])",
             "fullMetaSearch": false,
@@ -2057,19 +2056,6 @@
             "legendFormat": "vCPUs",
             "range": true,
             "refId": "A",
-            "useBackend": false
-          },
-          {
-            "disableTextWrap": false,
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus_uid"
-            },
-            "editorMode": "code",
-            "expr": "rate(container_cpu_usage_seconds_total{name=\"infrastructure-docker-${service}-1\"}[20s] offset ${timeShift})",
-            "legendFormat": "vCPUs (${timeShift} ago)",
-            "range": true,
-            "refId": "B",
             "useBackend": false
           }
         ],
@@ -2161,13 +2147,6 @@
             "legendFormat": "Path: {{path}}, Status Code: {{status}}",
             "range": true,
             "refId": "A"
-          },
-          {
-            "editorMode": "code",
-            "expr": "rate(dapr_http_server_latency_sum{app_id=\"${service}\"}[20s] offset ${timeShift})",
-            "legendFormat": "Path: {{path}}, Status Code: {{status}} (${timeShift} ago)",
-            "range": true,
-            "refId": "B"
           }
         ],
         "title": "${service} dapr http server latency",
@@ -2258,13 +2237,6 @@
             "legendFormat": "memory in GB",
             "range": true,
             "refId": "A"
-          },
-          {
-            "editorMode": "code",
-            "expr": "(container_memory_usage_bytes{name=\"infrastructure-docker-${service}-1\"} offset ${timeShift} or on() vector(0)) / 1073741824",
-            "legendFormat": "memory in GB (${timeShift} ago)",
-            "range": true,
-            "refId": "B"
           }
         ],
         "title": "${service} memory usage",
@@ -2355,13 +2327,6 @@
             "legendFormat": "Path: {{http_route}}, Response Code: {{http_response_status_code}}",
             "range": true,
             "refId": "A"
-          },
-          {
-            "editorMode": "code",
-            "expr": "rate(http_server_request_duration_count{exported_job=\"${service}\", http_response_status_code!=\"200\", http_response_status_code!=\"201\"}[20s] offset ${timeShift})",
-            "legendFormat": "Path: {{http_route}}, Response Code: {{http_response_status_code}} (${timeShift} ago)",
-            "range": true,
-            "refId": "B"
           }
         ],
         "title": "${service} http server errors",
@@ -2448,25 +2413,18 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "fejgzn68u65moe"
+            },
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "count(container_start_time_seconds{name=\"infrastructure-docker-${service}-1\"}) or on() vector(0)",
+            "expr": "count(container_start_time_seconds{name=\"infrastructure-docker-${service}-1\"}) or on() vector(0)\n",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "legendFormat": "container instances",
             "range": true,
             "refId": "A",
-            "useBackend": false
-          },
-          {
-            "disableTextWrap": false,
-            "editorMode": "code",
-            "expr": "count(container_start_time_seconds{name=\"infrastructure-docker-${service}-1\"} offset ${timeShift}) or on() vector(0)",
-            "fullMetaSearch": false,
-            "includeNullMetadata": true,
-            "legendFormat": "container instances (${timeShift} ago)",
-            "range": true,
-            "refId": "B",
             "useBackend": false
           }
         ],
@@ -2562,17 +2520,7 @@
             "range": true,
             "refId": "A",
             "useBackend": false
-          },
-          {
-            "disableTextWrap": false,
-            "editorMode": "code",
-            "expr": "rate(dapr_component_pubsub_egress_latencies_sum{app_id=\"${service}\"}[20s] offset ${timeShift})",
-            "fullMetaSearch": false,
-            "includeNullMetadata": true,
-            "legendFormat": "Topic: {{topic}}, Success: {{success}} (${timeShift} ago)",
-            "range": true,
-            "refId": "B",
-            "useBackend": false
+
           }
         ],
         "title": "${service} dapr pubsub egress latency",
@@ -2667,17 +2615,6 @@
             "range": true,
             "refId": "A",
             "useBackend": false
-          },
-          {
-            "disableTextWrap": false,
-            "editorMode": "code",
-            "expr": "rate(http_server_request_duration_sum{exported_job=\"${service}\", http_route!=\"/health\", http_route!=\"/**\", http_route!=\"/dapr/config\", http_route!=\"/dapr/subscribe\"}[20s] offset ${timeShift})",
-            "fullMetaSearch": false,
-            "includeNullMetadata": true,
-            "legendFormat": "Path: {{http_route}} (${timeShift} ago)",
-            "range": true,
-            "refId": "B",
-            "useBackend": false
           }
         ],
         "title": "${service} server http request duration",
@@ -2768,13 +2705,6 @@
             "legendFormat": "Path: {{path}}",
             "range": true,
             "refId": "A"
-          },
-          {
-            "editorMode": "code",
-            "expr": "rate(dapr_http_client_roundtrip_latency_sum{app_id=\"${service}\", path!=\"/_ecs/variables-event\", path!=\"_ecs/defined-variables\", path!=\"/dapr/config\"}[20s] offset ${timeShift})",
-            "legendFormat": "Path: {{path}} (${timeShift} ago)",
-            "range": true,
-            "refId": "B"
           }
         ],
         "title": "${service} dapr http client roundtrip latency",
@@ -2867,17 +2797,6 @@
             "legendFormat": "Path: {{path}}, Status: {{status}}",
             "range": true,
             "refId": "A",
-            "useBackend": false
-          },
-          {
-            "disableTextWrap": false,
-            "editorMode": "code",
-            "expr": "rate(dapr_http_client_completed_count{app_id=\"${service}\", path!=\"/_ecs/variables-event\", path!=\"_ecs/defined-variables\", path!=\"/dapr/config\"}[20s] offset ${timeShift})",
-            "fullMetaSearch": false,
-            "includeNullMetadata": true,
-            "legendFormat": "Path: {{path}}, Status: {{status}} (${timeShift} ago)",
-            "range": true,
-            "refId": "B",
             "useBackend": false
           }
         ],
@@ -3087,17 +3006,6 @@
           "regex": "",
           "sort": 1,
           "type": "query"
-        },
-        {
-          "current": {
-            "text": "REPLACE_ME_TIME_SHIFT",
-            "value": "REPLACE_ME_TIME_SHIFT"
-          },
-          "description": "",
-          "name": "timeShift",
-          "options": [],
-          "query": "100s",
-          "type": "textbox"
         }
       ]
     },
