@@ -123,7 +123,7 @@ class GrafanaPlugin(
                                         selected = diff == pastExecutionDiffs.minOrNull()
                                     )
                                 },
-                                query = pastExecutionDiffs.joinToString(",") { "${it}s" }
+                                query = if(pastExecutionDiffs.isNotEmpty()) pastExecutionDiffs.joinToString(",") { "${it}s" } else "0s"
                             )
                         }
                     }
