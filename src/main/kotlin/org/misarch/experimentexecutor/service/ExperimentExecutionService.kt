@@ -61,7 +61,7 @@ class ExperimentExecutionService(
         redisCacheService.cacheExperimentState(experimentState)
 
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-            logger.error { "Failed to execute experiment for testUUID: $testUUID and testVersion: $testVersion" }
+            logger.error(throwable) { "Failed to execute experiment for testUUID: $testUUID and testVersion: $testVersion" }
             asyncEventErrorHandler.handleError(testUUID, testVersion, throwable.message ?: "Unknown error")
         }
 
@@ -99,7 +99,7 @@ class ExperimentExecutionService(
 
     suspend fun finishExperiment(testUUID: UUID, testVersion: String, gatlingStatsJs: String, gatlingStatsHtml: String) {
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-            logger.error { "Failed to finish experiment for testUUID: $testUUID and testVersion: $testVersion" }
+            logger.error(throwable) { "Failed to finish experiment for testUUID: $testUUID and testVersion: $testVersion" }
             asyncEventErrorHandler.handleError(testUUID, testVersion, throwable.message ?: "Unknown error")
         }
 

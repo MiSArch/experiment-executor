@@ -106,13 +106,11 @@ class PrometheusMetricPlugin(
             return
         }
 
-        val data = mutableMapOf<Long, Double?>()
-        for (i in 1 until values.size) {
-            val value = values[i]
+        val data = values.mapIndexed { i, value ->
             val datapoint = value[1].toDoubleOrNull()
             // Epoch time 2000-01-01T00:00:00Z
-            data[(946684800 + i) * 1000L] = datapoint
-        }
+            ((946684800 + i + 1) * 1000L) to datapoint
+        }.toMap()
 
         val service = services.first { metricFilter.contains(it) }
         if (data.isNotEmpty()) {

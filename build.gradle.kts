@@ -29,10 +29,6 @@ dependencies {
     implementation("io.netty:netty-resolver-dns-native-macos:4.1.119.Final:osx-aarch_64")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.5")
-
-    // Prometheus Push Metrics Exporter
-    implementation("io.prometheus:simpleclient:0.16.0")
-    implementation("io.prometheus:simpleclient_pushgateway:0.16.0")
 }
 
 kotlin {

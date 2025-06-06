@@ -15,11 +15,10 @@ import java.util.*
 class ExperimentMetricsService(
     webClient: WebClient,
     @Value("\${influxdb.url}") private val influxUrl: String,
-    @Value("\${pushgateway.url}") private val pushGatewayUrl: String,
 ) {
 
     private val registry = listOf(
-        GatlingMetricsPlugin(webClient, influxUrl, pushGatewayUrl),
+        GatlingMetricsPlugin(webClient, influxUrl),
         PrometheusMetricPlugin(webClient, influxUrl),
     )
 

@@ -118,7 +118,7 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"activeUsers\")\n  |> filter(fn: (r) => r.scenario == \"BuyProcess\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"activeUsers\")\n  |> filter(fn: (r) => r.scenario == \"BuyProcess\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -127,8 +127,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -176,14 +176,10 @@
         "targets": [
           {
             "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus_uid"
+              "type": "influxdb",
+              "uid": "influxdb_uid"
             },
-            "editorMode": "code",
-            "expr": "gatling_group1_count{testUUID=\"${testUUID}\", testVersion=\"${testVersion}\"}",
-            "instant": false,
-            "legendFormat": "__auto",
-            "range": true,
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group1Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -192,8 +188,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -241,14 +237,10 @@
         "targets": [
           {
             "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus_uid"
+              "type": "influxdb",
+              "uid": "influxdb_uid"
             },
-            "editorMode": "code",
-            "expr": "gatling_group2_count{testUUID=\"${testUUID}\", testVersion=\"${testVersion}\"}",
-            "instant": false,
-            "legendFormat": "__auto",
-            "range": true,
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group2Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -257,8 +249,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -306,14 +298,10 @@
         "targets": [
           {
             "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus_uid"
+              "type": "influxdb",
+              "uid": "influxdb_uid"
             },
-            "editorMode": "code",
-            "expr": "gatling_group3_count{testUUID=\"${testUUID}\", testVersion=\"${testVersion}\"}",
-            "instant": false,
-            "legendFormat": "__auto",
-            "range": true,
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group3Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -322,8 +310,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -371,14 +359,10 @@
         "targets": [
           {
             "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus_uid"
+              "type": "influxdb",
+              "uid": "influxdb_uid"
             },
-            "editorMode": "code",
-            "expr": "gatling_group4_count{testUUID=\"${testUUID}\", testVersion=\"${testVersion}\"}",
-            "instant": false,
-            "legendFormat": "__auto",
-            "range": true,
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group3Count\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -468,7 +452,7 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"responses\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"responses\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n",
             "refId": "A"
           }
         ],
@@ -477,8 +461,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -525,15 +509,12 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
-            "disableTextWrap": false,
-            "editorMode": "code",
-            "expr": "gatling_mean_requests_per_second{testUUID=\"$testUUID\"}",
-            "fullMetaSearch": false,
-            "includeNullMetadata": true,
-            "legendFormat": "__auto",
-            "range": true,
-            "refId": "A",
-            "useBackend": false
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondTotal\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "mean requests/sec",
@@ -541,8 +522,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -589,15 +570,12 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
-            "disableTextWrap": false,
-            "editorMode": "code",
-            "expr": "gatling_mean_requests_per_second_ok{testUUID=\"$testUUID\"} ",
-            "fullMetaSearch": false,
-            "includeNullMetadata": true,
-            "legendFormat": "__auto",
-            "range": true,
-            "refId": "A",
-            "useBackend": false
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "mean requests/sec ok",
@@ -605,8 +583,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -653,15 +631,12 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
-            "disableTextWrap": false,
-            "editorMode": "code",
-            "expr": "gatling_mean_requests_per_second_ko{testUUID=\"$testUUID\"} ",
-            "fullMetaSearch": false,
-            "includeNullMetadata": true,
-            "legendFormat": "__auto",
-            "range": true,
-            "refId": "A",
-            "useBackend": false
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
+            "refId": "A"
           }
         ],
         "title": "mean requests/sec ko",
@@ -669,8 +644,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -718,10 +693,11 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
-            "editorMode": "code",
-            "expr": "gatling_min_response_time{testUUID=\"${testUUID}\", testVersion=\"${testVersion}\"}",
-            "legendFormat": "__auto",
-            "range": true,
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTime\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -730,8 +706,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -779,10 +755,11 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
-            "editorMode": "code",
-            "expr": "gatling_mean_response_time{testUUID=\"${testUUID}\", testVersion=\"${testVersion}\"}",
-            "legendFormat": "__auto",
-            "range": true,
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTime\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -791,8 +768,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -840,10 +817,11 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
-            "editorMode": "code",
-            "expr": "gatling_max_response_time{testUUID=\"${testUUID}\", testVersion=\"${testVersion}\"}",
-            "legendFormat": "__auto",
-            "range": true,
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTime\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -852,8 +830,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -901,10 +879,11 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
-            "editorMode": "code",
-            "expr": "gatling_min_response_time_ok{testUUID=\"${testUUID}\", testVersion=\"${testVersion}\"}",
-            "legendFormat": "__auto",
-            "range": true,
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -913,8 +892,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -962,10 +941,11 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
-            "editorMode": "code",
-            "expr": "gatling_mean_response_time_ok{testUUID=\"${testUUID}\", testVersion=\"${testVersion}\"}",
-            "legendFormat": "__auto",
-            "range": true,
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -974,8 +954,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -1023,10 +1003,11 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
-            "editorMode": "code",
-            "expr": "gatling_max_response_time_ok{testUUID=\"${testUUID}\", testVersion=\"${testVersion}\"}",
-            "legendFormat": "__auto",
-            "range": true,
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -1035,8 +1016,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -1084,10 +1065,11 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
-            "editorMode": "code",
-            "expr": "gatling_min_response_time_ko{testUUID=\"${testUUID}\", testVersion=\"${testVersion}\"}",
-            "legendFormat": "__auto",
-            "range": true,
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"minResponseTimeKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -1096,8 +1078,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -1145,10 +1127,11 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
-            "editorMode": "code",
-            "expr": "gatling_mean_response_time_ko{testUUID=\"${testUUID}\", testVersion=\"${testVersion}\"}",
-            "legendFormat": "__auto",
-            "range": true,
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanResponseTimeKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -1157,8 +1140,8 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus_uid"
+          "type": "influxdb",
+          "uid": "influxdb_uid"
         },
         "fieldConfig": {
           "defaults": {
@@ -1206,10 +1189,11 @@
         "pluginVersion": "11.5.2",
         "targets": [
           {
-            "editorMode": "code",
-            "expr": "gatling_max_response_time_ko{testUUID=\"${testUUID}\", testVersion=\"${testVersion}\"}",
-            "legendFormat": "__auto",
-            "range": true,
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"maxResponseTimeKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")",
             "refId": "A"
           }
         ],
@@ -2807,8 +2791,8 @@
       "list": [
         {
           "current": {
-            "text": "catalog",
-            "value": "catalog"
+            "text": "gateway",
+            "value": "gateway"
           },
           "description": "",
           "label": "service",
@@ -2820,7 +2804,7 @@
               "value": "address"
             },
             {
-              "selected": true,
+              "selected": false,
               "text": "catalog",
               "value": "catalog"
             },
@@ -2830,7 +2814,7 @@
               "value": "discount"
             },
             {
-              "selected": false,
+              "selected": true,
               "text": "gateway",
               "value": "gateway"
             },
@@ -2913,13 +2897,15 @@
             "text": "REPLACE_ME_TEST_UUID",
             "value": "REPLACE_ME_TEST_UUID"
           },
-          "definition": "label_values(testUUID)",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb_uid"
+          },
+          "definition": "import \"influxdata/influxdb/schema\"\n\nschema.tagValues(\n  bucket: \"gatling\",\n  tag: \"testUUID\",\n  start: -5d\n)",
           "name": "testUUID",
           "options": [],
           "query": {
-            "qryType": 1,
-            "query": "label_values(testUUID)",
-            "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            "query": "import \"influxdata/influxdb/schema\"\n\nschema.tagValues(\n  bucket: \"gatling\",\n  tag: \"testUUID\",\n  start: -5d\n)"
           },
           "refresh": 1,
           "regex": "",
@@ -2983,15 +2969,19 @@
             "text": "REPLACE_ME_TEST_VERSION",
             "value": "REPLACE_ME_TEST_VERSION"
           },
-          "definition": "label_values(testVersion)",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb_uid"
+          },
+          "definition": "import \"influxdata/influxdb/schema\"\n\nschema.tagValues(\n  bucket: \"gatling\",\n  tag: \"testVersion\",\n  start: -5d\n)",
           "name": "testVersion",
           "options": [],
           "query": {
             "qryType": 1,
-            "query": "label_values(testVersion)",
+            "query": "import \"influxdata/influxdb/schema\"\n\nschema.tagValues(\n  bucket: \"gatling\",\n  tag: \"testVersion\",\n  start: -5d\n)",
             "refId": "PrometheusVariableQueryEditor-VariableQuery"
           },
-          "refresh": 1,
+          "refresh": "1",
           "regex": "",
           "sort": 1,
           "type": "query"
