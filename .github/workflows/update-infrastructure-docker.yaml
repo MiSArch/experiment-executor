@@ -1,0 +1,31 @@
+name: Update infrastructure-docker submodule
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  schema:
+    name: Update infrastructure-docker submodule
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: "misarch/infrastructure-docker"
+          submodules: true
+      - name: Update submodule
+        run: |
+          cd experiment-executor
+          git checkout ${{ github.sha }}
+      - uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: Update experiment-executor submodule
+          branch: update/experiment-executor
+          token: ${{ secrets.INFRASTRUCTURE_DOCKER_PUSH_SECRET }}
+      - name: Set to auto merge
+        run: gh pr merge update/experiment-executor --auto --merge -R misarch/infrastructure-docker
+        env:
+          GH_TOKEN: ${{ secrets.INFRASTRUCTURE_DOCKER_PUSH_SECRET }}
