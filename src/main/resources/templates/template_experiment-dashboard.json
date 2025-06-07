@@ -118,7 +118,7 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"activeUsers\")\n  |> filter(fn: (r) => r.scenario == \"BuyProcess\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n  |> group(columns: [\"label\"])",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"activeUsers\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> map(fn: (r) => ({\n      _time: r._time,\n      _value: r._value,\n      label: r.scenario + \" (Now)\"\n  }))\n  |> group(columns: [\"label\"])",
             "refId": "A"
           },
           {
@@ -126,7 +126,7 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"activeUsers\")\n  |> filter(fn: (r) => r.scenario == \"BuyProcess\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> filter(fn: (r) => r._field == \"value\")\n  |> timeShift(duration: ${timeShift})\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n  |> group(columns: [\"label\"])",
+            "query": "from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"activeUsers\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> timeShift(duration: ${timeShift})\n  |> map(fn: (r) => ({\n      _time: r._time,\n      _value: r._value,\n      label: r.scenario + \" (${timeShift} ago)\"\n  }))\n  |> group(columns: [\"label\"])",
             "refId": "B"
           }
         ],
