@@ -11,7 +11,9 @@ class ExperimentController(
     private val graphQLQueryGeneratorService: GraphQLQueryGeneratorService,
 ) {
     @GetMapping("/generateGraphQL")
-    suspend fun createLayout(@RequestParam graphQLURL: String) {
+    suspend fun createLayout(
+        @RequestParam graphQLURL: String,
+    ) {
         graphQLQueryGeneratorService.generateGraphQL(URI(graphQLURL))
     }
 }

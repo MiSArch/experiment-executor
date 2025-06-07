@@ -5,5 +5,11 @@ import java.time.Instant
 import java.util.*
 
 interface ExportPluginInterface {
-    suspend fun createReport(testUUID: UUID, testVersion: String, startTime: Instant, endTime: Instant, goals: List<Goal>)
+    suspend fun createReport(
+        testUUID: UUID,
+        testVersion: String,
+        startTime: Instant,
+        endTime: Instant,
+        goals: List<Goal>,
+    )
 }

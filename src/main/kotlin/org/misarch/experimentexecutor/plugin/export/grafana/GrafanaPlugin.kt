@@ -27,39 +27,53 @@ class GrafanaPlugin(
     private val templatePath: String,
     private val basePath: String,
 ) : ExportPluginInterface {
-
     private var serviceAccountId: String? = null
     private var apiToken: String? = null
 
-    override suspend fun createReport(testUUID: UUID, testVersion: String, startTime: Instant, endTime: Instant, goals: List<Goal>) {
+    override suspend fun createReport(
+        testUUID: UUID,
+        testVersion: String,
+        startTime: Instant,
+        endTime: Instant,
+        goals: List<Goal>,
+    ) {
         val filePath = "$templatePath/${TEMPLATE_PREFIX}${GRAFANA_DASHBOARD_FILENAME}"
         val pastExecutionStartTimes = getPastExecutionStartTimes(testUUID, testVersion, startTime)
         createResultDashboard(filePath, testUUID, testVersion, startTime, endTime, goals, pastExecutionStartTimes)
     }
 
-    private fun getPastExecutionStartTimes(testUUID: UUID, testVersion: String, startTime: Instant): List<Int> {
+    private fun getPastExecutionStartTimes(
+        testUUID: UUID,
+        testVersion: String,
+        startTime: Instant,
+    ): List<Int> {
         val reportDir = File("$basePath/$testUUID/$testVersion/reports")
-        val reportDirs = reportDir.listFiles()
-            ?.filter { it.isDirectory }
-            ?.map { it.name }
-            ?: emptyList()
+        val reportDirs =
+            reportDir
+                .listFiles()
+                ?.filter { it.isDirectory }
+                ?.map { it.name }
+                ?: emptyList()
 
-        val timeStamps = reportDirs.mapNotNull { dir ->
-            val reportFile = File("$reportDir/$dir/$REPORT_FILENAME")
-            if (reportFile.exists()) {
-                runCatching {
-                    val reportContent = reportFile.readText()
-                    val reportData = jacksonObjectMapper().readValue(reportContent, Report::class.java)
-                    reportData.startTime
-                }.getOrNull()
-            } else {
-                null
+        val timeStamps =
+            reportDirs.mapNotNull { dir ->
+                val reportFile = File("$reportDir/$dir/$REPORT_FILENAME")
+                if (reportFile.exists()) {
+                    runCatching {
+                        val reportContent = reportFile.readText()
+                        val reportData = jacksonObjectMapper().readValue(reportContent, Report::class.java)
+                        reportData.startTime
+                    }.getOrNull()
+                } else {
+                    null
+                }
             }
-        }
 
-        return timeStamps.map { timeStamp ->
-            ((startTime.toEpochMilli() - timeStamp.toLong()) / 1000).toInt()
-        }.filter { it > 0 }.sorted()
+        return timeStamps
+            .map { timeStamp ->
+                ((startTime.toEpochMilli() - timeStamp.toLong()) / 1000).toInt()
+            }.filter { it > 0 }
+            .sorted()
     }
 
     private suspend fun createResultDashboard(
@@ -77,62 +91,83 @@ class GrafanaPlugin(
         }
         val content = file.readText()
 
-        val updatedContent = content
-            .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
-            .replace("REPLACE_ME_TEST_VERSION", testVersion)
-            .replace("REPLACE_ME_TEST_START_TIME", startTime.toString())
-            .replace("REPLACE_ME_TEST_END_TIME", endTime.toString())
-            .replace("REPLACE_ME_TIME_SHIFT", "${pastExecutionDiffs.minOrNull() ?: 0}s")
+        val updatedContent =
+            content
+                .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
+                .replace("REPLACE_ME_TEST_VERSION", testVersion)
+                .replace("REPLACE_ME_TEST_START_TIME", startTime.toString())
+                .replace("REPLACE_ME_TEST_END_TIME", endTime.toString())
+                .replace("REPLACE_ME_TIME_SHIFT", "${pastExecutionDiffs.minOrNull() ?: 0}s")
 
         val dashboardParsed = jacksonObjectMapper().readValue(updatedContent, GrafanaDashboardConfig::class.java)
-        val updatedDashboard = dashboardParsed.copy(
-            dashboard = dashboardParsed.dashboard.copy(
-                panels = dashboardParsed.dashboard.panels?.map {
-                    it.copy(
-                        fieldConfig = it.fieldConfig?.copy(
-                            defaults = it.fieldConfig.defaults?.copy(
-                                thresholds =
-                                    if (goals.any { goal -> goal.metric == it.title }) {
-                                        it.fieldConfig.defaults.thresholds?.copy(
-                                            mode = it.fieldConfig.defaults.thresholds.mode,
-                                            steps = it.fieldConfig.defaults.thresholds.steps.flatMap { step ->
-                                                val goal = goals.first { goal -> goal.metric == it.title }
-                                                listOf(
-                                                    step.copy(),
-                                                    step.copy(
-                                                        color = goal.color,
-                                                        value = goal.threshold.toDouble()
-                                                    )
-                                                )
-                                            })
-                                    } else it.fieldConfig.defaults.thresholds
-                            )
-                        )
-                    )
-                },
-                templating = dashboardParsed.dashboard.templating?.copy(
-                    list = dashboardParsed.dashboard.templating.list.map { variable ->
-                        if (variable.name != "timeShift") {
-                            variable
-                        } else {
-                            variable.copy(
-                                options = pastExecutionDiffs.map { diff ->
-                                    Option(
-                                        text = "${diff}s",
-                                        value = "${diff}s",
-                                        selected = diff == pastExecutionDiffs.minOrNull()
-                                    )
-                                },
-                                query = if(pastExecutionDiffs.isNotEmpty()) pastExecutionDiffs.joinToString(",") { "${it}s" } else "0s"
-                            )
-                        }
-                    }
-                )
+        val updatedDashboard =
+            dashboardParsed.copy(
+                dashboard =
+                    dashboardParsed.dashboard.copy(
+                        panels =
+                            dashboardParsed.dashboard.panels?.map {
+                                it.copy(
+                                    fieldConfig =
+                                        it.fieldConfig?.copy(
+                                            defaults =
+                                                it.fieldConfig.defaults?.copy(
+                                                    thresholds =
+                                                        if (goals.any { goal -> goal.metric == it.title }) {
+                                                            it.fieldConfig.defaults.thresholds?.copy(
+                                                                mode = it.fieldConfig.defaults.thresholds.mode,
+                                                                steps =
+                                                                    it.fieldConfig.defaults.thresholds.steps.flatMap { step ->
+                                                                        val goal = goals.first { goal -> goal.metric == it.title }
+                                                                        listOf(
+                                                                            step.copy(),
+                                                                            step.copy(
+                                                                                color = goal.color,
+                                                                                value = goal.threshold.toDouble(),
+                                                                            ),
+                                                                        )
+                                                                    },
+                                                            )
+                                                        } else {
+                                                            it.fieldConfig.defaults.thresholds
+                                                        },
+                                                ),
+                                        ),
+                                )
+                            },
+                        templating =
+                            dashboardParsed.dashboard.templating?.copy(
+                                list =
+                                    dashboardParsed.dashboard.templating.list.map { variable ->
+                                        if (variable.name != "timeShift") {
+                                            variable
+                                        } else {
+                                            variable.copy(
+                                                options =
+                                                    pastExecutionDiffs.map { diff ->
+                                                        Option(
+                                                            text = "${diff}s",
+                                                            value = "${diff}s",
+                                                            selected = diff == pastExecutionDiffs.minOrNull(),
+                                                        )
+                                                    },
+                                                query =
+                                                    if (pastExecutionDiffs.isNotEmpty()) {
+                                                        pastExecutionDiffs.joinToString(
+                                                            ",",
+                                                        ) { "${it}s" }
+                                                    } else {
+                                                        "0s"
+                                                    },
+                                            )
+                                        }
+                                    },
+                            ),
+                    ),
             )
-        )
 
         val grafanaToken = createApiToken("experiment-executor-${UUID.randomUUID()}")
-        webClient.post()
+        webClient
+            .post()
             .uri("${grafanaConfig.url}/api/dashboards/db")
             .contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", "Bearer $grafanaToken")
@@ -144,21 +179,27 @@ class GrafanaPlugin(
     }
 
     private suspend fun fetchServiceAccountByName(serviceAccountName: String): String? {
-        val response = webClient.get()
-            .uri("${grafanaConfig.url}/api/serviceaccounts/search?perpage=10&page=1&query=$serviceAccountName")
-            .headers { it.setBasicAuth(grafanaConfig.adminUser, grafanaConfig.adminPassword) }
-            .retrieve()
-            .bodyToMono(Map::class.java)
-            .awaitSingle()
+        val response =
+            webClient
+                .get()
+                .uri("${grafanaConfig.url}/api/serviceaccounts/search?perpage=10&page=1&query=$serviceAccountName")
+                .headers { it.setBasicAuth(grafanaConfig.adminUser, grafanaConfig.adminPassword) }
+                .retrieve()
+                .bodyToMono(Map::class.java)
+                .awaitSingle()
 
-        val serviceAccount = (response["serviceAccounts"] as List<*>)
-            .filterIsInstance<Map<*, *>>()
-            .find { it["name"] == serviceAccountName }
+        val serviceAccount =
+            (response["serviceAccounts"] as List<*>)
+                .filterIsInstance<Map<*, *>>()
+                .find { it["name"] == serviceAccountName }
 
         return serviceAccount?.get("id")?.toString()
     }
 
-    private suspend fun createServiceAccount(serviceAccountName: String, serviceAccountRole: String): String {
+    private suspend fun createServiceAccount(
+        serviceAccountName: String,
+        serviceAccountRole: String,
+    ): String {
         val existingServiceAccountId = fetchServiceAccountByName(serviceAccountName)
         if (existingServiceAccountId != null) {
             serviceAccountId = existingServiceAccountId
@@ -167,14 +208,16 @@ class GrafanaPlugin(
 
         val payload = mapOf("name" to serviceAccountName, "role" to serviceAccountRole)
 
-        val response = webClient.post()
-            .uri("${grafanaConfig.url}/api/serviceaccounts")
-            .contentType(MediaType.APPLICATION_JSON)
-            .headers { it.setBasicAuth(grafanaConfig.adminUser, grafanaConfig.adminPassword) }
-            .bodyValue(payload)
-            .retrieve()
-            .bodyToMono(Map::class.java)
-            .awaitSingle()
+        val response =
+            webClient
+                .post()
+                .uri("${grafanaConfig.url}/api/serviceaccounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .headers { it.setBasicAuth(grafanaConfig.adminUser, grafanaConfig.adminPassword) }
+                .bodyValue(payload)
+                .retrieve()
+                .bodyToMono(Map::class.java)
+                .awaitSingle()
 
         serviceAccountId = response["id"]?.toString()
             ?: throw IllegalStateException("Failed to parse service account ID.")
@@ -191,14 +234,16 @@ class GrafanaPlugin(
 
         val payload = mapOf("name" to tokenName)
 
-        val response = webClient.post()
-            .uri("${grafanaConfig.url}/api/serviceaccounts/$serviceAccountId/tokens")
-            .contentType(MediaType.APPLICATION_JSON)
-            .headers { it.setBasicAuth(grafanaConfig.adminUser, grafanaConfig.adminPassword) }
-            .bodyValue(payload)
-            .retrieve()
-            .bodyToMono(Map::class.java)
-            .awaitSingle()
+        val response =
+            webClient
+                .post()
+                .uri("${grafanaConfig.url}/api/serviceaccounts/$serviceAccountId/tokens")
+                .contentType(MediaType.APPLICATION_JSON)
+                .headers { it.setBasicAuth(grafanaConfig.adminUser, grafanaConfig.adminPassword) }
+                .bodyValue(payload)
+                .retrieve()
+                .bodyToMono(Map::class.java)
+                .awaitSingle()
 
         apiToken = response["key"]?.toString()
             ?: throw IllegalStateException("Failed to parse API token.")

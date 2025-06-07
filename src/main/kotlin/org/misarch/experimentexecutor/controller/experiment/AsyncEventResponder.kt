@@ -14,11 +14,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Configuration
 class EventEmitterConfig {
-
     @Bean
-    fun eventEmitters(): ConcurrentHashMap<String, FluxSink<String>> {
-        return ConcurrentHashMap()
-    }
+    fun eventEmitters(): ConcurrentHashMap<String, FluxSink<String>> = ConcurrentHashMap()
 }
 
 /**
@@ -29,10 +26,13 @@ class EventEmitterConfig {
  */
 @RestController
 class EventController(
-    private val eventEmitters: ConcurrentHashMap<String, FluxSink<String>>
+    private val eventEmitters: ConcurrentHashMap<String, FluxSink<String>>,
 ) {
     @GetMapping("/experiment/{testUUID}/{testVersion}/events", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
-    private fun registerEvent(@PathVariable testUUID: UUID, @PathVariable testVersion: String): Flux<String> {
+    private fun registerEvent(
+        @PathVariable testUUID: UUID,
+        @PathVariable testVersion: String,
+    ): Flux<String> {
         val key = "$testUUID:$testVersion"
         return Flux.create { sink ->
             eventEmitters[key] = sink
@@ -43,9 +43,12 @@ class EventController(
 
 @Component
 class AsyncEventResponder(
-    private val eventEmitters: ConcurrentHashMap<String, FluxSink<String>>
+    private val eventEmitters: ConcurrentHashMap<String, FluxSink<String>>,
 ) {
-    fun emitSuccess(testUUID: UUID, testVersion: String) {
+    fun emitSuccess(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         val key = "$testUUID:$testVersion"
         val eventSink = eventEmitters[key]
         eventSink?.next("http://localhost:3001/d/$testUUID-$testVersion")
@@ -55,9 +58,13 @@ class AsyncEventResponder(
 
 @Component
 class AsyncEventErrorHandler(
-    private val eventEmitters: ConcurrentHashMap<String, FluxSink<String>>
+    private val eventEmitters: ConcurrentHashMap<String, FluxSink<String>>,
 ) {
-    fun handleError(testUUID: UUID, testVersion: String, errorMessage: String) {
+    fun handleError(
+        testUUID: UUID,
+        testVersion: String,
+        errorMessage: String,
+    ) {
         val key = "$testUUID:$testVersion"
         val eventSink = eventEmitters[key]
         eventSink?.next("Error occurred during experiment execution: $errorMessage")

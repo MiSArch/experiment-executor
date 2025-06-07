@@ -26,55 +26,68 @@ class ExperimentExecutionService(
     private val redisCacheService: RedisCacheService,
     private val asyncEventErrorHandler: AsyncEventErrorHandler,
     private val asyncEventResponder: AsyncEventResponder,
-    @Value("\${experiment-executor.trigger-delay}") private val triggerDelay: Long
+    @Value("\${experiment-executor.trigger-delay}") private val triggerDelay: Long,
 ) {
+    suspend fun getTriggerState(
+        testUUID: UUID,
+        testVersion: String,
+    ): Boolean = redisCacheService.retrieveExperimentState(testUUID, testVersion).triggerState == STARTED
 
-    suspend fun getTriggerState(testUUID: UUID, testVersion: String): Boolean {
-        return redisCacheService.retrieveExperimentState(testUUID, testVersion).triggerState == STARTED
-    }
-
-    suspend fun executeStoredExperiment(testUUID: UUID, testVersion: String, endpointAccessToken: String?) {
+    suspend fun executeStoredExperiment(
+        testUUID: UUID,
+        testVersion: String,
+        endpointAccessToken: String?,
+    ) {
         val experimentConfig = experimentConfigService.getExperimentConfig(testUUID, testVersion)
         return if (endpointAccessToken == null) {
             executeExperiment(experimentConfig, testUUID, testVersion)
         } else {
             executeExperiment(
                 experimentConfig.copy(
-                    workLoad = experimentConfig.workLoad.copy(
-                        gatling = experimentConfig.workLoad.gatling.copy
-                            (endpointAccessToken = endpointAccessToken)
-                    )
+                    workLoad =
+                        experimentConfig.workLoad.copy(
+                            gatling =
+                                experimentConfig.workLoad.gatling.copy
+                                    (endpointAccessToken = endpointAccessToken),
+                        ),
                 ),
                 testUUID,
-                testVersion
+                testVersion,
             )
         }
     }
 
-    suspend fun executeExperiment(experimentConfig: ExperimentConfig, testUUID: UUID, testVersion: String) {
-
-        val experimentState = ExperimentState(
-            testUUID = testUUID,
-            testVersion = testVersion,
-            triggerState = INITIALIZING,
-            goals = experimentConfig.goals
-        )
+    suspend fun executeExperiment(
+        experimentConfig: ExperimentConfig,
+        testUUID: UUID,
+        testVersion: String,
+    ) {
+        val experimentState =
+            ExperimentState(
+                testUUID = testUUID,
+                testVersion = testVersion,
+                triggerState = INITIALIZING,
+                goals = experimentConfig.goals,
+            )
 
         redisCacheService.cacheExperimentState(experimentState)
 
-        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-            logger.error(throwable) { "Failed to execute experiment for testUUID: $testUUID and testVersion: $testVersion" }
-            asyncEventErrorHandler.handleError(testUUID, testVersion, throwable.message ?: "Unknown error")
-        }
+        val exceptionHandler =
+            CoroutineExceptionHandler { _, throwable ->
+                logger.error(throwable) { "Failed to execute experiment for testUUID: $testUUID and testVersion: $testVersion" }
+                asyncEventErrorHandler.handleError(testUUID, testVersion, throwable.message ?: "Unknown error")
+            }
 
         CoroutineScope(Dispatchers.Default + exceptionHandler).launch {
-            val failureJobs = async {
-                experimentFailureService.setupExperimentFailure(testUUID, testVersion)
-            }
+            val failureJobs =
+                async {
+                    experimentFailureService.setupExperimentFailure(testUUID, testVersion)
+                }
 
-            val workloadJobs = async {
-                experimentWorkloadService.executeWorkLoad(experimentConfig.workLoad, testUUID, testVersion)
-            }
+            val workloadJobs =
+                async {
+                    experimentWorkloadService.executeWorkLoad(experimentConfig.workLoad, testUUID, testVersion)
+                }
 
             logger.info { "Started experiment and waiting for trigger for testUUID: $testUUID and testVersion: $testVersion" }
 
@@ -88,7 +101,10 @@ class ExperimentExecutionService(
         }
     }
 
-    suspend fun cancelExperiment(testUUID: UUID, testVersion: String) {
+    suspend fun cancelExperiment(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         coroutineScope {
             val failureJob = async { experimentFailureService.stopExperimentFailure(testUUID, testVersion) }
             val workLoadJob = async { experimentWorkloadService.stopWorkLoad(testUUID, testVersion) }
@@ -99,17 +115,24 @@ class ExperimentExecutionService(
         redisCacheService.deleteExperimentState(testUUID, testVersion)
     }
 
-    suspend fun finishExperiment(testUUID: UUID, testVersion: String, gatlingStatsJs: String, gatlingStatsHtml: String) {
-        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-            logger.error(throwable) { "Failed to finish experiment for testUUID: $testUUID and testVersion: $testVersion" }
-            asyncEventErrorHandler.handleError(testUUID, testVersion, throwable.message ?: "Unknown error")
-        }
+    suspend fun finishExperiment(
+        testUUID: UUID,
+        testVersion: String,
+        gatlingStatsJs: String,
+        gatlingStatsHtml: String,
+    ) {
+        val exceptionHandler =
+            CoroutineExceptionHandler { _, throwable ->
+                logger.error(throwable) { "Failed to finish experiment for testUUID: $testUUID and testVersion: $testVersion" }
+                asyncEventErrorHandler.handleError(testUUID, testVersion, throwable.message ?: "Unknown error")
+            }
 
         CoroutineScope(Dispatchers.Default + exceptionHandler).launch {
             val experimentState = redisCacheService.retrieveExperimentState(testUUID, testVersion)
 
-            val startTimeString = experimentState.startTime
-                ?: throw IllegalStateException("Experiment start time not found for testUUID: $testUUID and testVersion: $testVersion")
+            val startTimeString =
+                experimentState.startTime
+                    ?: throw IllegalStateException("Experiment start time not found for testUUID: $testUUID and testVersion: $testVersion")
             val startTime = Instant.parse(startTimeString)
             val endTime = Instant.now().plusSeconds(60)
 

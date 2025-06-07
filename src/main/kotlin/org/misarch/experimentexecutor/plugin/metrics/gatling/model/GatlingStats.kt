@@ -8,7 +8,7 @@ data class GatlingStats(
     @JsonProperty("path") val path: String,
     @JsonProperty("pathFormatted") val pathFormatted: String,
     @JsonProperty("stats") val stats: Stats,
-    @JsonProperty("contents") val contents: Map<String, GatlingStats>?
+    @JsonProperty("contents") val contents: Map<String, GatlingStats>?,
 ) {
     data class Stats(
         @JsonProperty("name") val name: String,
@@ -39,5 +39,5 @@ data class NameHtmlCountPercentage(
     @JsonProperty("name") val name: String,
     @JsonProperty("htmlName") val htmlName: String,
     @JsonProperty("count") val count: Int,
-    @JsonProperty("percentage") val percentage: Double
+    @JsonProperty("percentage") val percentage: Double,
 )

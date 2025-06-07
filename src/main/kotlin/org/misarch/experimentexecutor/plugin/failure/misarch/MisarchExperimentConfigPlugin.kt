@@ -29,25 +29,35 @@ class MisarchExperimentConfigPlugin(
     private val configMap: MutableMap<String, List<MiSArchFailureConfig>> = mutableMapOf()
     private val stoppableJobs: MutableMap<String, Job> = mutableMapOf()
 
-    override suspend fun initializeFailure(testUUID: UUID, testVersion: String) {
+    override suspend fun initializeFailure(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         val testId = "$testUUID:$testVersion"
         configMap[testId] = readConfigFile("$basePath/$testUUID/$testVersion/$MISARCH_EXPERIMENT_CONFIG_FILENAME")
     }
 
-    override suspend fun startTimedExperiment(testUUID: UUID, testVersion: String) {
+    override suspend fun startTimedExperiment(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         val testId = "$testUUID:$testVersion"
         if (configMap.containsKey(testId)) {
             coroutineScope {
-                stoppableJobs[testId] = launch {
-                    val config = configMap.getValue(testId)
-                    configMap.remove(testId)
-                    configureVariables(config)
-                }
+                stoppableJobs[testId] =
+                    launch {
+                        val config = configMap.getValue(testId)
+                        configMap.remove(testId)
+                        configureVariables(config)
+                    }
             }
         }
     }
 
-    override suspend fun stopExperiment(testUUID: UUID, testVersion: String) {
+    override suspend fun stopExperiment(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         val testId = "$testUUID:$testVersion"
         if (!stoppableJobs.containsKey(testId) && configMap.containsKey(testId)) {
             configMap.remove(testId)
@@ -83,7 +93,7 @@ class MisarchExperimentConfigPlugin(
         configureVariable(
             component = component,
             variable = "pubsubDeterioration",
-            bodyValue = mapOf("value" to pubSubDeterioration)
+            bodyValue = mapOf("value" to pubSubDeterioration),
         )
     }
 
@@ -94,7 +104,7 @@ class MisarchExperimentConfigPlugin(
         configureVariable(
             component = component,
             variable = "serviceInvocationDeterioration",
-            bodyValue = mapOf("value" to serviceInvocationDeteriorations)
+            bodyValue = mapOf("value" to serviceInvocationDeteriorations),
         )
     }
 
@@ -105,7 +115,7 @@ class MisarchExperimentConfigPlugin(
         configureVariable(
             component = component,
             variable = "artificialMemoryUsage",
-            bodyValue = mapOf("value" to artificialMemoryUsage)
+            bodyValue = mapOf("value" to artificialMemoryUsage),
         )
     }
 
@@ -116,7 +126,7 @@ class MisarchExperimentConfigPlugin(
         configureVariable(
             component = component,
             variable = "artificialCPUUsage",
-            bodyValue = mapOf("value" to artificialCPUUsage)
+            bodyValue = mapOf("value" to artificialCPUUsage),
         )
     }
 
@@ -125,12 +135,14 @@ class MisarchExperimentConfigPlugin(
         variable: String,
         bodyValue: Any,
     ) {
-        val response = webClient.put()
-            .uri("$misarchExperimentConfigHost/configuration/$component/variables/$variable")
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(bodyValue)
-            .retrieve()
-            .awaitBody<String>()
+        val response =
+            webClient
+                .put()
+                .uri("$misarchExperimentConfigHost/configuration/$component/variables/$variable")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(bodyValue)
+                .retrieve()
+                .awaitBody<String>()
         logger.info { "Configured Variable: $response" }
     }
 }

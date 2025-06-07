@@ -18,30 +18,37 @@ class ExperimentConfigService(
 ) {
     suspend fun getExistingExperiments(): List<String> {
         val experimentsDir = File(basePath)
-        return experimentsDir.listFiles()
+        return experimentsDir
+            .listFiles()
             ?.filter { it.isDirectory && isValidUUID(it.name) }
             ?.map { it.name }
             ?: emptyList()
     }
 
-    private fun isValidUUID(name: String): Boolean {
-        return try {
+    private fun isValidUUID(name: String): Boolean =
+        try {
             UUID.fromString(name)
             true
         } catch (e: IllegalArgumentException) {
             false
         }
-    }
 
     suspend fun getExperimentVersions(testUUID: UUID): List<String> {
         val testDir = File("$basePath/$testUUID")
-        return testDir.listFiles()
+        return testDir
+            .listFiles()
             ?.filter { it.isDirectory && it.name.startsWith("v") }
             ?.map { it.name }
             ?: emptyList()
     }
 
-    suspend fun generateExperiment(testName: String, loadType: GatlingLoadType, testDuration: Int, sessionDuration: Int, rate: Float): String {
+    suspend fun generateExperiment(
+        testName: String,
+        loadType: GatlingLoadType,
+        testDuration: Int,
+        sessionDuration: Int,
+        rate: Float,
+    ): String {
         val testUUID = UUID.randomUUID()
         val testVersion = "v1"
         val experimentDir = "$basePath/$testUUID/$testVersion"
@@ -64,65 +71,93 @@ class ExperimentConfigService(
         File("$experimentDir/$GATLING_WORK_FILENAME").writeText(workTemplate)
 
         val executionTemplate = File("$templatePath/${TEMPLATE_PREFIX}${EXECUTION_FILENAME}").readText()
-        val executionTemplateUpdated = executionTemplate
-            .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
-            .replace("REPLACE_ME_TEST_VERSION", testVersion)
-            .replace("REPLACE_ME_TEST_NAME", testName)
-            .replace("REPLACE_ME_BASE_PATH", experimentDir)
-            .replace("REPLACE_ME_LOADTYPE", loadType.toString())
-            .replace("REPLACE_ME_CHAOSTOOLKIT_FILENAME", CHAOSTOOLKIT_FILENAME)
-            .replace("REPLACE_ME_MISARCH_EXPERIMENT_CONFIG_ENDPOINT", misarchExperimentConfigHost)
-            .replace("REPLACE_ME_MISARCH_EXPERIMENT_CONFIG_FILENAME", MISARCH_EXPERIMENT_CONFIG_FILENAME)
-            .replace("REPLACE_ME_GATLING_TARGET_ENDPOINT", gatlingTargetEndpoint)
-            .replace("REPLACE_ME_GATLING_WORK_FILENAME", GATLING_WORK_FILENAME)
-            .replace("REPLACE_ME_GATLING_USERSTEPS_FILENAME", GATLING_USERSTEPS_FILENAME)
+        val executionTemplateUpdated =
+            executionTemplate
+                .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
+                .replace("REPLACE_ME_TEST_VERSION", testVersion)
+                .replace("REPLACE_ME_TEST_NAME", testName)
+                .replace("REPLACE_ME_BASE_PATH", experimentDir)
+                .replace("REPLACE_ME_LOADTYPE", loadType.toString())
+                .replace("REPLACE_ME_CHAOSTOOLKIT_FILENAME", CHAOSTOOLKIT_FILENAME)
+                .replace("REPLACE_ME_MISARCH_EXPERIMENT_CONFIG_ENDPOINT", misarchExperimentConfigHost)
+                .replace("REPLACE_ME_MISARCH_EXPERIMENT_CONFIG_FILENAME", MISARCH_EXPERIMENT_CONFIG_FILENAME)
+                .replace("REPLACE_ME_GATLING_TARGET_ENDPOINT", gatlingTargetEndpoint)
+                .replace("REPLACE_ME_GATLING_WORK_FILENAME", GATLING_WORK_FILENAME)
+                .replace("REPLACE_ME_GATLING_USERSTEPS_FILENAME", GATLING_USERSTEPS_FILENAME)
         File("$experimentDir/$EXECUTION_FILENAME").writeText(executionTemplateUpdated)
 
         return "$testUUID:$testVersion"
     }
 
-    fun getChaosToolkitConfig(testUUID: UUID, testVersion: String): String {
-        return File("$basePath/$testUUID/$testVersion/$CHAOSTOOLKIT_FILENAME").readText()
-    }
+    fun getChaosToolkitConfig(
+        testUUID: UUID,
+        testVersion: String,
+    ): String = File("$basePath/$testUUID/$testVersion/$CHAOSTOOLKIT_FILENAME").readText()
 
-    fun updateChaosToolkitConfig(testUUID: UUID, testVersion: String, chaosToolKitConfig: String) {
+    fun updateChaosToolkitConfig(
+        testUUID: UUID,
+        testVersion: String,
+        chaosToolKitConfig: String,
+    ) {
         File("$basePath/$testUUID/$testVersion/$CHAOSTOOLKIT_FILENAME").writeText(chaosToolKitConfig)
     }
 
-    fun getMisarchExperimentConfig(testUUID: UUID, testVersion: String): String {
-        return File("$basePath/$testUUID/$testVersion/$MISARCH_EXPERIMENT_CONFIG_FILENAME").readText()
-    }
+    fun getMisarchExperimentConfig(
+        testUUID: UUID,
+        testVersion: String,
+    ): String = File("$basePath/$testUUID/$testVersion/$MISARCH_EXPERIMENT_CONFIG_FILENAME").readText()
 
-    fun updateMisarchExperimentConfig(testUUID: UUID, testVersion: String, misarchExperimentConfig: String) {
+    fun updateMisarchExperimentConfig(
+        testUUID: UUID,
+        testVersion: String,
+        misarchExperimentConfig: String,
+    ) {
         val filePath = "$basePath/$testUUID/$testVersion/$MISARCH_EXPERIMENT_CONFIG_FILENAME"
         File(filePath).writeText(misarchExperimentConfig)
     }
 
-    fun getGatlingUsersteps(testUUID: UUID, testVersion: String): String {
-        return File("$basePath/$testUUID/$testVersion/$GATLING_USERSTEPS_FILENAME").readText()
-    }
+    fun getGatlingUsersteps(
+        testUUID: UUID,
+        testVersion: String,
+    ): String = File("$basePath/$testUUID/$testVersion/$GATLING_USERSTEPS_FILENAME").readText()
 
-    fun updateGatlingUsersteps(testUUID: UUID, testVersion: String, usersteps: String) {
+    fun updateGatlingUsersteps(
+        testUUID: UUID,
+        testVersion: String,
+        usersteps: String,
+    ) {
         val filePath = "$basePath/$testUUID/$testVersion/$GATLING_USERSTEPS_FILENAME"
         File(filePath).writeText(usersteps)
     }
 
-    fun getExperimentConfig(testUUID: UUID, testVersion: String): ExperimentConfig {
+    fun getExperimentConfig(
+        testUUID: UUID,
+        testVersion: String,
+    ): ExperimentConfig {
         val rawText = File("$basePath/$testUUID/$testVersion/$EXECUTION_FILENAME").readText()
         return jacksonObjectMapper().readValue(rawText, ExperimentConfig::class.java)
     }
 
-    fun updateExperimentConfig(testUUID: UUID, testVersion: String, experimentConfig: ExperimentConfig) {
+    fun updateExperimentConfig(
+        testUUID: UUID,
+        testVersion: String,
+        experimentConfig: ExperimentConfig,
+    ) {
         val filePath = "$basePath/$testUUID/$testVersion/$EXECUTION_FILENAME"
         val jsonContent = jacksonObjectMapper().writeValueAsString(experimentConfig)
         File(filePath).writeText(jsonContent)
     }
 
-    fun getGatlingWork(testUUID: UUID, testVersion: String): String {
-        return File("$basePath/$testUUID/$testVersion/$GATLING_WORK_FILENAME").readText()
-    }
+    fun getGatlingWork(
+        testUUID: UUID,
+        testVersion: String,
+    ): String = File("$basePath/$testUUID/$testVersion/$GATLING_WORK_FILENAME").readText()
 
-    fun updateGatlingWork(testUUID: UUID, testVersion: String, work: String) {
+    fun updateGatlingWork(
+        testUUID: UUID,
+        testVersion: String,
+        work: String,
+    ) {
         val filePath = "$basePath/$testUUID/$testVersion/$GATLING_WORK_FILENAME"
         File(filePath).writeText(work)
     }
@@ -132,49 +167,60 @@ class ExperimentConfigService(
         loadType: GatlingLoadType,
         testDuration: Int,
         sessionDuration: Int,
-        rate: Float
+        rate: Float,
     ) {
-        val userSteps = when (loadType) {
-            GatlingLoadType.NormalLoadTest -> {
-                val normalUsersteps = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_USERSTEPS_FILENAME}").readText()
-                val values = normalUsersteps.replace("usersteps\n", "").split("\n").map { it.trim().toIntOrNull() ?: 0 }
-                values.subList(0, testDuration)
-            }
+        val userSteps =
+            when (loadType) {
+                GatlingLoadType.NormalLoadTest -> {
+                    val normalUsersteps = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_USERSTEPS_FILENAME}").readText()
+                    val values = normalUsersteps.replace("usersteps\n", "").split("\n").map { it.trim().toIntOrNull() ?: 0 }
+                    values.subList(0, testDuration)
+                }
 
-            GatlingLoadType.ScalabilityLoadTest -> {
-                List(testDuration) { step -> (step * rate).toInt().coerceAtLeast(sessionDuration) }
-            }
+                GatlingLoadType.ScalabilityLoadTest -> {
+                    List(testDuration) { step -> (step * rate).toInt().coerceAtLeast(sessionDuration) }
+                }
 
-            GatlingLoadType.ElasticityLoadTest -> {
-                val growth = List(size = testDuration / 6) { step -> (step * rate).toInt().coerceAtLeast(sessionDuration) }
-                val decay = List(size = testDuration / 6) { sessionDuration }
-                growth + decay + growth + decay + growth + decay
-            }
+                GatlingLoadType.ElasticityLoadTest -> {
+                    val growth = List(size = testDuration / 6) { step -> (step * rate).toInt().coerceAtLeast(sessionDuration) }
+                    val decay = List(size = testDuration / 6) { sessionDuration }
+                    growth + decay + growth + decay + growth + decay
+                }
 
-            GatlingLoadType.ResilienceLoadTest -> {
-                val growth = List(size = testDuration / 6) { step -> (step * (rate/2)).toInt().coerceAtLeast(sessionDuration) }
-                val decay = List(size = testDuration / 6) { sessionDuration }
-                val spikeUp = List(size = testDuration / 24) { step -> (step * rate * 25).toInt().coerceAtLeast(sessionDuration) }
-                val spikeDown = spikeUp.reversed()
-                val lowPlateau = List(size = testDuration / 6) { sessionDuration }
-                val highPlateauPattern = listOf(sessionDuration * 50) + List(size = sessionDuration - 1) { 0 }
-                val highPlateau = List(testDuration / 3) { index -> highPlateauPattern[index % highPlateauPattern.size] }
-                val final = List(size = testDuration / 12) { sessionDuration }
-                growth + decay + spikeUp + spikeDown + lowPlateau + highPlateau + final
+                GatlingLoadType.ResilienceLoadTest -> {
+                    val growth = List(size = testDuration / 6) { step -> (step * (rate / 2)).toInt().coerceAtLeast(sessionDuration) }
+                    val decay = List(size = testDuration / 6) { sessionDuration }
+                    val spikeUp = List(size = testDuration / 24) { step -> (step * rate * 25).toInt().coerceAtLeast(sessionDuration) }
+                    val spikeDown = spikeUp.reversed()
+                    val lowPlateau = List(size = testDuration / 6) { sessionDuration }
+                    val highPlateauPattern = listOf(sessionDuration * 50) + List(size = sessionDuration - 1) { 0 }
+                    val highPlateau = List(testDuration / 3) { index -> highPlateauPattern[index % highPlateauPattern.size] }
+                    val final = List(size = testDuration / 12) { sessionDuration }
+                    growth + decay + spikeUp + spikeDown + lowPlateau + highPlateau + final
+                }
             }
-        }
 
         File("$experimentDir/$GATLING_USERSTEPS_FILENAME").writeText("usersteps\n" + userSteps.joinToString("\n"))
     }
 
-    suspend fun newExperimentVersion(testUUID: UUID, testVersion: String): String {
+    suspend fun newExperimentVersion(
+        testUUID: UUID,
+        testVersion: String,
+    ): String {
         val currentVersionDir = File("$basePath/$testUUID/$testVersion")
         val testDir = File("$basePath/$testUUID")
 
         val versionPattern = Regex("v(\\d+)")
-        val highestVersion = testDir.listFiles()
-            ?.mapNotNull { versionPattern.find(it.name)?.groupValues?.get(1)?.toIntOrNull() }
-            ?.maxOrNull() ?: 1
+        val highestVersion =
+            testDir
+                .listFiles()
+                ?.mapNotNull {
+                    versionPattern
+                        .find(it.name)
+                        ?.groupValues
+                        ?.get(1)
+                        ?.toIntOrNull()
+                }?.maxOrNull() ?: 1
 
         val newVersion = "v${highestVersion + 1}"
         val newVersionDir = File("$basePath/$testUUID/$newVersion")

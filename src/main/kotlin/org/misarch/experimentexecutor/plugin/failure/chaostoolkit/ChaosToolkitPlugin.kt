@@ -11,10 +11,18 @@ import java.util.UUID
 
 private val logger = KotlinLogging.logger { }
 
-class ChaosToolkitPlugin(private val webClient: WebClient, private val chaosToolkitExecutorHost: String, private val basePath: String,) : FailurePluginInterface {
-    override suspend fun initializeFailure(testUUID: UUID, testVersion: String) {
+class ChaosToolkitPlugin(
+    private val webClient: WebClient,
+    private val chaosToolkitExecutorHost: String,
+    private val basePath: String,
+) : FailurePluginInterface {
+    override suspend fun initializeFailure(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         val experimentYaml = File("$basePath/$testUUID/$testVersion/$CHAOSTOOLKIT_FILENAME").readText()
-        webClient.post()
+        webClient
+            .post()
             .uri("$chaosToolkitExecutorHost/start-experiment?testUUID=$testUUID&testVersion=$testVersion")
             .bodyValue(experimentYaml)
             .retrieve()
@@ -22,11 +30,18 @@ class ChaosToolkitPlugin(private val webClient: WebClient, private val chaosTool
             .awaitSingle()
     }
 
-    override suspend fun startTimedExperiment(testUUID: UUID, testVersion: String) {}
+    override suspend fun startTimedExperiment(
+        testUUID: UUID,
+        testVersion: String,
+    ) {}
 
-    override suspend fun stopExperiment(testUUID: UUID, testVersion: String) {
+    override suspend fun stopExperiment(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         logger.info { "Stopping Chaos Toolkit experiment for testUUID: $testUUID and testVersion: $testVersion" }
-        webClient.post()
+        webClient
+            .post()
             .uri("$chaosToolkitExecutorHost/stop-experiment?testUUID=$testUUID&testVersion=$testVersion")
             .retrieve()
             .onStatus({ it.value() == 404 }) { Mono.empty() }

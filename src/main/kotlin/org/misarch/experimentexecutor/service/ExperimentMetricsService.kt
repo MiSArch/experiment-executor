@@ -19,10 +19,11 @@ class ExperimentMetricsService(
     @Value("\${experiment-executor.base-path}") private val basePath: String,
     @Value("\${experiment-executor.store-result-data-in-files}") private val storeResultDataInFiles: Boolean,
 ) {
-    private val registry = listOf(
-        GatlingMetricsPlugin(webClient, influxUrl, influxToken, storeResultDataInFiles, basePath),
-        PrometheusMetricPlugin(webClient, storeResultDataInFiles, basePath),
-    )
+    private val registry =
+        listOf(
+            GatlingMetricsPlugin(webClient, influxUrl, influxToken, storeResultDataInFiles, basePath),
+            PrometheusMetricPlugin(webClient, storeResultDataInFiles, basePath),
+        )
 
     suspend fun exportMetrics(
         testUUID: UUID,
@@ -30,7 +31,7 @@ class ExperimentMetricsService(
         startTime: Instant,
         endTime: Instant,
         gatlingStatsJs: String,
-        gatlingStatsHtml: String
+        gatlingStatsHtml: String,
     ) {
         coroutineScope {
             registry.map { plugin ->

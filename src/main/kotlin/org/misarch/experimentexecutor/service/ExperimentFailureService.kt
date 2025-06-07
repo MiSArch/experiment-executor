@@ -14,16 +14,19 @@ import java.util.*
 class ExperimentFailureService(
     webClient: WebClient,
     @Value("\${misarch.experiment-config.host}") private val misarchExperimentConfigHost: String,
-    @Value("\${chaostoolkit.executor-host}") private val chaosToolkitExecutorHost : String,
-    @Value("\${experiment-executor.base-path}") private val basePath : String,
+    @Value("\${chaostoolkit.executor-host}") private val chaosToolkitExecutorHost: String,
+    @Value("\${experiment-executor.base-path}") private val basePath: String,
 ) {
+    val registry =
+        listOf(
+            ChaosToolkitPlugin(webClient, chaosToolkitExecutorHost, basePath),
+            MisarchExperimentConfigPlugin(webClient, misarchExperimentConfigHost, basePath),
+        )
 
-    val registry = listOf(
-        ChaosToolkitPlugin(webClient, chaosToolkitExecutorHost, basePath),
-        MisarchExperimentConfigPlugin(webClient, misarchExperimentConfigHost, basePath),
-    )
-
-    suspend fun setupExperimentFailure(testUUID: UUID, testVersion: String) {
+    suspend fun setupExperimentFailure(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         coroutineScope {
             registry.map { plugin ->
                 async { plugin.initializeFailure(testUUID, testVersion) }
@@ -31,7 +34,10 @@ class ExperimentFailureService(
         }.awaitAll()
     }
 
-    suspend fun startExperimentFailure(testUUID: UUID, testVersion: String) {
+    suspend fun startExperimentFailure(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         coroutineScope {
             registry.map { plugin ->
                 async { plugin.startTimedExperiment(testUUID, testVersion) }
@@ -39,7 +45,10 @@ class ExperimentFailureService(
         }.awaitAll()
     }
 
-    suspend fun stopExperimentFailure(testUUID: UUID, testVersion: String) {
+    suspend fun stopExperimentFailure(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         coroutineScope {
             registry.map { plugin ->
                 async { plugin.stopExperiment(testUUID, testVersion) }

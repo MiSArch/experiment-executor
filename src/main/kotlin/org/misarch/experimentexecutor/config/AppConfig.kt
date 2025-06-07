@@ -14,7 +14,7 @@ class AppConfig
 data class GatlingConfig(
     val targetEndpoint: String,
     val executorHost: String,
-    val token: TokenConfig
+    val token: TokenConfig,
 )
 
 @ConfigurationProperties(prefix = "gatling.token")
@@ -23,14 +23,14 @@ data class TokenConfig(
     val clientId: String,
     val path: String,
     val username: String,
-    val password: String
+    val password: String,
 )
 
 @ConfigurationProperties(prefix = "grafana")
 data class GrafanaConfig(
     val adminUser: String,
     val adminPassword: String,
-    val url: String
+    val url: String,
 )
 
 @ConfigurationProperties(prefix = "experiment-executor")

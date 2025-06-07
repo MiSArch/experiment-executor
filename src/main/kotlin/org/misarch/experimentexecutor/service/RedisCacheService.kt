@@ -13,20 +13,23 @@ import java.util.*
 class RedisCacheService(
     private val experimentStateRedisTemplate: ReactiveRedisTemplate<String, ExperimentState>,
 ) {
-    suspend fun cacheExperimentState(
-        experimentState: ExperimentState
-    ) {
+    suspend fun cacheExperimentState(experimentState: ExperimentState) {
         experimentStateRedisTemplate
             .opsForValue()
             .setAndAwait("${experimentState.testUUID}:${experimentState.testVersion}", experimentState, Duration.ofDays(1))
     }
 
-    suspend fun retrieveExperimentState(testUUID: UUID, testVersion: String): ExperimentState {
-        return experimentStateRedisTemplate.opsForValue().getAndAwait("$testUUID:$testVersion")
+    suspend fun retrieveExperimentState(
+        testUUID: UUID,
+        testVersion: String,
+    ): ExperimentState =
+        experimentStateRedisTemplate.opsForValue().getAndAwait("$testUUID:$testVersion")
             ?: throw IllegalStateException("Experiment state not found for key: $testUUID:$testVersion")
-    }
 
-    suspend fun deleteExperimentState(testUUID: UUID, testVersion: String) {
+    suspend fun deleteExperimentState(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         experimentStateRedisTemplate.opsForValue().deleteAndAwait("$testUUID:$testVersion")
     }
 }

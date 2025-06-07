@@ -3,7 +3,7 @@ package org.misarch.experimentexecutor.plugin.export.grafana.model
 data class GrafanaDashboardConfig(
     val dashboard: GrafanaDashboard,
     val folderId: Int? = null,
-    val overwrite: Boolean = false
+    val overwrite: Boolean = false,
 )
 
 data class GrafanaDashboard(
@@ -49,7 +49,7 @@ data class GridPos(
     val h: Int,
     val w: Int,
     val x: Int,
-    val y: Int
+    val y: Int,
 )
 
 data class Target(
@@ -70,7 +70,7 @@ data class Target(
 )
 
 data class Templating(
-    val list: List<TemplateVar>
+    val list: List<TemplateVar>,
 )
 
 data class TemplateVar(
@@ -90,18 +90,18 @@ data class TemplateVar(
 
 data class CurrentSelection(
     val text: String,
-    val value: String
+    val value: String,
 )
 
 data class Option(
     val text: String,
     val value: String,
-    val selected: Boolean
+    val selected: Boolean,
 )
 
 data class FieldConfig(
     val defaults: Defaults? = null,
-    val overrides: List<Any>? = null
+    val overrides: List<Any>? = null,
 )
 
 data class Defaults(
@@ -109,33 +109,33 @@ data class Defaults(
     val custom: Map<Any, Any>? = null,
     val mappings: List<Any>? = null,
     val thresholds: Thresholds? = null,
-    val unit: String? = null
+    val unit: String? = null,
 )
 
 data class Color(
-    val mode: String
+    val mode: String,
 )
 
 data class Thresholds(
     val mode: String,
-    val steps: List<Step>
+    val steps: List<Step>,
 )
 
 data class Step(
     val color: String,
-    val value: Double? = null
+    val value: Double? = null,
 )
 
 data class Annotations(
-    val list: List<Any>? = null
+    val list: List<Any>? = null,
 )
 
 data class Time(
     val from: String,
-    val to: String
+    val to: String,
 )
 
 data class Timepicker(
     val refreshIntervals: List<String>? = null,
-    val timeOptions: List<String>? = null
+    val timeOptions: List<String>? = null,
 )

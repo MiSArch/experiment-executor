@@ -14,11 +14,8 @@ private val logger = KotlinLogging.logger {}
 @Suppress("UNCHECKED_CAST")
 @Service
 class GraphQLQueryGeneratorService(
-    private val webClient: WebClient
+    private val webClient: WebClient,
 ) {
-
-
-
     // TODO
     /*suspend fun graphQLQueryStringBuilder(request: Request, queryOrMutation: GraphQLRequest): String {
         queryOrMutation.inputs.forEach { queryInput -> request.i }
@@ -41,7 +38,6 @@ class GraphQLQueryGeneratorService(
             }
 
             return queries + mutations
-
         } catch (error: Exception) {
             logger.error { "Error: ${error.message}" }
         }
@@ -123,18 +119,21 @@ class GraphQLQueryGeneratorService(
     }
 
     private suspend fun fetchSchema(graphQLURL: URI): Map<String, Any> =
-         withContext(Dispatchers.IO) {
-             webClient.post()
-                 .uri(graphQLURL)
-                 .accept(MediaType.APPLICATION_JSON)
-                 .bodyValue(mapOf("query" to QUERY))
-                 .retrieve()
-                 .bodyToMono(Map::class.java)
-                 .block()
-         } as Map<String, Any>
+        withContext(Dispatchers.IO) {
+            webClient
+                .post()
+                .uri(graphQLURL)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(mapOf("query" to QUERY))
+                .retrieve()
+                .bodyToMono(Map::class.java)
+                .block()
+        } as Map<String, Any>
 
-
-    private fun generateQueries(schema: Map<String, Any>, maxDepth: Int): Map<String, String> {
+    private fun generateQueries(
+        schema: Map<String, Any>,
+        maxDepth: Int,
+    ): Map<String, String> {
         val types = ((schema["data"] as Map<*, *>)["__schema"] as Map<*, *>)["types"] as List<Map<String, Any>>
         val queryTypeFields =
             types.find { it["name"] == "Query" }?.get("fields") as List<Map<String, Any>>? ?: return emptyMap()
@@ -142,7 +141,10 @@ class GraphQLQueryGeneratorService(
         return queryTypeFields.createEntries(schema, maxDepth, "query")
     }
 
-    private fun generateMutations(schema: Map<String, Any>, maxDepth: Int): Map<String, String> {
+    private fun generateMutations(
+        schema: Map<String, Any>,
+        maxDepth: Int,
+    ): Map<String, String> {
         val types = ((schema["data"] as Map<*, *>)["__schema"] as Map<*, *>)["types"] as List<Map<String, Any>>
         val mutationTypeFields =
             types.find { it["name"] == "Mutation" }?.get("fields") as List<Map<String, Any>>? ?: return emptyMap()
@@ -150,22 +152,31 @@ class GraphQLQueryGeneratorService(
         return mutationTypeFields.createEntries(schema, maxDepth, "mutation")
     }
 
-    private fun List<Map<String, Any>>.createEntries(schema: Map<String, Any>, maxDepth: Int, typeString: String): Map<String, String>  {
-        return associate { element ->
-            val args = (element["args"] as List<Map<String, Any>>).joinToString(", ") { arg ->
-                "${arg["name"]}: ${getDefaultValue(arg["name"] as String, arg["type"] as Map<String, Any>, schema)}"
-                // TODO the args should be added somehow to the request / query model
-            }
+    private fun List<Map<String, Any>>.createEntries(
+        schema: Map<String, Any>,
+        maxDepth: Int,
+        typeString: String,
+    ): Map<String, String> =
+        associate { element ->
+            val args =
+                (element["args"] as List<Map<String, Any>>).joinToString(", ") { arg ->
+                    "${arg["name"]}: ${getDefaultValue(arg["name"] as String, arg["type"] as Map<String, Any>, schema)}"
+                    // TODO the args should be added somehow to the request / query model
+                }
             val fields = generateFields(element["type"] as Map<String, Any>, schema, maxDepth)
-            element["name"] as String to if (args.isEmpty()) {
-                "$typeString { ${element["name"]} { $fields } }"
-            } else {
-                "$typeString { ${element["name"]}($args) { $fields } }"
-            }
+            element["name"] as String to
+                if (args.isEmpty()) {
+                    "$typeString { ${element["name"]} { $fields } }"
+                } else {
+                    "$typeString { ${element["name"]}($args) { $fields } }"
+                }
         }
-    }
 
-    private fun generateFields(type: Map<String, Any>, schema: Map<String, Any>, depth: Int): String {
+    private fun generateFields(
+        type: Map<String, Any>,
+        schema: Map<String, Any>,
+        depth: Int,
+    ): String {
         if (depth == 0) return ""
         var fieldType = type
         while (fieldType["kind"] == "NON_NULL" || fieldType["kind"] == "LIST") {
@@ -173,8 +184,10 @@ class GraphQLQueryGeneratorService(
         }
 
         val types = (schema["data"] as Map<*, *>)["__schema"] as Map<*, *>
-        val typeFields = (types["types"] as List<Map<String, Any>>).find { it["name"] == fieldType["name"] }
-            ?.get("fields") as List<Map<String, Any>>? ?: return ""
+        val typeFields =
+            (types["types"] as List<Map<String, Any>>)
+                .find { it["name"] == fieldType["name"] }
+                ?.get("fields") as List<Map<String, Any>>? ?: return ""
 
         return typeFields.joinToString(" ") { field ->
             fieldType = field["type"] as Map<String, Any>
@@ -191,8 +204,12 @@ class GraphQLQueryGeneratorService(
         }
     }
 
-    private fun getDefaultValue(name: String, type: Map<String, Any>, schema: Map<String, Any>): String {
-        return when {
+    private fun getDefaultValue(
+        name: String,
+        type: Map<String, Any>,
+        schema: Map<String, Any>,
+    ): String =
+        when {
             type["kind"] == "NON_NULL" -> getDefaultValue(name, type["ofType"] as Map<String, Any>, schema)
             type["name"] == "Int" -> if (name == "first") "10" else "0"
             type["name"] == "Float" -> "1.0"
@@ -210,18 +227,18 @@ class GraphQLQueryGeneratorService(
                 val types = inputObjectType["types"] as List<Map<String, Any>>
                 val inputFields =
                     types.find { it["name"] == type["name"] }?.get("inputFields") as List<Map<String, Any>>?
-                inputFields?.joinToString(", ") { field ->
-                    "${field["name"]}: ${
-                        getDefaultValue(
-                            field["name"] as String,
-                            field["type"] as Map<String, Any>,
-                            schema
-                        )
-                    }"
-                }?.let { "{ $it }" } ?: "{}"
+                inputFields
+                    ?.joinToString(", ") { field ->
+                        "${field["name"]}: ${
+                            getDefaultValue(
+                                field["name"] as String,
+                                field["type"] as Map<String, Any>,
+                                schema,
+                            )
+                        }"
+                    }?.let { "{ $it }" } ?: "{}"
             }
 
             else -> "\"UUID\""
         }
-    }
 }

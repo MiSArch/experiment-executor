@@ -21,14 +21,20 @@ class ExperimentResultService(
     @Value("\${experiment-executor.template-path}") private val templatePath: String,
     @Value("\${experiment-executor.base-path}") private val basePath: String,
 ) {
+    val registry =
+        listOf(
+            GrafanaPlugin(webClient, grafanaConfig, templatePath, basePath),
+            ReportPlugin(basePath),
+            LLMPlugin(), // not implemented yet
+        )
 
-    val registry = listOf(
-        GrafanaPlugin(webClient, grafanaConfig, templatePath, basePath),
-        ReportPlugin(basePath),
-        LLMPlugin() // not implemented yet
-    )
-
-    suspend fun createAndExportReports(testUUID: UUID, testVersion: String, startTime: Instant, endTime: Instant, goals: List<Goal>) {
+    suspend fun createAndExportReports(
+        testUUID: UUID,
+        testVersion: String,
+        startTime: Instant,
+        endTime: Instant,
+        goals: List<Goal>,
+    ) {
         coroutineScope {
             registry.map { plugin ->
                 async { plugin.createReport(testUUID, testVersion, startTime, endTime, goals) }

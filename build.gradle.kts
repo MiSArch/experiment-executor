@@ -1,8 +1,11 @@
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
+
 plugins {
     kotlin("jvm") version "2.1.21"
     kotlin("plugin.spring") version "2.1.21"
     id("org.springframework.boot") version "3.5.0"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.jlleitschuh.gradle.ktlint") version "12.3.0"
 }
 
 group = "org.misarch"
@@ -35,6 +38,10 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict")
     }
+}
+
+configure<KtlintExtension> {
+    version.set("1.5.0")
 }
 
 tasks.withType<Test> {

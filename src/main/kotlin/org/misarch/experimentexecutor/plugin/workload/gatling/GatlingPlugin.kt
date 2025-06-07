@@ -21,33 +21,42 @@ class GatlingPlugin(
     private val basePath: String,
     private val triggerDelay: Long,
 ) : WorkloadPluginInterface {
-
-    override suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID, testVersion: String) {
-        val token = workLoad.gatling.endpointAccessToken ?: getOAuthAccessToken(
-            clientId = tokenConfig.clientId,
-            url = "${tokenConfig.host}/${tokenConfig.path}",
-            username = tokenConfig.username,
-            password = tokenConfig.password,
-        )
+    override suspend fun executeWorkLoad(
+        workLoad: WorkLoad,
+        testUUID: UUID,
+        testVersion: String,
+    ) {
+        val token =
+            workLoad.gatling.endpointAccessToken ?: getOAuthAccessToken(
+                clientId = tokenConfig.clientId,
+                url = "${tokenConfig.host}/${tokenConfig.path}",
+                username = tokenConfig.username,
+                password = tokenConfig.password,
+            )
 
         val userSteps = File("$basePath/$testUUID/$testVersion/$GATLING_USERSTEPS_FILENAME").readText()
-        webClient.post()
+        webClient
+            .post()
             .uri(
                 "$gatlingExecutorHost/start-experiment" +
-                        "?testUUID=$testUUID" +
-                        "&testVersion=$testVersion" +
-                        "&accessToken=$token" +
-                        "&triggerDelay=$triggerDelay" +
-                        "&targetUrl=${workLoad.gatling.endpointHost}"
+                    "?testUUID=$testUUID" +
+                    "&testVersion=$testVersion" +
+                    "&accessToken=$token" +
+                    "&triggerDelay=$triggerDelay" +
+                    "&targetUrl=${workLoad.gatling.endpointHost}",
             ).bodyValue(userSteps)
             .retrieve()
             .toBodilessEntity()
             .awaitSingle()
     }
 
-    override suspend fun stopWorkLoad(testUUID: UUID, testVersion: String) {
+    override suspend fun stopWorkLoad(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         logger.info { "Stopping gatling workload for testUUID: $testUUID and testVersion: $testVersion" }
-        webClient.post()
+        webClient
+            .post()
             .uri("$gatlingExecutorHost/stop-experiment?testUUID=$testUUID&testVersion=$testVersion")
             .retrieve()
             .onStatus({ it.value() == 404 }) { Mono.empty() }
@@ -55,15 +64,22 @@ class GatlingPlugin(
             .awaitSingle()
     }
 
-    private suspend fun getOAuthAccessToken(clientId: String, url: String, username: String, password: String): String {
+    private suspend fun getOAuthAccessToken(
+        clientId: String,
+        url: String,
+        username: String,
+        password: String,
+    ): String {
         val data = "grant_type=password&client_id=$clientId&username=$username&password=$password"
-        val response = webClient.post()
-            .uri(url)
-            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-            .bodyValue(data)
-            .retrieve()
-            .bodyToMono(TokenResponse::class.java)
-            .awaitSingle()
+        val response =
+            webClient
+                .post()
+                .uri(url)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .bodyValue(data)
+                .retrieve()
+                .bodyToMono(TokenResponse::class.java)
+                .awaitSingle()
 
         return response.accessToken
     }

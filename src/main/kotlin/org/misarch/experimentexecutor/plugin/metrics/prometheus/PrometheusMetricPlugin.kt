@@ -22,40 +22,42 @@ class PrometheusMetricPlugin(
     private val storeResultDataInFiles: Boolean,
     private val basePath: String,
 ) : MetricPluginInterface {
-    private val services = listOf(
-        "address",
-        "catalog",
-        "discount",
-        "gateway",
-        "inventory",
-        "invoice",
-        "media",
-        "notification",
-        "order",
-        "payment",
-        "return",
-        "review",
-        "shipment",
-        "shoppingcart",
-        "simulation",
-        "tax",
-        "user",
-        "wishlist",
-    )
-
-    private val metrics = services.map { service ->
-        mapOf(
-            """container_cpu_usage_seconds_total""" to """{name="infrastructure-docker-$service-1"}""",
-            """dapr_http_server_latency_sum""" to """{app_id="$service"}""",
-            """container_memory_usage_bytes""" to """{name="infrastructure-docker-$service-1"}""",
-            """http_server_request_duration_count""" to """{exported_job="$service"}""",
-            """container_start_time_seconds""" to """{name="infrastructure-docker-$service-1"}""",
-            """dapr_component_pubsub_egress_latencies_sum""" to """{app_id="$service"}""",
-            """http_server_request_duration_sum""" to """{exported_job="$service"}""",
-            """dapr_http_client_roundtrip_latency_sum""" to """{app_id="$service"}""",
-            """dapr_http_client_completed_count""" to """{app_id="$service"}"""
+    private val services =
+        listOf(
+            "address",
+            "catalog",
+            "discount",
+            "gateway",
+            "inventory",
+            "invoice",
+            "media",
+            "notification",
+            "order",
+            "payment",
+            "return",
+            "review",
+            "shipment",
+            "shoppingcart",
+            "simulation",
+            "tax",
+            "user",
+            "wishlist",
         )
-    }
+
+    private val metrics =
+        services.map { service ->
+            mapOf(
+                """container_cpu_usage_seconds_total""" to """{name="infrastructure-docker-$service-1"}""",
+                """dapr_http_server_latency_sum""" to """{app_id="$service"}""",
+                """container_memory_usage_bytes""" to """{name="infrastructure-docker-$service-1"}""",
+                """http_server_request_duration_count""" to """{exported_job="$service"}""",
+                """container_start_time_seconds""" to """{name="infrastructure-docker-$service-1"}""",
+                """dapr_component_pubsub_egress_latencies_sum""" to """{app_id="$service"}""",
+                """http_server_request_duration_sum""" to """{exported_job="$service"}""",
+                """dapr_http_client_roundtrip_latency_sum""" to """{app_id="$service"}""",
+                """dapr_http_client_completed_count""" to """{app_id="$service"}""",
+            )
+        }
 
     override suspend fun exportMetrics(
         testUUID: UUID,
@@ -90,27 +92,29 @@ class PrometheusMetricPlugin(
         metricName: String,
         metricFilter: String,
         start: String,
-        end:
-        String,
+        end: String,
         step: String,
         testUUID: UUID,
         testVersion: String,
         startTime: Instant,
     ) {
-        val uri = URI.create(
-            "http://localhost:9090/api/v1/query_range?" +
+        val uri =
+            URI.create(
+                "http://localhost:9090/api/v1/query_range?" +
                     "query=${URLEncoder.encode(metricName + metricFilter, UTF_8)}" +
                     "&start=${URLEncoder.encode(start, UTF_8)}" +
                     "&end=${URLEncoder.encode(end, UTF_8)}" +
-                    "&step=${URLEncoder.encode(step, UTF_8)}"
-        )
+                    "&step=${URLEncoder.encode(step, UTF_8)}",
+            )
 
-        val response = webClient.get()
-            .uri(uri)
-            .accept(MediaType.APPLICATION_JSON)
-            .retrieve()
-            .bodyToMono(PrometheusResponse::class.java)
-            .awaitSingle()
+        val response =
+            webClient
+                .get()
+                .uri(uri)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(PrometheusResponse::class.java)
+                .awaitSingle()
 
         val service = services.first { metricFilter.contains(it) }
         val folderName = startTime.truncatedTo(ChronoUnit.SECONDS).toString().replace(":", "-")

@@ -13,7 +13,10 @@ import org.springframework.data.redis.serializer.RedisSerializer
 @Configuration
 class RedisConfig {
     @Bean
-    fun reactiveRedisTemplate(factory: LettuceConnectionFactory, objectMapper: ObjectMapper): ReactiveRedisTemplate<String, ExperimentState> {
+    fun reactiveRedisTemplate(
+        factory: LettuceConnectionFactory,
+        objectMapper: ObjectMapper,
+    ): ReactiveRedisTemplate<String, ExperimentState> {
         val serializer = Jackson2JsonRedisSerializer(objectMapper.findAndRegisterModules(), ExperimentState::class.java)
 
         val context: RedisSerializationContext<String, ExperimentState> =

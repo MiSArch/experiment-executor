@@ -5,7 +5,7 @@ data class ExperimentConfig(
     val testVersion: String,
     val testName: String,
     val workLoad: WorkLoad,
-    val goals: List<Goal>
+    val goals: List<Goal>,
 )
 
 data class WorkLoad(

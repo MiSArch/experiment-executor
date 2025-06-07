@@ -20,12 +20,16 @@ class ExperimentWorkloadService(
     @Value("\${experiment-executor.trigger-delay}") private val triggerDelay: Long,
     @Value("\${experiment-executor.base-path}") private val basePath: String,
 ) {
+    val registry =
+        listOf<WorkloadPluginInterface>(
+            GatlingPlugin(webClient, tokenConfig, gatlingExecutorHost, basePath, triggerDelay),
+        )
 
-    val registry = listOf<WorkloadPluginInterface>(
-        GatlingPlugin(webClient, tokenConfig, gatlingExecutorHost, basePath, triggerDelay)
-    )
-
-    suspend fun executeWorkLoad(workLoad: WorkLoad, testUUID: UUID, testVersion: String) {
+    suspend fun executeWorkLoad(
+        workLoad: WorkLoad,
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         coroutineScope {
             registry.map { plugin ->
                 async { plugin.executeWorkLoad(workLoad, testUUID, testVersion) }
@@ -33,7 +37,10 @@ class ExperimentWorkloadService(
         }.awaitAll()
     }
 
-    suspend fun stopWorkLoad(testUUID: UUID, testVersion: String) {
+    suspend fun stopWorkLoad(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         coroutineScope {
             registry.map { plugin ->
                 async { plugin.stopWorkLoad(testUUID, testVersion) }
