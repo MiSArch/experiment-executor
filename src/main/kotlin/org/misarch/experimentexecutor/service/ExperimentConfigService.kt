@@ -40,7 +40,6 @@ class ExperimentConfigService(
             true
         }.getOrDefault(false)
 
-
     suspend fun getExperimentVersions(testUUID: UUID): List<String> {
         val testDir = File("$basePath/$testUUID")
         return testDir
@@ -158,11 +157,12 @@ class ExperimentConfigService(
         testVersion: String,
     ): List<String> {
         val files = File("$basePath/$testUUID/$testVersion")
-        val fileNames = files
-            .listFiles()
-            ?.filter { it.isFile && it.name.endsWith(".kt") }
-            ?.map { it.name }
-            ?: emptyList()
+        val fileNames =
+            files
+                .listFiles()
+                ?.filter { it.isFile && it.name.endsWith(".kt") }
+                ?.map { it.name }
+                ?: emptyList()
 
         return fileNames.map { fileName ->
             val filePath = "$basePath/$testUUID/$testVersion/$fileName"
@@ -177,11 +177,12 @@ class ExperimentConfigService(
         work: List<String>,
     ) {
         val files = File("$basePath/$testUUID/$testVersion")
-        val fileNames = files
-            .listFiles()
-            ?.filter { it.isFile && it.name.endsWith(".kt") }
-            ?.map { it.name }
-            ?: emptyList()
+        val fileNames =
+            files
+                .listFiles()
+                ?.filter { it.isFile && it.name.endsWith(".kt") }
+                ?.map { it.name }
+                ?: emptyList()
 
         fileNames.forEach { fileName ->
             val filePath = "$basePath/$testUUID/$testVersion/$fileName"
@@ -190,7 +191,7 @@ class ExperimentConfigService(
         val filePath = "$basePath/$testUUID/$testVersion"
         work.forEachIndexed { i, encodedValue ->
             val decodedContent = Base64.decode(encodedValue).decodeToString()
-            val fileName = "${GATLING_WORK_FILENAME}-${i+1}.kt"
+            val fileName = "${GATLING_WORK_FILENAME}-${i + 1}.kt"
             File("$filePath/$fileName").writeText(decodedContent)
         }
     }
