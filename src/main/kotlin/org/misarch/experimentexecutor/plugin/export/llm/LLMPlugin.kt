@@ -12,6 +12,7 @@ class LLMPlugin : ExportPluginInterface {
         startTime: Instant,
         endTime: Instant,
         goals: List<Goal>,
+        gatlingStatsHtml: String,
     ) {
         // Here you can wait until the Gatling and Prometheus plugin wrote their data to files, read in the files and forward all that data
         // to a LLM to see if it can make any sense out of it. It might be helpful also to add the dashboard template or at least its queries.

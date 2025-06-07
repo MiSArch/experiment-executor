@@ -34,10 +34,11 @@ class ExperimentResultService(
         startTime: Instant,
         endTime: Instant,
         goals: List<Goal>,
+        gatlingStatsHtml: String,
     ) {
         coroutineScope {
             registry.map { plugin ->
-                async { plugin.createReport(testUUID, testVersion, startTime, endTime, goals) }
+                async { plugin.createReport(testUUID, testVersion, startTime, endTime, goals, gatlingStatsHtml) }
             }
         }.awaitAll()
     }

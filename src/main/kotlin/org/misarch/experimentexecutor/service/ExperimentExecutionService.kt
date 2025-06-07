@@ -107,7 +107,7 @@ class ExperimentExecutionService(
 
             logger.info { "Initialized experiment and waiting for registrations for testUUID: $testUUID and testVersion: $testVersion" }
 
-            for (i in 0..6000) {
+            0.until(6000).forEach { _ ->
                 if (registeredClients["$testUUID:$testVersion"]?.contains("gatling") == true &&
                     registeredClients["$testUUID:$testVersion"]?.contains("chaostoolkit") == true
                 ) {
@@ -161,7 +161,14 @@ class ExperimentExecutionService(
             setExperimentStateCache(experimentState.copy(endTime = endTime.toString(), triggerState = COMPLETED))
 
             experimentMetricsService.exportMetrics(testUUID, testVersion, startTime, endTime, gatlingStatsJs, gatlingStatsHtml)
-            experimentResultService.createAndExportReports(testUUID, testVersion, startTime, endTime, experimentState.goals)
+            experimentResultService.createAndExportReports(
+                testUUID,
+                testVersion,
+                startTime,
+                endTime,
+                experimentState.goals,
+                gatlingStatsHtml,
+            )
 
             asyncEventResponder.emitSuccess(testUUID, testVersion)
 

@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import java.io.File
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger {}
 
@@ -26,8 +27,8 @@ class MisarchExperimentConfigPlugin(
     private val misarchExperimentConfigHost: String,
     private val basePath: String,
 ) : FailurePluginInterface {
-    private val configMap: MutableMap<String, List<MiSArchFailureConfig>> = mutableMapOf()
-    private val stoppableJobs: MutableMap<String, Job> = mutableMapOf()
+    private val configMap = ConcurrentHashMap<String, List<MiSArchFailureConfig>>()
+    private val stoppableJobs = ConcurrentHashMap<String, Job>()
 
     override suspend fun initializeFailure(
         testUUID: UUID,

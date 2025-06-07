@@ -11,5 +11,6 @@ interface ExportPluginInterface {
         startTime: Instant,
         endTime: Instant,
         goals: List<Goal>,
+        gatlingStatsHtml: String,
     )
 }

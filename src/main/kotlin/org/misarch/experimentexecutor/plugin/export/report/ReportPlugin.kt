@@ -19,6 +19,7 @@ class ReportPlugin(
         startTime: Instant,
         endTime: Instant,
         goals: List<Goal>,
+        gatlingStatsHtml: String,
     ) {
         val report =
             Report(

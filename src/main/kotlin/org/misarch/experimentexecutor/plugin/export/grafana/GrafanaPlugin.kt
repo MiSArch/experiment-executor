@@ -3,6 +3,7 @@ package org.misarch.experimentexecutor.plugin.export.grafana
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.reactor.awaitSingle
+import org.jsoup.Jsoup
 import org.misarch.experimentexecutor.config.GRAFANA_DASHBOARD_FILENAME
 import org.misarch.experimentexecutor.config.GrafanaConfig
 import org.misarch.experimentexecutor.config.REPORT_FILENAME
@@ -15,6 +16,7 @@ import org.misarch.experimentexecutor.plugin.export.report.model.Report
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodilessEntity
+import reactor.core.publisher.Mono
 import java.io.File
 import java.time.Instant
 import java.util.UUID
@@ -36,44 +38,10 @@ class GrafanaPlugin(
         startTime: Instant,
         endTime: Instant,
         goals: List<Goal>,
+        gatlingStatsHtml: String,
     ) {
         val filePath = "$templatePath/${TEMPLATE_PREFIX}${GRAFANA_DASHBOARD_FILENAME}"
-        val pastExecutionStartTimes = getPastExecutionStartTimes(testUUID, testVersion, startTime)
-        createResultDashboard(filePath, testUUID, testVersion, startTime, endTime, goals, pastExecutionStartTimes)
-    }
-
-    private fun getPastExecutionStartTimes(
-        testUUID: UUID,
-        testVersion: String,
-        startTime: Instant,
-    ): List<Int> {
-        val reportDir = File("$basePath/$testUUID/$testVersion/reports")
-        val reportDirs =
-            reportDir
-                .listFiles()
-                ?.filter { it.isDirectory }
-                ?.map { it.name }
-                ?: emptyList()
-
-        val timeStamps =
-            reportDirs.mapNotNull { dir ->
-                val reportFile = File("$reportDir/$dir/$REPORT_FILENAME")
-                if (reportFile.exists()) {
-                    runCatching {
-                        val reportContent = reportFile.readText()
-                        val reportData = jacksonObjectMapper().readValue(reportContent, Report::class.java)
-                        reportData.startTime
-                    }.getOrNull()
-                } else {
-                    null
-                }
-            }
-
-        return timeStamps
-            .map { timeStamp ->
-                ((startTime.toEpochMilli() - timeStamp.toLong()) / 1000).toInt()
-            }.filter { it > 0 }
-            .sorted()
+        createResultDashboard(filePath, testUUID, testVersion, startTime, endTime, goals, gatlingStatsHtml)
     }
 
     private suspend fun createResultDashboard(
@@ -83,98 +51,29 @@ class GrafanaPlugin(
         startTime: Instant,
         endTime: Instant,
         goals: List<Goal>,
-        pastExecutionDiffs: List<Int>,
+        gatlingStatsHtml: String,
     ) {
         val file = File(filePath)
         if (!file.exists()) {
             throw IllegalArgumentException("File not found: $filePath")
         }
-        val content = file.readText()
+        val dashboardTemplate = file.readText()
+        val gatlingErrors = extractErrorsTableHtml(gatlingStatsHtml)
+        val pastExecutionDiffs = getPastExecutionDiffs(testUUID, testVersion, startTime)
 
         val updatedContent =
-            content
+            dashboardTemplate
                 .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
                 .replace("REPLACE_ME_TEST_VERSION", testVersion)
                 .replace("REPLACE_ME_TEST_START_TIME", startTime.toString())
                 .replace("REPLACE_ME_TEST_END_TIME", endTime.toString())
                 .replace("REPLACE_ME_TIME_SHIFT", "${pastExecutionDiffs.minOrNull() ?: 0}s")
+                .replace("REPLACE_ME_GATLING_ERRORS", gatlingErrors)
 
-        val dashboardParsed = jacksonObjectMapper().readValue(updatedContent, GrafanaDashboardConfig::class.java)
-        val updatedDashboard =
-            dashboardParsed.copy(
-                dashboard =
-                    dashboardParsed.dashboard.copy(
-                        panels =
-                            dashboardParsed.dashboard.panels?.map {
-                                it.copy(
-                                    fieldConfig =
-                                        it.fieldConfig?.copy(
-                                            defaults =
-                                                it.fieldConfig.defaults?.copy(
-                                                    thresholds =
-                                                        if (goals.any { goal -> goal.metric == it.title }) {
-                                                            it.fieldConfig.defaults.thresholds?.copy(
-                                                                mode = it.fieldConfig.defaults.thresholds.mode,
-                                                                steps =
-                                                                    it.fieldConfig.defaults.thresholds.steps.flatMap { step ->
-                                                                        val goal = goals.first { goal -> goal.metric == it.title }
-                                                                        listOf(
-                                                                            step.copy(),
-                                                                            step.copy(
-                                                                                color = goal.color,
-                                                                                value = goal.threshold.toDouble(),
-                                                                            ),
-                                                                        )
-                                                                    },
-                                                            )
-                                                        } else {
-                                                            it.fieldConfig.defaults.thresholds
-                                                        },
-                                                ),
-                                        ),
-                                )
-                            },
-                        templating =
-                            dashboardParsed.dashboard.templating?.copy(
-                                list =
-                                    dashboardParsed.dashboard.templating.list.map { variable ->
-                                        if (variable.name != "timeShift") {
-                                            variable
-                                        } else {
-                                            variable.copy(
-                                                options =
-                                                    pastExecutionDiffs.map { diff ->
-                                                        Option(
-                                                            text = "${diff}s",
-                                                            value = "${diff}s",
-                                                            selected = diff == pastExecutionDiffs.minOrNull(),
-                                                        )
-                                                    },
-                                                query =
-                                                    if (pastExecutionDiffs.isNotEmpty()) {
-                                                        pastExecutionDiffs.joinToString(
-                                                            ",",
-                                                        ) { "${it}s" }
-                                                    } else {
-                                                        "0s"
-                                                    },
-                                            )
-                                        }
-                                    },
-                            ),
-                    ),
-            )
+        val templateParsed = jacksonObjectMapper().readValue(updatedContent, GrafanaDashboardConfig::class.java)
+        val finalDashboard = templateParsed.applyDynamicChangesToDashboard(goals, pastExecutionDiffs)
 
-        val grafanaToken = createApiToken("experiment-executor-${UUID.randomUUID()}")
-        webClient
-            .post()
-            .uri("${grafanaConfig.url}/api/dashboards/db")
-            .contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", "Bearer $grafanaToken")
-            .bodyValue(jacksonObjectMapper().writeValueAsString(updatedDashboard))
-            .retrieve()
-            .awaitBodilessEntity()
-
+        deleteAndCreateDashboard(testUUID, testVersion, finalDashboard)
         logger.info { "\uD83D\uDCC8 Result dashboard exported to Grafana\n http://localhost:3001/d/$testUUID-$testVersion" }
     }
 
@@ -224,6 +123,24 @@ class GrafanaPlugin(
         return serviceAccountId!!
     }
 
+    private suspend fun deleteAndCreateDashboard(
+        testUUID: UUID,
+        testVersion: String,
+        finalDashboard: GrafanaDashboardConfig,
+    ) {
+        val grafanaToken = createApiToken("experiment-executor-${UUID.randomUUID()}")
+        webClient
+            .post()
+            .uri("${grafanaConfig.url}/api/dashboards/db")
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", "Bearer $grafanaToken")
+            .bodyValue(jacksonObjectMapper().writeValueAsString(finalDashboard))
+            .retrieve()
+            .onStatus({ it.value() != 200 && it.value() != 201 && it.value() != 204 }) { response ->
+                Mono.error(IllegalStateException("Dashboard creation failed for testUUID: $testUUID and testVersion: $testVersion"))
+            }.awaitBodilessEntity()
+    }
+
     private suspend fun createApiToken(tokenName: String): String {
         if (apiToken != null) {
             return apiToken!!
@@ -249,4 +166,115 @@ class GrafanaPlugin(
             ?: throw IllegalStateException("Failed to parse API token.")
         return apiToken!!
     }
+
+    private fun getPastExecutionDiffs(
+        testUUID: UUID,
+        testVersion: String,
+        startTime: Instant,
+    ): List<Int> {
+        val reportDir = File("$basePath/$testUUID/$testVersion/reports")
+        val reportDirs =
+            reportDir
+                .listFiles()
+                ?.filter { it.isDirectory }
+                ?.map { it.name }
+                ?: emptyList()
+
+        val timeStamps =
+            reportDirs.mapNotNull { dir ->
+                val reportFile = File("$reportDir/$dir/$REPORT_FILENAME")
+                if (reportFile.exists()) {
+                    runCatching {
+                        val reportContent = reportFile.readText()
+                        val reportData = jacksonObjectMapper().readValue(reportContent, Report::class.java)
+                        reportData.startTime
+                    }.getOrNull()
+                } else {
+                    null
+                }
+            }
+
+        return timeStamps
+            .map { timeStamp ->
+                ((startTime.toEpochMilli() - timeStamp.toLong()) / 1000).toInt()
+            }.filter { it > 0 }
+            .sorted()
+    }
+
+    private fun extractErrorsTableHtml(html: String): String {
+        val document = Jsoup.parse(html)
+        val table = document.getElementById("container_errors")
+        return table
+            ?.outerHtml()
+            ?.replace(Regex(">\\s+<"), "><")
+            ?.trim()
+            ?.replace("\"", "\\\"") ?: ""
+    }
+
+    private fun GrafanaDashboardConfig.applyDynamicChangesToDashboard(
+        goals: List<Goal>,
+        pastExecutionDiffs: List<Int>,
+    ) = copy(
+        dashboard =
+            this.dashboard.copy(
+                panels =
+                    this.dashboard.panels?.map {
+                        it.copy(
+                            fieldConfig =
+                                it.fieldConfig?.copy(
+                                    defaults =
+                                        it.fieldConfig.defaults?.copy(
+                                            thresholds =
+                                                if (goals.any { goal -> goal.metric == it.title }) {
+                                                    it.fieldConfig.defaults.thresholds?.copy(
+                                                        mode = it.fieldConfig.defaults.thresholds.mode,
+                                                        steps =
+                                                            it.fieldConfig.defaults.thresholds.steps.flatMap { step ->
+                                                                val goal = goals.first { goal -> goal.metric == it.title }
+                                                                listOf(
+                                                                    step.copy(),
+                                                                    step.copy(
+                                                                        color = goal.color,
+                                                                        value = goal.threshold.toDouble(),
+                                                                    ),
+                                                                )
+                                                            },
+                                                    )
+                                                } else {
+                                                    it.fieldConfig.defaults.thresholds
+                                                },
+                                        ),
+                                ),
+                        )
+                    },
+                templating =
+                    this.dashboard.templating?.copy(
+                        list =
+                            this.dashboard.templating.list.map { variable ->
+                                if (variable.name != "timeShift") {
+                                    variable
+                                } else {
+                                    variable.copy(
+                                        options =
+                                            pastExecutionDiffs.map { diff ->
+                                                Option(
+                                                    text = "${diff}s",
+                                                    value = "${diff}s",
+                                                    selected = diff == pastExecutionDiffs.minOrNull(),
+                                                )
+                                            },
+                                        query =
+                                            if (pastExecutionDiffs.isNotEmpty()) {
+                                                pastExecutionDiffs.joinToString(
+                                                    ",",
+                                                ) { "${it}s" }
+                                            } else {
+                                                "0s"
+                                            },
+                                    )
+                                }
+                            },
+                    ),
+            ),
+    )
 }
