@@ -18,6 +18,7 @@ influxdb:
   token: ${INFLUXDB_TOKEN}
 misarch:
   experiment-config:
+    active: ${USE_MISARCH_EXPERIMENT_CONFIG}
     host: ${MISARCH_EXPERIMENT_CONFIG_HOST}
 chaostoolkit:
   executor-host: ${CHAOSTOOLKIT_EXECUTOR_HOST}

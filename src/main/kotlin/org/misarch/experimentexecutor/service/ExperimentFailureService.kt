@@ -16,12 +16,16 @@ class ExperimentFailureService(
     @Value("\${misarch.experiment-config.host}") private val misarchExperimentConfigHost: String,
     @Value("\${chaostoolkit.executor-host}") private val chaosToolkitExecutorHost: String,
     @Value("\${experiment-executor.base-path}") private val basePath: String,
+    @Value("\${misarch.experiment-config.active}") private val misarchExperimentConfigActive: Boolean,
 ) {
-    val registry =
+    val registry = if (misarchExperimentConfigActive) {
         listOf(
             ChaosToolkitPlugin(webClient, chaosToolkitExecutorHost, basePath),
             MisarchExperimentConfigPlugin(webClient, misarchExperimentConfigHost, basePath),
         )
+    } else {
+        listOf(ChaosToolkitPlugin(webClient, chaosToolkitExecutorHost, basePath))
+    }
 
     suspend fun setupExperimentFailure(
         testUUID: UUID,
