@@ -1,11 +1,6 @@
 spring:
   application:
     name: experiment-executor
-  data:
-    redis:
-      password: ${REDIS_PASSWORD}
-      host: ${REDIS_HOST}
-      port: 6379
 server:
   port: 8888
 
@@ -34,7 +29,6 @@ gatling:
 experiment-executor:
   base-path: "/home/java/tests"
   template-path: "src/main/resources/templates"
-  trigger-delay: ${EXPERIMENT_TRIGGER_DELAY}
   store-result-data-in-files: ${STORE_RESULT_DATA_IN_FILES}
   cors-origins:
     - "http://localhost:5173"

@@ -17,6 +17,7 @@ class GraphQLQueryGeneratorService(
     private val webClient: WebClient,
 ) {
     // TODO
+
     /*suspend fun graphQLQueryStringBuilder(request: Request, queryOrMutation: GraphQLRequest): String {
         queryOrMutation.inputs.forEach { queryInput -> request.i }
     }*/

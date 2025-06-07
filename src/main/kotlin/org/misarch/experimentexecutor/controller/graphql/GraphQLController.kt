@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
 @RestController
-class ExperimentController(
+class GraphQLController(
     private val graphQLQueryGeneratorService: GraphQLQueryGeneratorService,
 ) {
     @GetMapping("/generateGraphQL")

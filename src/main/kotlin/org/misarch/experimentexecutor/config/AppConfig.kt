@@ -39,5 +39,4 @@ data class ExperimentExecutorConfig(
     val basePath: String,
     val storeResultDataInFiles: Boolean,
     val corsOrigins: List<String>,
-    val triggerDelay: Long,
 )

@@ -10,19 +10,18 @@ import org.misarch.experimentexecutor.plugin.workload.gatling.GatlingPlugin
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import java.util.*
+import java.util.UUID
 
 @Service
 class ExperimentWorkloadService(
     webClient: WebClient,
     tokenConfig: TokenConfig,
     @Value("\${gatling.executor-host}") private val gatlingExecutorHost: String,
-    @Value("\${experiment-executor.trigger-delay}") private val triggerDelay: Long,
     @Value("\${experiment-executor.base-path}") private val basePath: String,
 ) {
     val registry =
         listOf<WorkloadPluginInterface>(
-            GatlingPlugin(webClient, tokenConfig, gatlingExecutorHost, basePath, triggerDelay),
+            GatlingPlugin(webClient, tokenConfig, gatlingExecutorHost, basePath),
         )
 
     suspend fun executeWorkLoad(

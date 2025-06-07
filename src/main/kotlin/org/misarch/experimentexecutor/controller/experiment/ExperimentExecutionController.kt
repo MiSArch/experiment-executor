@@ -2,8 +2,14 @@ package org.misarch.experimentexecutor.controller.experiment
 
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.service.ExperimentExecutionService
-import org.springframework.web.bind.annotation.*
-import java.util.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @RestController
 class ExperimentExecutionController(
@@ -15,7 +21,7 @@ class ExperimentExecutionController(
     @PostMapping("/experiment")
     private suspend fun runExperimentWithConfigFile(
         @RequestBody experimentConfig: ExperimentConfig,
-    ) = experimentExecutionService.executeExperiment(
+    ) = experimentExecutionService.initializeExperiment(
         experimentConfig,
         UUID.fromString(experimentConfig.testUUID),
         experimentConfig.testVersion,
@@ -42,6 +48,16 @@ class ExperimentExecutionController(
     ) {
         experimentExecutionService.cancelExperiment(testUUID, testVersion)
     }
+
+    /**
+     * Enables clients to register themselves to ensure the experiment is started once all clients are there.
+     */
+    @PostMapping("/trigger/{testUUID}/{testVersion}")
+    private suspend fun registerTrigger(
+        @PathVariable testUUID: UUID,
+        @PathVariable testVersion: String,
+        @RequestParam client: String,
+    ) = experimentExecutionService.registerTriggerState(testUUID, testVersion, client).toString()
 
     /**
      * Returns the current state of the trigger for the specified test UUID.

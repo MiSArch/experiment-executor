@@ -3,7 +3,8 @@ package org.misarch.experimentexecutor.plugin.workload.gatling
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.reactor.awaitSingle
-import org.misarch.experimentexecutor.config.*
+import org.misarch.experimentexecutor.config.GATLING_USERSTEPS_FILENAME
+import org.misarch.experimentexecutor.config.TokenConfig
 import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.springframework.http.MediaType
@@ -19,7 +20,6 @@ class GatlingPlugin(
     private val tokenConfig: TokenConfig,
     private val gatlingExecutorHost: String,
     private val basePath: String,
-    private val triggerDelay: Long,
 ) : WorkloadPluginInterface {
     override suspend fun executeWorkLoad(
         workLoad: WorkLoad,
@@ -42,7 +42,6 @@ class GatlingPlugin(
                     "?testUUID=$testUUID" +
                     "&testVersion=$testVersion" +
                     "&accessToken=$token" +
-                    "&triggerDelay=$triggerDelay" +
                     "&targetUrl=${workLoad.gatling.endpointHost}",
             ).bodyValue(userSteps)
             .retrieve()

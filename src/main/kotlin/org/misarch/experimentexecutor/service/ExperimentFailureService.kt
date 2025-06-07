@@ -8,7 +8,7 @@ import org.misarch.experimentexecutor.plugin.failure.misarch.MisarchExperimentCo
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import java.util.*
+import java.util.UUID
 
 @Service
 class ExperimentFailureService(
@@ -18,14 +18,15 @@ class ExperimentFailureService(
     @Value("\${experiment-executor.base-path}") private val basePath: String,
     @Value("\${misarch.experiment-config.active}") private val misarchExperimentConfigActive: Boolean,
 ) {
-    val registry = if (misarchExperimentConfigActive) {
-        listOf(
-            ChaosToolkitPlugin(webClient, chaosToolkitExecutorHost, basePath),
-            MisarchExperimentConfigPlugin(webClient, misarchExperimentConfigHost, basePath),
-        )
-    } else {
-        listOf(ChaosToolkitPlugin(webClient, chaosToolkitExecutorHost, basePath))
-    }
+    val registry =
+        if (misarchExperimentConfigActive) {
+            listOf(
+                ChaosToolkitPlugin(webClient, chaosToolkitExecutorHost, basePath),
+                MisarchExperimentConfigPlugin(webClient, misarchExperimentConfigHost, basePath),
+            )
+        } else {
+            listOf(ChaosToolkitPlugin(webClient, chaosToolkitExecutorHost, basePath))
+        }
 
     suspend fun setupExperimentFailure(
         testUUID: UUID,

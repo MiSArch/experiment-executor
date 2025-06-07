@@ -2,7 +2,7 @@ package org.misarch.experimentexecutor.plugin.export
 
 import org.misarch.experimentexecutor.model.Goal
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 interface ExportPluginInterface {
     suspend fun createReport(

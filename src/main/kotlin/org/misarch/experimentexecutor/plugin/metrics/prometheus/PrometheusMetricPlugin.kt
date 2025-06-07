@@ -12,7 +12,7 @@ import java.net.URI
 import java.net.URLEncoder
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.UUID
 import kotlin.text.Charsets.UTF_8
 
 private val logger = KotlinLogging.logger {}

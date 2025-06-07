@@ -3,7 +3,7 @@ package org.misarch.experimentexecutor.plugin.export.llm
 import org.misarch.experimentexecutor.model.Goal
 import org.misarch.experimentexecutor.plugin.export.ExportPluginInterface
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 class LLMPlugin : ExportPluginInterface {
     override suspend fun createReport(
