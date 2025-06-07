@@ -5,6 +5,8 @@ import org.misarch.experimentexecutor.config.CHAOSTOOLKIT_FILENAME
 import org.misarch.experimentexecutor.config.EXECUTION_FILENAME
 import org.misarch.experimentexecutor.config.GATLING_USERSTEPS_FILENAME
 import org.misarch.experimentexecutor.config.GATLING_WORK_FILENAME
+import org.misarch.experimentexecutor.config.GATLING_WORK_FILENAME_1
+import org.misarch.experimentexecutor.config.GATLING_WORK_FILENAME_2
 import org.misarch.experimentexecutor.config.MISARCH_EXPERIMENT_CONFIG_FILENAME
 import org.misarch.experimentexecutor.config.TEMPLATE_PREFIX
 import org.misarch.experimentexecutor.model.ExperimentConfig
@@ -13,12 +15,14 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.io.File
 import java.util.UUID
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 @Service
+@OptIn(ExperimentalEncodingApi::class)
 class ExperimentConfigService(
     @Value("\${experiment-executor.base-path}") private val basePath: String,
     @Value("\${experiment-executor.template-path}") private val templatePath: String,
-    @Value("\${misarch.experiment-config.host}") private val misarchExperimentConfigHost: String,
     @Value("\${gatling.target-endpoint}") private val gatlingTargetEndpoint: String,
 ) {
     suspend fun getExistingExperiments(): List<String> {
@@ -31,12 +35,11 @@ class ExperimentConfigService(
     }
 
     private fun isValidUUID(name: String): Boolean =
-        try {
+        runCatching {
             UUID.fromString(name)
             true
-        } catch (e: IllegalArgumentException) {
-            false
-        }
+        }.getOrDefault(false)
+
 
     suspend fun getExperimentVersions(testUUID: UUID): List<String> {
         val testDir = File("$basePath/$testUUID")
@@ -72,8 +75,11 @@ class ExperimentConfigService(
         val misarchTemplate = File("$templatePath/${TEMPLATE_PREFIX}${MISARCH_EXPERIMENT_CONFIG_FILENAME}").readText()
         File("$experimentDir/$MISARCH_EXPERIMENT_CONFIG_FILENAME").writeText(misarchTemplate)
 
-        val workTemplate = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_WORK_FILENAME}").readText()
-        File("$experimentDir/$GATLING_WORK_FILENAME").writeText(workTemplate)
+        val workTemplate = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_WORK_FILENAME_1}").readText()
+        File("$experimentDir/$GATLING_WORK_FILENAME_1").writeText(workTemplate)
+
+        val workTemplate2 = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_WORK_FILENAME_2}").readText()
+        File("$experimentDir/$GATLING_WORK_FILENAME_2").writeText(workTemplate2)
 
         val executionTemplate = File("$templatePath/${TEMPLATE_PREFIX}${EXECUTION_FILENAME}").readText()
         val executionTemplateUpdated =
@@ -81,14 +87,8 @@ class ExperimentConfigService(
                 .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
                 .replace("REPLACE_ME_TEST_VERSION", testVersion)
                 .replace("REPLACE_ME_TEST_NAME", testName)
-                .replace("REPLACE_ME_BASE_PATH", experimentDir)
                 .replace("REPLACE_ME_LOADTYPE", loadType.toString())
-                .replace("REPLACE_ME_CHAOSTOOLKIT_FILENAME", CHAOSTOOLKIT_FILENAME)
-                .replace("REPLACE_ME_MISARCH_EXPERIMENT_CONFIG_ENDPOINT", misarchExperimentConfigHost)
-                .replace("REPLACE_ME_MISARCH_EXPERIMENT_CONFIG_FILENAME", MISARCH_EXPERIMENT_CONFIG_FILENAME)
                 .replace("REPLACE_ME_GATLING_TARGET_ENDPOINT", gatlingTargetEndpoint)
-                .replace("REPLACE_ME_GATLING_WORK_FILENAME", GATLING_WORK_FILENAME)
-                .replace("REPLACE_ME_GATLING_USERSTEPS_FILENAME", GATLING_USERSTEPS_FILENAME)
         File("$experimentDir/$EXECUTION_FILENAME").writeText(executionTemplateUpdated)
 
         return "$testUUID:$testVersion"
@@ -156,15 +156,43 @@ class ExperimentConfigService(
     fun getGatlingWork(
         testUUID: UUID,
         testVersion: String,
-    ): String = File("$basePath/$testUUID/$testVersion/$GATLING_WORK_FILENAME").readText()
+    ): List<String> {
+        val files = File("$basePath/$testUUID/$testVersion")
+        val fileNames = files
+            .listFiles()
+            ?.filter { it.isFile && it.name.endsWith(".kt") }
+            ?.map { it.name }
+            ?: emptyList()
+
+        return fileNames.map { fileName ->
+            val filePath = "$basePath/$testUUID/$testVersion/$fileName"
+            val fileContent = File(filePath).readText()
+            Base64.encode(fileContent.toByteArray(Charsets.UTF_8))
+        }
+    }
 
     fun updateGatlingWork(
         testUUID: UUID,
         testVersion: String,
-        work: String,
+        work: List<String>,
     ) {
-        val filePath = "$basePath/$testUUID/$testVersion/$GATLING_WORK_FILENAME"
-        File(filePath).writeText(work)
+        val files = File("$basePath/$testUUID/$testVersion")
+        val fileNames = files
+            .listFiles()
+            ?.filter { it.isFile && it.name.endsWith(".kt") }
+            ?.map { it.name }
+            ?: emptyList()
+
+        fileNames.forEach { fileName ->
+            val filePath = "$basePath/$testUUID/$testVersion/$fileName"
+            File(filePath).delete()
+        }
+        val filePath = "$basePath/$testUUID/$testVersion"
+        work.forEachIndexed { i, encodedValue ->
+            val decodedContent = Base64.decode(encodedValue).decodeToString()
+            val fileName = "${GATLING_WORK_FILENAME}-${i+1}.kt"
+            File("$filePath/$fileName").writeText(decodedContent)
+        }
     }
 
     fun generateUserStepsCSV(

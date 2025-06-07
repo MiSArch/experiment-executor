@@ -90,13 +90,13 @@ class ExperimentConfigController(
     suspend fun getGatlingWork(
         @PathVariable testUUID: UUID,
         @PathVariable testVersion: String,
-    ): String = experimentConfigService.getGatlingWork(testUUID, testVersion)
+    ): List<String> = experimentConfigService.getGatlingWork(testUUID, testVersion)
 
     @PutMapping("/experiment/{testUUID}/{testVersion}/gatlingConfig/work")
     suspend fun putGatlingWork(
         @PathVariable testUUID: UUID,
         @PathVariable testVersion: String,
-        @RequestBody work: String,
+        @RequestBody work: List<String>,
     ) = experimentConfigService.updateGatlingWork(testUUID, testVersion, work)
 
     @GetMapping("/experiment/{testUUID}/{testVersion}/config")

@@ -4,7 +4,7 @@ import io.gatling.javaapi.core.CoreDsl.*
 import io.gatling.javaapi.http.HttpDsl.http
 import java.time.Duration
 
-val defaultScenario = scenario("Buy Process").exec { session ->
+val buyProcessScenario = scenario("Buy Process").exec { session ->
     session.set(
         "productsQuery",
         "{ \"query\": \"query { products(filter: { isPubliclyVisible: true }, first: 10, orderBy: { direction: ASC, field: ID }, skip: 0) { hasNextPage nodes { id internalName isPubliclyVisible } totalCount } }\" }"
@@ -39,7 +39,7 @@ val defaultScenario = scenario("Buy Process").exec { session ->
 }.exec(
     http("createShoppingcartItemMutation").post("/graphql").body(StringBody("#{createShoppingcartItemMutation}"))
         .check(jsonPath("$.data.createShoppingcartItem.id").saveAs("createShoppingcartItemId"))
-).pause(Duration.ofMillis(4000), Duration.ofMillis(6000)).exec { session ->
+).pause(Duration.ofMillis(4000), Duration.ofMillis(7000)).exec { session ->
     session.set(
         "shipmentMethodsQuery",
         "{ \"query\": \"query { shipmentMethods { totalCount nodes { id name baseFees description feesPerItem feesPerKg } } }\" }",
@@ -55,7 +55,7 @@ val defaultScenario = scenario("Buy Process").exec { session ->
 }.exec(
     http("paymentInformationsQuery").post("/graphql").body(StringBody("#{paymentInformationsQuery}"))
         .check(jsonPath("$.data.paymentInformations.nodes[0].id").saveAs("paymentInformationId"))
-).pause(Duration.ofMillis(4000), Duration.ofMillis(6000)).exec { session ->
+).pause(Duration.ofMillis(4000), Duration.ofMillis(7000)).exec { session ->
     val userId = session.getString("userId")
     val addressId = session.getString("addressId")
     val createShoppingcartItemId = session.getString("createShoppingcartItemId")
@@ -65,7 +65,7 @@ val defaultScenario = scenario("Buy Process").exec { session ->
         "createOrderMutation",
         "{ \"query\": \"mutation { createOrder( input: { userId: \\\"$userId\\\" orderItemInputs: { shoppingCartItemId: \\\"$createShoppingcartItemId\\\" couponIds: [] shipmentMethodId: \\\"$shipmentMethodId\\\" } vatNumber: \\\"AB1234\\\" invoiceAddressId: \\\"$addressId\\\" shipmentAddressId: \\\"$addressId\\\" paymentInformationId: \\\"$paymentInformationId\\\" } ) { id paymentInformationId placedAt } }\" }"
     )
-}.pause(Duration.ofMillis(2000), Duration.ofMillis(4000)).exec(
+}.pause(Duration.ofMillis(2000), Duration.ofMillis(5000)).exec(
     http("createOrderMutation").post("/graphql").body(StringBody("#{createOrderMutation}"))
         .check(jsonPath("$.data.createOrder.id").saveAs("createOrderId"))
 ).exec { session ->
