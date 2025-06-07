@@ -6,6 +6,7 @@ import kotlinx.coroutines.coroutineScope
 import org.misarch.experimentexecutor.config.GrafanaConfig
 import org.misarch.experimentexecutor.model.Goal
 import org.misarch.experimentexecutor.plugin.export.grafana.GrafanaPlugin
+import org.misarch.experimentexecutor.plugin.export.llm.LLMPlugin
 import org.misarch.experimentexecutor.plugin.export.report.ReportPlugin
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -23,7 +24,8 @@ class ExperimentResultService(
 
     val registry = listOf(
         GrafanaPlugin(webClient, grafanaConfig, templatePath, basePath),
-        ReportPlugin(basePath)
+        ReportPlugin(basePath),
+        LLMPlugin() // not implemented yet
     )
 
     suspend fun createAndExportReports(testUUID: UUID, testVersion: String, startTime: Instant, endTime: Instant, goals: List<Goal>) {
