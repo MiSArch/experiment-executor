@@ -1,5 +1,6 @@
 package org.misarch.experimentexecutor.controller.experiment
 
+import org.misarch.experimentexecutor.controller.experiment.model.GatlingWorkDTO
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.model.GatlingLoadType
 import org.misarch.experimentexecutor.service.ExperimentConfigService
@@ -90,13 +91,13 @@ class ExperimentConfigController(
     suspend fun getGatlingWork(
         @PathVariable testUUID: UUID,
         @PathVariable testVersion: String,
-    ): List<String> = experimentConfigService.getGatlingWork(testUUID, testVersion)
+    ): List<GatlingWorkDTO> = experimentConfigService.getGatlingWork(testUUID, testVersion)
 
     @PutMapping("/experiment/{testUUID}/{testVersion}/gatlingConfig/work")
     suspend fun putGatlingWork(
         @PathVariable testUUID: UUID,
         @PathVariable testVersion: String,
-        @RequestBody work: List<String>,
+        @RequestBody work: List<GatlingWorkDTO>,
     ) = experimentConfigService.updateGatlingWork(testUUID, testVersion, work)
 
     @GetMapping("/experiment/{testUUID}/{testVersion}/config")

@@ -4,11 +4,11 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.misarch.experimentexecutor.config.CHAOSTOOLKIT_FILENAME
 import org.misarch.experimentexecutor.config.EXECUTION_FILENAME
 import org.misarch.experimentexecutor.config.GATLING_USERSTEPS_FILENAME
-import org.misarch.experimentexecutor.config.GATLING_WORK_FILENAME
 import org.misarch.experimentexecutor.config.GATLING_WORK_FILENAME_1
 import org.misarch.experimentexecutor.config.GATLING_WORK_FILENAME_2
 import org.misarch.experimentexecutor.config.MISARCH_EXPERIMENT_CONFIG_FILENAME
 import org.misarch.experimentexecutor.config.TEMPLATE_PREFIX
+import org.misarch.experimentexecutor.controller.experiment.model.GatlingWorkDTO
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.model.GatlingLoadType
 import org.springframework.beans.factory.annotation.Value
@@ -74,8 +74,8 @@ class ExperimentConfigService(
         val misarchTemplate = File("$templatePath/${TEMPLATE_PREFIX}${MISARCH_EXPERIMENT_CONFIG_FILENAME}").readText()
         File("$experimentDir/$MISARCH_EXPERIMENT_CONFIG_FILENAME").writeText(misarchTemplate)
 
-        val workTemplate = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_WORK_FILENAME_1}").readText()
-        File("$experimentDir/$GATLING_WORK_FILENAME_1").writeText(workTemplate)
+        val workTemplate1 = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_WORK_FILENAME_1}").readText()
+        File("$experimentDir/$GATLING_WORK_FILENAME_1").writeText(workTemplate1)
 
         val workTemplate2 = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_WORK_FILENAME_2}").readText()
         File("$experimentDir/$GATLING_WORK_FILENAME_2").writeText(workTemplate2)
@@ -155,7 +155,7 @@ class ExperimentConfigService(
     fun getGatlingWork(
         testUUID: UUID,
         testVersion: String,
-    ): List<String> {
+    ): List<GatlingWorkDTO> {
         val files = File("$basePath/$testUUID/$testVersion")
         val fileNames =
             files
@@ -167,14 +167,14 @@ class ExperimentConfigService(
         return fileNames.map { fileName ->
             val filePath = "$basePath/$testUUID/$testVersion/$fileName"
             val fileContent = File(filePath).readText()
-            Base64.encode(fileContent.toByteArray(Charsets.UTF_8))
+            GatlingWorkDTO(fileName, Base64.encode(fileContent.toByteArray(Charsets.UTF_8)))
         }
     }
 
     fun updateGatlingWork(
         testUUID: UUID,
         testVersion: String,
-        work: List<String>,
+        work: List<GatlingWorkDTO>,
     ) {
         val files = File("$basePath/$testUUID/$testVersion")
         val fileNames =
@@ -189,10 +189,9 @@ class ExperimentConfigService(
             File(filePath).delete()
         }
         val filePath = "$basePath/$testUUID/$testVersion"
-        work.forEachIndexed { i, encodedValue ->
-            val decodedContent = Base64.decode(encodedValue).decodeToString()
-            val fileName = "${GATLING_WORK_FILENAME}-${i + 1}.kt"
-            File("$filePath/$fileName").writeText(decodedContent)
+        work.forEachIndexed { i, dto ->
+            val decodedContent = Base64.decode(dto.encodedFileContent).decodeToString()
+            File("$filePath/${dto.fileName}").writeText(decodedContent)
         }
     }
 
