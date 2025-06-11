@@ -1,6 +1,6 @@
 package org.misarch.experimentexecutor.controller.experiment
 
-import org.misarch.experimentexecutor.controller.experiment.model.GatlingWorkDTO
+import org.misarch.experimentexecutor.controller.experiment.model.EncodedFileDTO
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.model.GatlingLoadType
 import org.misarch.experimentexecutor.service.ExperimentConfigService
@@ -74,31 +74,18 @@ class ExperimentConfigController(
         @RequestBody misarchExperimentConfig: String,
     ) = experimentConfigService.updateMisarchExperimentConfig(testUUID, testVersion, misarchExperimentConfig)
 
-    @GetMapping("/experiment/{testUUID}/{testVersion}/gatlingConfig/userSteps")
-    suspend fun getGatlingUserSteps(
+    @GetMapping("/experiment/{testUUID}/{testVersion}/gatlingConfig")
+    suspend fun getGatlingConfigs(
         @PathVariable testUUID: UUID,
         @PathVariable testVersion: String,
-    ): String = experimentConfigService.getGatlingUsersteps(testUUID, testVersion)
+    ): List<EncodedFileDTO> = experimentConfigService.getGatlingConfigs(testUUID, testVersion)
 
-    @PutMapping("/experiment/{testUUID}/{testVersion}/gatlingConfig/userSteps")
-    suspend fun putGatlingUsersteps(
+    @PutMapping("/experiment/{testUUID}/{testVersion}/gatlingConfig")
+    suspend fun putGatlingConfigs(
         @PathVariable testUUID: UUID,
         @PathVariable testVersion: String,
-        @RequestBody userSteps: String,
-    ) = experimentConfigService.updateGatlingUsersteps(testUUID, testVersion, userSteps)
-
-    @GetMapping("/experiment/{testUUID}/{testVersion}/gatlingConfig/work")
-    suspend fun getGatlingWork(
-        @PathVariable testUUID: UUID,
-        @PathVariable testVersion: String,
-    ): List<GatlingWorkDTO> = experimentConfigService.getGatlingWork(testUUID, testVersion)
-
-    @PutMapping("/experiment/{testUUID}/{testVersion}/gatlingConfig/work")
-    suspend fun putGatlingWork(
-        @PathVariable testUUID: UUID,
-        @PathVariable testVersion: String,
-        @RequestBody work: List<GatlingWorkDTO>,
-    ) = experimentConfigService.updateGatlingWork(testUUID, testVersion, work)
+        @RequestBody configs: List<EncodedFileDTO>,
+    ) = experimentConfigService.updateGatlingConfigs(testUUID, testVersion, configs)
 
     @GetMapping("/experiment/{testUUID}/{testVersion}/config")
     suspend fun getExperimentConfig(

@@ -3,7 +3,7 @@ package org.misarch.experimentexecutor.plugin.workload.gatling
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.reactor.awaitSingle
-import org.misarch.experimentexecutor.config.GATLING_USERSTEPS_FILENAME
+import org.misarch.experimentexecutor.config.GATLING_USERSTEPS_FILENAME_1
 import org.misarch.experimentexecutor.config.TokenConfig
 import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
@@ -34,7 +34,8 @@ class GatlingPlugin(
                 password = tokenConfig.password,
             )
 
-        val userSteps = File("$basePath/$testUUID/$testVersion/$GATLING_USERSTEPS_FILENAME").readText()
+        // TODO FINALIZE AND FIX THIS
+        val userSteps = File("$basePath/$testUUID/$testVersion/$GATLING_USERSTEPS_FILENAME_1").readText()
         webClient
             .post()
             .uri(

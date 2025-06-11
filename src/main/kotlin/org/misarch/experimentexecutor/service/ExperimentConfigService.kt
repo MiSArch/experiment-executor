@@ -3,12 +3,13 @@ package org.misarch.experimentexecutor.service
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.misarch.experimentexecutor.config.CHAOSTOOLKIT_FILENAME
 import org.misarch.experimentexecutor.config.EXECUTION_FILENAME
-import org.misarch.experimentexecutor.config.GATLING_USERSTEPS_FILENAME
+import org.misarch.experimentexecutor.config.GATLING_USERSTEPS_FILENAME_1
+import org.misarch.experimentexecutor.config.GATLING_USERSTEPS_FILENAME_2
 import org.misarch.experimentexecutor.config.GATLING_WORK_FILENAME_1
 import org.misarch.experimentexecutor.config.GATLING_WORK_FILENAME_2
 import org.misarch.experimentexecutor.config.MISARCH_EXPERIMENT_CONFIG_FILENAME
 import org.misarch.experimentexecutor.config.TEMPLATE_PREFIX
-import org.misarch.experimentexecutor.controller.experiment.model.GatlingWorkDTO
+import org.misarch.experimentexecutor.controller.experiment.model.EncodedFileDTO
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.model.GatlingLoadType
 import org.springframework.beans.factory.annotation.Value
@@ -120,20 +121,6 @@ class ExperimentConfigService(
         File(filePath).writeText(misarchExperimentConfig)
     }
 
-    fun getGatlingUsersteps(
-        testUUID: UUID,
-        testVersion: String,
-    ): String = File("$basePath/$testUUID/$testVersion/$GATLING_USERSTEPS_FILENAME").readText()
-
-    fun updateGatlingUsersteps(
-        testUUID: UUID,
-        testVersion: String,
-        usersteps: String,
-    ) {
-        val filePath = "$basePath/$testUUID/$testVersion/$GATLING_USERSTEPS_FILENAME"
-        File(filePath).writeText(usersteps)
-    }
-
     fun getExperimentConfig(
         testUUID: UUID,
         testVersion: String,
@@ -152,10 +139,10 @@ class ExperimentConfigService(
         File(filePath).writeText(jsonContent)
     }
 
-    fun getGatlingWork(
+    fun getGatlingConfigs(
         testUUID: UUID,
         testVersion: String,
-    ): List<GatlingWorkDTO> {
+    ): List<EncodedFileDTO> {
         val files = File("$basePath/$testUUID/$testVersion")
         val fileNames =
             files
@@ -164,17 +151,23 @@ class ExperimentConfigService(
                 ?.map { it.name }
                 ?: emptyList()
 
-        return fileNames.map { fileName ->
-            val filePath = "$basePath/$testUUID/$testVersion/$fileName"
-            val fileContent = File(filePath).readText()
-            GatlingWorkDTO(fileName, Base64.encode(fileContent.toByteArray(Charsets.UTF_8)))
+        return fileNames.map { workFileName ->
+            val fileName = workFileName.removeSuffix(".kt")
+            val userStepsFileName = "$fileName.csv"
+            val workFileContent = File("$basePath/$testUUID/$testVersion/$workFileName").readText()
+            val userStepsFileContent = File("$basePath/$testUUID/$testVersion/$userStepsFileName").readText()
+            EncodedFileDTO(
+                fileName = fileName,
+                encodedWorkFileContent = Base64.encode(workFileContent.toByteArray(Charsets.UTF_8)),
+                encodedUserStepsFileContent = Base64.encode(userStepsFileContent.toByteArray(Charsets.UTF_8)),
+            )
         }
     }
 
-    fun updateGatlingWork(
+    fun updateGatlingConfigs(
         testUUID: UUID,
         testVersion: String,
-        work: List<GatlingWorkDTO>,
+        configs: List<EncodedFileDTO>,
     ) {
         val files = File("$basePath/$testUUID/$testVersion")
         val fileNames =
@@ -189,9 +182,11 @@ class ExperimentConfigService(
             File(filePath).delete()
         }
         val filePath = "$basePath/$testUUID/$testVersion"
-        work.forEachIndexed { i, dto ->
-            val decodedContent = Base64.decode(dto.encodedFileContent).decodeToString()
-            File("$filePath/${dto.fileName}").writeText(decodedContent)
+        configs.forEachIndexed { i, dto ->
+            val decodedWorkContent = Base64.decode(dto.encodedWorkFileContent).decodeToString()
+            val decodedUserStepsContent = Base64.decode(dto.encodedUserStepsFileContent).decodeToString()
+            File("$filePath/${dto.fileName}.kt").writeText(decodedWorkContent)
+            File("$filePath/${dto.fileName}.csv").writeText(decodedUserStepsContent)
         }
     }
 
@@ -204,8 +199,10 @@ class ExperimentConfigService(
     ) {
         val userSteps =
             when (loadType) {
+                // TODO think of something nice how to create multiple types for usersteps by default
+                //  e.g.: when realistic 70 / 30 aborted / successful +++ elasticity only one +++ resilience one with random spike
                 GatlingLoadType.NormalLoadTest -> {
-                    val normalUsersteps = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_USERSTEPS_FILENAME}").readText()
+                    val normalUsersteps = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_USERSTEPS_FILENAME_1}").readText()
                     val values = normalUsersteps.replace("usersteps\n", "").split("\n").map { it.trim().toIntOrNull() ?: 0 }
                     values.subList(0, testDuration)
                 }
@@ -233,7 +230,9 @@ class ExperimentConfigService(
                 }
             }
 
-        File("$experimentDir/$GATLING_USERSTEPS_FILENAME").writeText("usersteps\n" + userSteps.joinToString("\n"))
+        // TODO finalize this
+        File("$experimentDir/$GATLING_USERSTEPS_FILENAME_1").writeText("usersteps\n" + userSteps.joinToString("\n"))
+        File("$experimentDir/$GATLING_USERSTEPS_FILENAME_2").writeText("usersteps\n" + userSteps.reversed().joinToString("\n"))
     }
 
     suspend fun newExperimentVersion(
