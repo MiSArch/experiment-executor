@@ -3,8 +3,8 @@ package org.misarch.experimentexecutor.plugin.workload.gatling
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.reactor.awaitSingle
-import org.misarch.experimentexecutor.config.GATLING_USERSTEPS_FILENAME_1
 import org.misarch.experimentexecutor.config.TokenConfig
+import org.misarch.experimentexecutor.controller.experiment.model.EncodedFileDTO
 import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.springframework.http.MediaType
@@ -12,9 +12,12 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import java.io.File
 import java.util.UUID
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 private val logger = KotlinLogging.logger { }
 
+@OptIn(ExperimentalEncodingApi::class)
 class GatlingPlugin(
     private val webClient: WebClient,
     private val tokenConfig: TokenConfig,
@@ -34,8 +37,26 @@ class GatlingPlugin(
                 password = tokenConfig.password,
             )
 
-        // TODO FINALIZE AND FIX THIS
-        val userSteps = File("$basePath/$testUUID/$testVersion/$GATLING_USERSTEPS_FILENAME_1").readText()
+        val files = File("$basePath/$testUUID/$testVersion")
+        val fileNames =
+            files
+                .listFiles()
+                ?.filter { it.isFile && it.name.endsWith(".kt") }
+                ?.map { it.name }
+                ?: emptyList()
+
+        val gatlingConfigs = fileNames.map { workFileName ->
+            val fileName = workFileName.removeSuffix(".kt")
+            val userStepsFileName = "$fileName.csv"
+            val workFileContent = File("$basePath/$testUUID/$testVersion/$workFileName").readText()
+            val userStepsFileContent = File("$basePath/$testUUID/$testVersion/$userStepsFileName").readText()
+            EncodedFileDTO(
+                fileName = fileName,
+                encodedWorkFileContent = Base64.encode(workFileContent.toByteArray(Charsets.UTF_8)),
+                encodedUserStepsFileContent = Base64.encode(userStepsFileContent.toByteArray(Charsets.UTF_8)),
+            )
+        }
+
         webClient
             .post()
             .uri(
@@ -44,7 +65,7 @@ class GatlingPlugin(
                     "&testVersion=$testVersion" +
                     "&accessToken=$token" +
                     "&targetUrl=${workLoad.gatling.endpointHost}",
-            ).bodyValue(userSteps)
+            ).bodyValue(gatlingConfigs)
             .retrieve()
             .toBodilessEntity()
             .awaitSingle()
