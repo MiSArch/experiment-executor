@@ -45,17 +45,18 @@ class GatlingPlugin(
                 ?.map { it.name }
                 ?: emptyList()
 
-        val gatlingConfigs = fileNames.map { workFileName ->
-            val fileName = workFileName.removeSuffix(".kt")
-            val userStepsFileName = "$fileName.csv"
-            val workFileContent = File("$basePath/$testUUID/$testVersion/$workFileName").readText()
-            val userStepsFileContent = File("$basePath/$testUUID/$testVersion/$userStepsFileName").readText()
-            EncodedFileDTO(
-                fileName = fileName,
-                encodedWorkFileContent = Base64.encode(workFileContent.toByteArray(Charsets.UTF_8)),
-                encodedUserStepsFileContent = Base64.encode(userStepsFileContent.toByteArray(Charsets.UTF_8)),
-            )
-        }
+        val gatlingConfigs =
+            fileNames.map { workFileName ->
+                val fileName = workFileName.removeSuffix(".kt")
+                val userStepsFileName = "$fileName.csv"
+                val workFileContent = File("$basePath/$testUUID/$testVersion/$workFileName").readText()
+                val userStepsFileContent = File("$basePath/$testUUID/$testVersion/$userStepsFileName").readText()
+                EncodedFileDTO(
+                    fileName = fileName,
+                    encodedWorkFileContent = Base64.encode(workFileContent.toByteArray(Charsets.UTF_8)),
+                    encodedUserStepsFileContent = Base64.encode(userStepsFileContent.toByteArray(Charsets.UTF_8)),
+                )
+            }
 
         webClient
             .post()
