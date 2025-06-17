@@ -12,7 +12,8 @@ val abortedBuyProcessScenario = scenario("Aborted Buy Process")
         )
     }
     .exec(
-        http("products").post("/graphql").body(StringBody("#{productsQuery}")).check(jsonPath("$.data.products.nodes[0].id").saveAs("productId"))
+        http("products").post("/graphql").body(StringBody("#{productsQuery}"))
+            .check(jsonPath("$.data.products.nodes[0].id").saveAs("productId"))
     )
     .pause(Duration.ofMillis(4000), Duration.ofMillis(10000))
     .exec { session ->
@@ -46,7 +47,8 @@ val abortedBuyProcessScenario = scenario("Aborted Buy Process")
             "createShoppingcartItemMutation",
             "{ \"query\": \"mutation { createShoppingcartItem( input: { id: \\\"$userId\\\" shoppingCartItem: { count: 1 productVariantId: \\\"$productVariantId\\\" } } ) { id } }\" }"
         )
-    }.exec(
+    }
+    .exec(
         http("createShoppingcartItemMutation").post("/graphql").body(StringBody("#{createShoppingcartItemMutation}"))
             .check(jsonPath("$.data.createShoppingcartItem.id").saveAs("createShoppingcartItemId"))
     )

@@ -12,7 +12,8 @@ val buyProcessScenario = scenario("Buy Process")
         )
     }
     .exec(
-        http("products").post("/graphql").body(StringBody("#{productsQuery}")).check(jsonPath("$.data.products.nodes[0].id").saveAs("productId"))
+        http("products").post("/graphql").body(StringBody("#{productsQuery}"))
+            .check(jsonPath("$.data.products.nodes[0].id").saveAs("productId"))
     )
     .pause(Duration.ofMillis(4000), Duration.ofMillis(10000))
     .exec { session ->
@@ -68,7 +69,8 @@ val buyProcessScenario = scenario("Buy Process")
             "paymentInformationsQuery",
             "{ \"query\": \"query { paymentInformations { nodes { id paymentMethod publicMethodDetails payments { nodes { id status totalAmount numberOfRetries payedAt } } } } }\" }",
         )
-    }.exec(
+    }
+    .exec(
         http("paymentInformationsQuery").post("/graphql").body(StringBody("#{paymentInformationsQuery}"))
             .check(jsonPath("$.data.paymentInformations.nodes[0].id").saveAs("paymentInformationId"))
     )
@@ -83,7 +85,8 @@ val buyProcessScenario = scenario("Buy Process")
             "createOrderMutation",
             "{ \"query\": \"mutation { createOrder( input: { userId: \\\"$userId\\\" orderItemInputs: { shoppingCartItemId: \\\"$createShoppingcartItemId\\\" couponIds: [] shipmentMethodId: \\\"$shipmentMethodId\\\" } vatNumber: \\\"AB1234\\\" invoiceAddressId: \\\"$addressId\\\" shipmentAddressId: \\\"$addressId\\\" paymentInformationId: \\\"$paymentInformationId\\\" } ) { id paymentInformationId placedAt } }\" }"
         )
-    }.exec(
+    }
+    .exec(
         http("createOrderMutation").post("/graphql").body(StringBody("#{createOrderMutation}"))
             .check(jsonPath("$.data.createOrder.id").saveAs("createOrderId"))
     )
@@ -94,7 +97,8 @@ val buyProcessScenario = scenario("Buy Process")
             "placeOrderMutation",
             "{ \"query\": \"mutation { placeOrder(input: { id: \\\"$createOrderId\\\", paymentAuthorization: { cvc: 123 } }) { id } }\" }"
         )
-    }.exec(
+    }
+    .exec(
         http("placeOrderMutation").post("/graphql").body(StringBody("#{placeOrderMutation}"))
     )
     .pause(Duration.ofMillis(0), Duration.ofMillis(0))
