@@ -4,7 +4,7 @@ import io.gatling.javaapi.core.CoreDsl.*
 import io.gatling.javaapi.http.HttpDsl.http
 import java.time.Duration
 
-val buyProcessScenario = scenario("Buy Process")
+val buyProcessScenario = scenario("buyProcessScenario")
     .exec { session ->
         session.set(
             "productsQuery",
