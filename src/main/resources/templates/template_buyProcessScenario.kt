@@ -62,7 +62,7 @@ val buyProcessScenario = scenario("Buy Process")
         http("shipmentMethodsQuery").post("/graphql").body(StringBody("#{shipmentMethodsQuery}"))
             .check(jsonPath("$.data.shipmentMethods.nodes[0].id").saveAs("shipmentMethodId"))
     )
-    .pause(Duration.ofMillis(0))
+    .pause(Duration.ofMillis(0), Duration.ofMillis(0))
     .exec { session ->
         session.set(
             "paymentInformationsQuery",
@@ -97,4 +97,4 @@ val buyProcessScenario = scenario("Buy Process")
     }.exec(
         http("placeOrderMutation").post("/graphql").body(StringBody("#{placeOrderMutation}"))
     )
-    .pause(Duration.ofMillis(0))
+    .pause(Duration.ofMillis(0), Duration.ofMillis(0))
