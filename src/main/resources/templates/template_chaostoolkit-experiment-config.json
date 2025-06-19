@@ -1,7 +1,6 @@
 {
-  "version": "1.0.0",
-  "title": "REPLACE_ME_TEST_UUID",
-  "description": "REPLACE_ME_TEST_UUID",
+  "title": "REPLACE_ME_TEST_UUID:REPLACE_ME_TEST_VERSION",
+  "description": "REPLACE_ME_TEST_UUID:REPLACE_ME_TEST_VERSION",
   "steady-state-hypothesis": {
     "title": "Container is running",
     "probes": [

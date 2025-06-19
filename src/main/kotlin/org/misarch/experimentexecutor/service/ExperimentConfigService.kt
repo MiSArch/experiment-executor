@@ -69,7 +69,9 @@ class ExperimentConfigService(
         generateUserStepsCSV(experimentDir, loadType, testDuration, sessionDuration, rate)
 
         val chaostoolkitTemplate = File("$templatePath/${TEMPLATE_PREFIX}${CHAOSTOOLKIT_FILENAME}").readText()
-        val updatedChaostoolkitTemplate = chaostoolkitTemplate.replace("REPLACE_ME_TEST_UUID", testUUID.toString())
+        val updatedChaostoolkitTemplate = chaostoolkitTemplate
+            .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
+            .replace("REPLACE_ME_TEST_VERSION", testVersion)
         File("$experimentDir/$CHAOSTOOLKIT_FILENAME").writeText(updatedChaostoolkitTemplate)
 
         val misarchTemplate = File("$templatePath/${TEMPLATE_PREFIX}${MISARCH_EXPERIMENT_CONFIG_FILENAME}").readText()
