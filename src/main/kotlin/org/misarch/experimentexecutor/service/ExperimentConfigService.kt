@@ -172,6 +172,7 @@ class ExperimentConfigService(
         configs: List<EncodedFileDTO>,
     ) {
         val files = File("$basePath/$testUUID/$testVersion")
+        val dtoFileNames = configs.map { it.fileName }.toSet()
         val fileNames =
             files
                 .listFiles()
@@ -183,6 +184,17 @@ class ExperimentConfigService(
             val filePath = "$basePath/$testUUID/$testVersion/$fileName"
             File(filePath).delete()
         }
+
+        files.listFiles()
+            ?.filter { file ->
+                file.isFile && (file.name.endsWith(".csv") || file.name.endsWith(".kt") && dtoFileNames.none {
+                    file.name.startsWith(
+                        file.name,
+                    )
+                })
+            }
+            ?.forEach { it.delete() }
+
         val filePath = "$basePath/$testUUID/$testVersion"
         configs.forEachIndexed { i, dto ->
             val decodedWorkContent = Base64.decode(dto.encodedWorkFileContent).decodeToString()
