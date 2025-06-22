@@ -30,18 +30,14 @@ class ExperimentConfigController(
         @RequestParam(required = false, defaultValue = "10") maximumArrivingUsersPerSecond: Int,
         @RequestParam(required = false, defaultValue = "1800") testDuration: Int,
         @RequestParam(required = false) rate: Float?,
-        @RequestBody(required = false) sessionDurations: List<Int>,
     ): String {
         val sanitizedTestName = HtmlUtils.htmlEscape(testName)
         val defaultRate = rate ?: 1F
-        // TODO currently there is no way to enter the sessionDuration because the session cannot be set in the UI at test creation.
-        val defaultSessionDurations = sessionDurations.ifEmpty { listOf(23, 8) }
         return experimentGeneratorService.generateExperiment(
             sanitizedTestName,
             loadType,
             testDuration,
             maximumArrivingUsersPerSecond,
-            defaultSessionDurations,
             defaultRate,
         )
     }

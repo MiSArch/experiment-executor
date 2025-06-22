@@ -38,7 +38,6 @@ class ExperimentGeneratorService(
         loadType: GatlingLoadType,
         testDuration: Int,
         maximumArrivingUsersPerSecond: Int,
-        sessionDurations: List<Int>,
         rate: Float,
     ): String {
         val testUUID = UUID.randomUUID()
@@ -57,7 +56,7 @@ class ExperimentGeneratorService(
 
                 GatlingLoadType.ScalabilityLoadTest -> {
                     Triple(
-                        generateScalabilityGatlingConfigs(testDuration, sessionDurations.max(), rate),
+                        generateScalabilityGatlingConfigs(testDuration, rate),
                         buildEmptyMisarchExperimentConfig(),
                         buildEmptyChaosToolkitConfig(testUUID, testVersion),
                     )
@@ -65,7 +64,7 @@ class ExperimentGeneratorService(
 
                 GatlingLoadType.ElasticityLoadTest -> {
                     Triple(
-                        generateElasticityGatlingConfigs(testDuration, sessionDurations.max(), rate),
+                        generateElasticityGatlingConfigs(testDuration, rate),
                         buildEmptyMisarchExperimentConfig(),
                         buildEmptyChaosToolkitConfig(testUUID, testVersion),
                     )
@@ -73,7 +72,7 @@ class ExperimentGeneratorService(
 
                 GatlingLoadType.ResilienceLoadTest -> {
                     Triple(
-                        generateResilienceGatlingConfigs(testDuration, sessionDurations, rate),
+                        generateResilienceGatlingConfigs(testDuration, rate),
                         buildMisarchExperimentConfig(testDuration),
                         buildChaosToolkitConfig(testUUID, testVersion, testDuration),
                     )
@@ -115,10 +114,9 @@ class ExperimentGeneratorService(
 
     private suspend fun generateScalabilityGatlingConfigs(
         testDuration: Int,
-        sessionDuration: Int,
         rate: Float,
     ): List<GatlingConfig> {
-        val userSteps = List(testDuration) { step -> (step * rate).toInt().coerceAtLeast(sessionDuration) }
+        val userSteps = List(testDuration) { step -> (step * rate).toInt().coerceAtLeast(1) }
         return listOf(
             GatlingConfig(
                 fileName = "buyProcessScenario",
@@ -130,11 +128,10 @@ class ExperimentGeneratorService(
 
     private suspend fun generateElasticityGatlingConfigs(
         testDuration: Int,
-        sessionDuration: Int,
         rate: Float,
     ): List<GatlingConfig> {
-        val growth = List(size = testDuration / 6) { step -> (step * rate).toInt().coerceAtLeast(sessionDuration) }
-        val decay = List(size = testDuration / 6) { sessionDuration }
+        val growth = List(size = testDuration / 6) { step -> (step * rate).toInt().coerceAtLeast(1) }
+        val decay = List(size = testDuration / 6) { 1 }
         val userSteps = growth + decay + growth + decay + growth + decay
         return listOf(
             GatlingConfig(
@@ -147,34 +144,25 @@ class ExperimentGeneratorService(
 
     private suspend fun generateResilienceGatlingConfigs(
         testDuration: Int,
-        sessionDurations: List<Int>,
         rate: Float,
     ): List<GatlingConfig> {
-        val userSteps =
-            sessionDurations.map { sessionDuration ->
-                val growth = List(size = testDuration / 6) { step -> (step * (rate / 2)).toInt().coerceAtLeast(sessionDuration) }
-                val decay = List(size = testDuration / 6) { sessionDuration }
-                val spikeUp = List(size = testDuration / 24) { step -> (step * rate * 25).toInt().coerceAtLeast(sessionDuration) }
-                val spikeDown = spikeUp.reversed()
-                val lowPlateau = List(size = testDuration / 6) { sessionDuration }
-                val highPlateauPattern = listOf(sessionDuration * 10)
-                val highPlateau = List(testDuration / 3) { index -> highPlateauPattern[index % highPlateauPattern.size] }
-                val final = List(size = testDuration / 12) { sessionDuration }
-                growth + decay + spikeUp + spikeDown + lowPlateau + highPlateau + final
-            }
+        val growth = List(size = testDuration / 6) { step -> (step * (rate / 2)).toInt().coerceAtLeast(1) }
+        val decay = List(size = testDuration / 6) { 1 }
+        val spikeUp = List(size = testDuration / 24) { step -> (step * rate * 25).toInt().coerceAtLeast(1) }
+        val spikeDown = spikeUp.reversed()
+        val lowPlateau = List(size = testDuration / 6) { 1 }
+        val highPlateauPattern = listOf(100)
+        val highPlateau = List(testDuration / 3) { index -> highPlateauPattern[index % highPlateauPattern.size] }
+        val final = List(size = testDuration / 12) { 1 }
+        val userSteps = growth + decay + spikeUp + spikeDown + lowPlateau + highPlateau + final
 
-        return listOf(
+        return listOf("buyProcessScenario", "abortedBuyProcessScenario").map { scenarioName ->
             GatlingConfig(
-                fileName = "buyProcessScenario",
-                userStepsFileContent = "usersteps\n" + userSteps[0].joinToString("\n"),
+                fileName = scenarioName,
+                userStepsFileContent = "usersteps\n" + userSteps.joinToString("\n"),
                 workFileContent = File("$templatePath/${TEMPLATE_PREFIX}$GATLING_WORK_FILENAME_BUY").readText(),
-            ),
-            GatlingConfig(
-                fileName = "abortedBuyProcessScenario",
-                userStepsFileContent = "usersteps\n" + userSteps[1].joinToString("\n"),
-                workFileContent = File("$templatePath/${TEMPLATE_PREFIX}$GATLING_WORK_FILENAME_ABORT").readText(),
-            ),
-        )
+            )
+        }
     }
 
     fun persistExperiment(
