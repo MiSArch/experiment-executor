@@ -69,9 +69,10 @@ class ExperimentConfigService(
         generateUserStepsCSV(experimentDir, loadType, testDuration, sessionDuration, rate)
 
         val chaostoolkitTemplate = File("$templatePath/${TEMPLATE_PREFIX}${CHAOSTOOLKIT_FILENAME}").readText()
-        val updatedChaostoolkitTemplate = chaostoolkitTemplate
-            .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
-            .replace("REPLACE_ME_TEST_VERSION", testVersion)
+        val updatedChaostoolkitTemplate =
+            chaostoolkitTemplate
+                .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
+                .replace("REPLACE_ME_TEST_VERSION", testVersion)
         File("$experimentDir/$CHAOSTOOLKIT_FILENAME").writeText(updatedChaostoolkitTemplate)
 
         val misarchTemplate = File("$templatePath/${TEMPLATE_PREFIX}${MISARCH_EXPERIMENT_CONFIG_FILENAME}").readText()
@@ -185,15 +186,20 @@ class ExperimentConfigService(
             File(filePath).delete()
         }
 
-        files.listFiles()
+        files
+            .listFiles()
             ?.filter { file ->
-                file.isFile && (file.name.endsWith(".csv") || file.name.endsWith(".kt") && dtoFileNames.none {
-                    file.name.startsWith(
-                        file.name,
+                file.isFile &&
+                    (
+                        file.name.endsWith(".csv") ||
+                            file.name.endsWith(".kt") &&
+                            dtoFileNames.none {
+                                file.name.startsWith(
+                                    file.name,
+                                )
+                            }
                     )
-                })
-            }
-            ?.forEach { it.delete() }
+            }?.forEach { it.delete() }
 
         val filePath = "$basePath/$testUUID/$testVersion"
         configs.forEachIndexed { i, dto ->

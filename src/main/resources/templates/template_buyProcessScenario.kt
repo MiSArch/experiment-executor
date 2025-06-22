@@ -6,13 +6,26 @@ import java.time.Duration
 
 val buyProcessScenario = scenario("buyProcessScenario")
     .exec { session ->
+        session.set("targetUrl", "http://gateway:8080/graphql")
+    }
+    .exec(
+        http("Get Access Token")
+            .post("http://keycloak:80/keycloak/realms/Misarch/protocol/openid-connect/token")
+            .formParam("client_id", "frontend")
+            .formParam("grant_type", "password")
+            .formParam("username", "gatling")
+            .formParam("password", "123")
+            .check(jsonPath("$.access_token").saveAs("accessToken"))
+    )
+    .pause(Duration.ofMillis(0), Duration.ofMillis(0))
+    .exec { session ->
         session.set(
             "productsQuery",
             "{ \"query\": \"query { products(filter: { isPubliclyVisible: true }, first: 10, orderBy: { direction: ASC, field: ID }, skip: 0) { hasNextPage nodes { id internalName isPubliclyVisible } totalCount } }\" }"
         )
     }
     .exec(
-        http("products").post("/graphql").body(StringBody("#{productsQuery}"))
+        http("products").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}").body(StringBody("#{productsQuery}"))
             .check(jsonPath("$.data.products.nodes[0].id").saveAs("productId"))
     )
     .pause(Duration.ofMillis(4000), Duration.ofMillis(10000))
@@ -24,7 +37,7 @@ val buyProcessScenario = scenario("buyProcessScenario")
         )
     }
     .exec(
-        http("product").post("/graphql").body(StringBody("#{productQuery}"))
+        http("product").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}").body(StringBody("#{productQuery}"))
             .check(jsonPath("$.data.product.defaultVariant.id").saveAs("productVariantId"))
     )
     .pause(Duration.ofMillis(50), Duration.ofMillis(150))
@@ -35,7 +48,7 @@ val buyProcessScenario = scenario("buyProcessScenario")
         )
     }
     .exec(
-        http("users").post("/graphql").body(StringBody("#{usersQuery}"))
+        http("users").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}").body(StringBody("#{usersQuery}"))
             .check(jsonPath("$.data.users.nodes[0].addresses.nodes[0].id").saveAs("addressId"))
             .check(jsonPath("$.data.users.nodes[0].id").saveAs("userId"))
     )
@@ -49,7 +62,8 @@ val buyProcessScenario = scenario("buyProcessScenario")
         )
     }
     .exec(
-        http("createShoppingcartItemMutation").post("/graphql").body(StringBody("#{createShoppingcartItemMutation}"))
+        http("createShoppingcartItemMutation").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}")
+            .body(StringBody("#{createShoppingcartItemMutation}"))
             .check(jsonPath("$.data.createShoppingcartItem.id").saveAs("createShoppingcartItemId"))
     )
     .pause(Duration.ofMillis(4000), Duration.ofMillis(7000))
@@ -60,7 +74,7 @@ val buyProcessScenario = scenario("buyProcessScenario")
         )
     }
     .exec(
-        http("shipmentMethodsQuery").post("/graphql").body(StringBody("#{shipmentMethodsQuery}"))
+        http("shipmentMethodsQuery").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}").body(StringBody("#{shipmentMethodsQuery}"))
             .check(jsonPath("$.data.shipmentMethods.nodes[0].id").saveAs("shipmentMethodId"))
     )
     .pause(Duration.ofMillis(0), Duration.ofMillis(0))
@@ -71,7 +85,8 @@ val buyProcessScenario = scenario("buyProcessScenario")
         )
     }
     .exec(
-        http("paymentInformationsQuery").post("/graphql").body(StringBody("#{paymentInformationsQuery}"))
+        http("paymentInformationsQuery").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}")
+            .body(StringBody("#{paymentInformationsQuery}"))
             .check(jsonPath("$.data.paymentInformations.nodes[0].id").saveAs("paymentInformationId"))
     )
     .pause(Duration.ofMillis(4000), Duration.ofMillis(7000))
@@ -87,7 +102,7 @@ val buyProcessScenario = scenario("buyProcessScenario")
         )
     }
     .exec(
-        http("createOrderMutation").post("/graphql").body(StringBody("#{createOrderMutation}"))
+        http("createOrderMutation").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}").body(StringBody("#{createOrderMutation}"))
             .check(jsonPath("$.data.createOrder.id").saveAs("createOrderId"))
     )
     .pause(Duration.ofMillis(2000), Duration.ofMillis(5000))
@@ -99,6 +114,6 @@ val buyProcessScenario = scenario("buyProcessScenario")
         )
     }
     .exec(
-        http("placeOrderMutation").post("/graphql").body(StringBody("#{placeOrderMutation}"))
+        http("placeOrderMutation").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}").body(StringBody("#{placeOrderMutation}"))
     )
     .pause(Duration.ofMillis(0), Duration.ofMillis(0))

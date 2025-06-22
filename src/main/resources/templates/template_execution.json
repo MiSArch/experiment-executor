@@ -4,8 +4,7 @@
   "testName": "REPLACE_ME_TEST_NAME",
   "workLoad": {
     "gatling": {
-      "loadType": "REPLACE_ME_LOADTYPE",
-      "endpointHost": "REPLACE_ME_GATLING_TARGET_ENDPOINT"
+      "loadType": "REPLACE_ME_LOADTYPE"
     }
   },
   "goals": [

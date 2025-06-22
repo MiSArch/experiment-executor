@@ -7,24 +7,8 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationPropertiesScan
-@EnableConfigurationProperties(GatlingConfig::class, GrafanaConfig::class, ExperimentExecutorConfig::class)
+@EnableConfigurationProperties(GrafanaConfig::class, ExperimentExecutorConfig::class)
 class AppConfig
-
-@ConfigurationProperties(prefix = "gatling")
-data class GatlingConfig(
-    val targetEndpoint: String,
-    val executorHost: String,
-    val token: TokenConfig,
-)
-
-@ConfigurationProperties(prefix = "gatling.token")
-data class TokenConfig(
-    val host: String,
-    val clientId: String,
-    val path: String,
-    val username: String,
-    val password: String,
-)
 
 @ConfigurationProperties(prefix = "grafana")
 data class GrafanaConfig(

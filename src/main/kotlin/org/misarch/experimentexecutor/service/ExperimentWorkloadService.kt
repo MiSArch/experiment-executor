@@ -3,7 +3,6 @@ package org.misarch.experimentexecutor.service
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import org.misarch.experimentexecutor.config.TokenConfig
 import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.misarch.experimentexecutor.plugin.workload.gatling.GatlingPlugin
@@ -15,13 +14,12 @@ import java.util.UUID
 @Service
 class ExperimentWorkloadService(
     webClient: WebClient,
-    tokenConfig: TokenConfig,
     @Value("\${gatling.executor-host}") private val gatlingExecutorHost: String,
     @Value("\${experiment-executor.base-path}") private val basePath: String,
 ) {
     val registry =
         listOf<WorkloadPluginInterface>(
-            GatlingPlugin(webClient, tokenConfig, gatlingExecutorHost, basePath),
+            GatlingPlugin(webClient, gatlingExecutorHost, basePath),
         )
 
     suspend fun executeWorkLoad(

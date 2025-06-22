@@ -52,25 +52,9 @@ class ExperimentExecutionService(
     suspend fun executeStoredExperiment(
         testUUID: UUID,
         testVersion: String,
-        endpointAccessToken: String?,
     ) {
         val experimentConfig = experimentConfigService.getExperimentConfig(testUUID, testVersion)
-        return if (endpointAccessToken == null) {
-            initializeExperiment(experimentConfig, testUUID, testVersion)
-        } else {
-            initializeExperiment(
-                experimentConfig.copy(
-                    workLoad =
-                        experimentConfig.workLoad.copy(
-                            gatling =
-                                experimentConfig.workLoad.gatling.copy
-                                    (endpointAccessToken = endpointAccessToken),
-                        ),
-                ),
-                testUUID,
-                testVersion,
-            )
-        }
+        initializeExperiment(experimentConfig, testUUID, testVersion)
     }
 
     suspend fun initializeExperiment(

@@ -17,15 +17,6 @@ misarch:
     host: ${MISARCH_EXPERIMENT_CONFIG_HOST}
 chaostoolkit:
   executor-host: ${CHAOSTOOLKIT_EXECUTOR_HOST}
-gatling:
-  target-endpoint: ${GATLING_TARGET_ENDPOINT}
-  executor-host: ${GATLING_EXECUTOR_HOST}
-  token:
-    host: ${GATLING_TOKEN_HOST}
-    path: ${GATLING_TOKEN_PATH}
-    client-id: ${GATLING_TOKEN_CLIENT_ID}
-    username: ${GATLING_TOKEN_USERNAME}
-    password: ${GATLING_TOKEN_PASSWORD}
 experiment-executor:
   base-path: "/home/java/tests"
   template-path: "src/main/resources/templates"
