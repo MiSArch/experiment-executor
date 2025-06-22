@@ -34,12 +34,14 @@ class ExperimentConfigController(
     ): String {
         val sanitizedTestName = HtmlUtils.htmlEscape(testName)
         val defaultRate = rate ?: 1F
+        // TODO currently there is no way to enter the sessionDuration because the session cannot be set in the UI at test creation.
+        val defaultSessionDurations = sessionDurations.ifEmpty { listOf(23, 8) }
         return experimentGeneratorService.generateExperiment(
             sanitizedTestName,
             loadType,
             testDuration,
             maximumArrivingUsersPerSecond,
-            sessionDurations,
+            defaultSessionDurations,
             defaultRate,
         )
     }
