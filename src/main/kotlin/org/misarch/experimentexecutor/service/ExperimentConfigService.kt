@@ -24,7 +24,6 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 class ExperimentConfigService(
     @Value("\${experiment-executor.base-path}") private val basePath: String,
     @Value("\${experiment-executor.template-path}") private val templatePath: String,
-    @Value("\${gatling.target-endpoint}") private val gatlingTargetEndpoint: String,
 ) {
     suspend fun getExistingExperiments(): List<String> {
         val experimentsDir = File(basePath)
@@ -91,7 +90,6 @@ class ExperimentConfigService(
                 .replace("REPLACE_ME_TEST_VERSION", testVersion)
                 .replace("REPLACE_ME_TEST_NAME", testName)
                 .replace("REPLACE_ME_LOADTYPE", loadType.toString())
-                .replace("REPLACE_ME_GATLING_TARGET_ENDPOINT", gatlingTargetEndpoint)
         File("$experimentDir/$EXECUTION_FILENAME").writeText(executionTemplateUpdated)
 
         return "$testUUID:$testVersion"

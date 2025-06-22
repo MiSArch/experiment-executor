@@ -14,6 +14,7 @@ import java.util.UUID
 class ExperimentFailureService(
     webClient: WebClient,
     @Value("\${misarch.experiment-config.host}") private val misarchExperimentConfigHost: String,
+    @Value("\${experiment-executor.url}") private val experimentExecutorUrl: String,
     @Value("\${chaostoolkit.executor-host}") private val chaosToolkitExecutorHost: String,
     @Value("\${experiment-executor.base-path}") private val basePath: String,
     @Value("\${misarch.experiment-config.active}") private val misarchExperimentConfigActive: Boolean,
@@ -22,7 +23,7 @@ class ExperimentFailureService(
         if (misarchExperimentConfigActive) {
             listOf(
                 ChaosToolkitPlugin(webClient, chaosToolkitExecutorHost, basePath),
-                MisarchExperimentConfigPlugin(webClient, misarchExperimentConfigHost, basePath),
+                MisarchExperimentConfigPlugin(webClient, misarchExperimentConfigHost, experimentExecutorUrl, basePath),
             )
         } else {
             listOf(ChaosToolkitPlugin(webClient, chaosToolkitExecutorHost, basePath))

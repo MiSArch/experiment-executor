@@ -12,9 +12,11 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.misarch.experimentexecutor.config.MISARCH_EXPERIMENT_CONFIG_FILENAME
+import org.misarch.experimentexecutor.config.MISARCH_SERVICES
 import org.misarch.experimentexecutor.plugin.failure.FailurePluginInterface
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.reactive.function.client.awaitBody
 import java.io.File
 import java.util.UUID
@@ -25,6 +27,7 @@ private val logger = KotlinLogging.logger {}
 class MisarchExperimentConfigPlugin(
     private val webClient: WebClient,
     private val misarchExperimentConfigHost: String,
+    private val experimentExecutorUrl: String,
     private val basePath: String,
 ) : FailurePluginInterface {
     private val configMap = ConcurrentHashMap<String, List<MiSArchFailureConfig>>()
@@ -36,6 +39,8 @@ class MisarchExperimentConfigPlugin(
     ) {
         val testId = "$testUUID:$testVersion"
         configMap[testId] = readConfigFile("$basePath/$testUUID/$testVersion/$MISARCH_EXPERIMENT_CONFIG_FILENAME")
+        initiallyResetConfiguration()
+        registerPlugin(testUUID, testVersion)
     }
 
     override suspend fun startTimedExperiment(
@@ -77,15 +82,28 @@ class MisarchExperimentConfigPlugin(
     }
 
     private suspend fun configureVariables(misarchFailures: List<MiSArchFailureConfig>) {
-        misarchFailures.forEach { f ->
+        misarchFailures.forEachIndexed { i, f ->
+            delay(f.pauses.before * 1000L)
+            logger.info {  "Configure MiSArch Experiment Configuration for failure set ${i+1}." }
             f.failures.forEach { failure ->
                 configurePubSubDeterioration(failure.name, failure.pubSubDeterioration)
                 configureServiceInvocationDeterioration(failure.name, failure.serviceInvocationDeterioration)
                 configureArtificialMemoryUsage(failure.name, failure.artificialMemoryUsage)
                 configureArtificialCPUUsage(failure.name, failure.artificialCPUUsage)
             }
-            delay(f.pause * 1000L)
+            delay(f.pauses.after * 1000L)
         }
+    }
+
+    private suspend fun initiallyResetConfiguration() {
+        MISARCH_SERVICES.forEach { service ->
+            configurePubSubDeterioration(service, null)
+            configureServiceInvocationDeterioration(service, null)
+            configureArtificialMemoryUsage(service, null)
+            configureArtificialCPUUsage(service, null)
+        }
+
+        logger.info { "Reset MiSArch Experiment Configuration for all services" }
     }
 
     private suspend fun configurePubSubDeterioration(
@@ -137,14 +155,20 @@ class MisarchExperimentConfigPlugin(
         variable: String,
         bodyValue: Any,
     ) {
-        val response =
-            webClient
-                .put()
-                .uri("$misarchExperimentConfigHost/configuration/$component/variables/$variable")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(bodyValue)
-                .retrieve()
-                .awaitBody<String>()
-        logger.info { "Configured Variable: $response" }
+        webClient
+            .put()
+            .uri("$misarchExperimentConfigHost/configuration/$component/variables/$variable")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(bodyValue)
+            .retrieve()
+            .awaitBody<String>()
+    }
+
+    private suspend fun registerPlugin(testUUID: UUID, testVersion: String) {
+        webClient
+            .post()
+            .uri("$experimentExecutorUrl/trigger/${testUUID}/${testVersion}?client=misarchExperimentConfig")
+            .retrieve()
+            .awaitBodilessEntity()
     }
 }

@@ -20,6 +20,7 @@ data class GrafanaConfig(
 @ConfigurationProperties(prefix = "experiment-executor")
 data class ExperimentExecutorConfig(
     val templatePath: String,
+    val url: String,
     val basePath: String,
     val storeResultDataInFiles: Boolean,
     val corsOrigins: List<String>,

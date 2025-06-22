@@ -2,7 +2,12 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class MiSArchFailureConfig(
     @JsonProperty("failures") val failures: List<MisArchFailure>,
-    @JsonProperty("pause") val pause: Long,
+    @JsonProperty("pauses") val pauses: Pauses,
+)
+
+data class Pauses(
+    @JsonProperty("before") val before: Int,
+    @JsonProperty("after") val after: Int,
 )
 
 data class MisArchFailure(

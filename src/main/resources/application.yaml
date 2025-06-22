@@ -17,8 +17,11 @@ misarch:
     host: ${MISARCH_EXPERIMENT_CONFIG_HOST}
 chaostoolkit:
   executor-host: ${CHAOSTOOLKIT_EXECUTOR_HOST}
+gatling:
+  executor-host: ${GATLING_EXECUTOR_HOST}
 experiment-executor:
   base-path: "/home/java/tests"
+  url: ${EXPERIMENT_EXECUTOR_URL}
   template-path: "src/main/resources/templates"
   store-result-data-in-files: ${STORE_RESULT_DATA_IN_FILES}
   cors-origins:

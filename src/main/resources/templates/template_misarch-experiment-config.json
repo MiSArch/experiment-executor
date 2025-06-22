@@ -4,18 +4,6 @@
       {
         "name": "catalog",
         "pubSubDeterioration": null,
-        "serviceInvocationDeterioration": null,
-        "artificialMemoryUsage": null,
-        "artificialCPUUsage": null
-      }
-    ],
-    "pause": 15
-  },
-  {
-    "failures": [
-      {
-        "name": "catalog",
-        "pubSubDeterioration": null,
         "serviceInvocationDeterioration": [
           {
             "path": "/",
@@ -29,7 +17,10 @@
         "artificialCPUUsage": null
       }
     ],
-    "pause": 15
+    "pauses": {
+      "before": 15,
+      "after": 15
+    }
   },
   {
     "failures": [
@@ -41,6 +32,9 @@
         "artificialCPUUsage": null
       }
     ],
-    "pause": 0
+    "pauses": {
+      "before": 0,
+      "after": 0
+    }
   }
 ]

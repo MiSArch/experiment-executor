@@ -93,7 +93,8 @@ class ExperimentExecutionService(
 
             0.until(6000).forEach { _ ->
                 if (registeredClients["$testUUID:$testVersion"]?.contains("gatling") == true &&
-                    registeredClients["$testUUID:$testVersion"]?.contains("chaostoolkit") == true
+                    registeredClients["$testUUID:$testVersion"]?.contains("chaostoolkit") == true &&
+                    registeredClients["$testUUID:$testVersion"]?.contains("misarchExperimentConfig") == true
                 ) {
                     registeredClients.remove("$testUUID:$testVersion")
                     setExperimentStateCache(experimentState.copy(triggerState = STARTED, startTime = Instant.now().toString()))
