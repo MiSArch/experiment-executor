@@ -84,7 +84,7 @@ class MisarchExperimentConfigPlugin(
     private suspend fun configureVariables(misarchFailures: List<MiSArchFailureConfig>) {
         misarchFailures.forEachIndexed { i, f ->
             delay(f.pauses.before * 1000L)
-            logger.info {  "Configure MiSArch Experiment Configuration for failure set ${i+1}." }
+            logger.info { "Configure MiSArch Experiment Configuration for failure set ${i + 1}." }
             f.failures.forEach { failure ->
                 configurePubSubDeterioration(failure.name, failure.pubSubDeterioration)
                 configureServiceInvocationDeterioration(failure.name, failure.serviceInvocationDeterioration)
@@ -164,10 +164,13 @@ class MisarchExperimentConfigPlugin(
             .awaitBody<String>()
     }
 
-    private suspend fun registerPlugin(testUUID: UUID, testVersion: String) {
+    private suspend fun registerPlugin(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
         webClient
             .post()
-            .uri("$experimentExecutorUrl/trigger/${testUUID}/${testVersion}?client=misarchExperimentConfig")
+            .uri("$experimentExecutorUrl/trigger/$testUUID/$testVersion?client=misarchExperimentConfig")
             .retrieve()
             .awaitBodilessEntity()
     }
