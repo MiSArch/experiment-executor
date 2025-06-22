@@ -68,7 +68,7 @@ fun buildChaosToolkitConfig(
                 pauses =
                     Pause(
                         before = testDuration / 5,
-                        after = 60,
+                        after = testDuration / 8,
                     ),
             ),
             Action(
@@ -118,7 +118,7 @@ fun buildMisarchExperimentConfig(testDuration: Int): List<MiSArchFailureConfig> 
             pauses =
                 Pauses(
                     before = testDuration / 3,
-                    after = 300,
+                    after = testDuration / 6,
                 ),
         ),
         MiSArchFailureConfig(
