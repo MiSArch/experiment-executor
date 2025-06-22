@@ -34,8 +34,7 @@ class ExperimentExecutionController(
     private suspend fun runExperiment(
         @PathVariable testUUID: UUID,
         @PathVariable testVersion: String,
-        @RequestParam endpointAccessToken: String? = null,
-    ) = experimentExecutionService.executeStoredExperiment(testUUID, testVersion, endpointAccessToken)
+    ) = experimentExecutionService.executeStoredExperiment(testUUID, testVersion)
 
     /**
      * Stops the currently running experiment identified by its UUID.

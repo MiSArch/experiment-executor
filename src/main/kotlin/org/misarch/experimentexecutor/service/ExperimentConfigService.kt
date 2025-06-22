@@ -24,7 +24,6 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 class ExperimentConfigService(
     @Value("\${experiment-executor.base-path}") private val basePath: String,
     @Value("\${experiment-executor.template-path}") private val templatePath: String,
-    @Value("\${gatling.target-endpoint}") private val gatlingTargetEndpoint: String,
 ) {
     suspend fun getExistingExperiments(): List<String> {
         val experimentsDir = File(basePath)
@@ -69,7 +68,10 @@ class ExperimentConfigService(
         generateUserStepsCSV(experimentDir, loadType, testDuration, sessionDuration, rate)
 
         val chaostoolkitTemplate = File("$templatePath/${TEMPLATE_PREFIX}${CHAOSTOOLKIT_FILENAME}").readText()
-        val updatedChaostoolkitTemplate = chaostoolkitTemplate.replace("REPLACE_ME_TEST_UUID", testUUID.toString())
+        val updatedChaostoolkitTemplate =
+            chaostoolkitTemplate
+                .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
+                .replace("REPLACE_ME_TEST_VERSION", testVersion)
         File("$experimentDir/$CHAOSTOOLKIT_FILENAME").writeText(updatedChaostoolkitTemplate)
 
         val misarchTemplate = File("$templatePath/${TEMPLATE_PREFIX}${MISARCH_EXPERIMENT_CONFIG_FILENAME}").readText()
@@ -88,7 +90,6 @@ class ExperimentConfigService(
                 .replace("REPLACE_ME_TEST_VERSION", testVersion)
                 .replace("REPLACE_ME_TEST_NAME", testName)
                 .replace("REPLACE_ME_LOADTYPE", loadType.toString())
-                .replace("REPLACE_ME_GATLING_TARGET_ENDPOINT", gatlingTargetEndpoint)
         File("$experimentDir/$EXECUTION_FILENAME").writeText(executionTemplateUpdated)
 
         return "$testUUID:$testVersion"
@@ -170,6 +171,7 @@ class ExperimentConfigService(
         configs: List<EncodedFileDTO>,
     ) {
         val files = File("$basePath/$testUUID/$testVersion")
+        val dtoFileNames = configs.map { it.fileName }.toSet()
         val fileNames =
             files
                 .listFiles()
@@ -181,6 +183,22 @@ class ExperimentConfigService(
             val filePath = "$basePath/$testUUID/$testVersion/$fileName"
             File(filePath).delete()
         }
+
+        files
+            .listFiles()
+            ?.filter { file ->
+                file.isFile &&
+                    (
+                        file.name.endsWith(".csv") ||
+                            file.name.endsWith(".kt") &&
+                            dtoFileNames.none {
+                                file.name.startsWith(
+                                    file.name,
+                                )
+                            }
+                    )
+            }?.forEach { it.delete() }
+
         val filePath = "$basePath/$testUUID/$testVersion"
         configs.forEachIndexed { i, dto ->
             val decodedWorkContent = Base64.decode(dto.encodedWorkFileContent).decodeToString()

@@ -1,7 +1,7 @@
 package org.misarch.experimentexecutor.config
 
 const val TEMPLATE_PREFIX = "template_"
-const val CHAOSTOOLKIT_FILENAME = "chaostoolkit-experiment-config.yaml"
+const val CHAOSTOOLKIT_FILENAME = "chaostoolkit-experiment-config.json"
 const val EXECUTION_FILENAME = "execution.json"
 const val GATLING_WORK_FILENAME_1 = "buyProcessScenario.kt"
 const val GATLING_WORK_FILENAME_2 = "abortedBuyProcessScenario.kt"

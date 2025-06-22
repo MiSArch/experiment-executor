@@ -3,6 +3,7 @@ package org.misarch.experimentexecutor.plugin.metrics.prometheus
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.reactor.awaitSingle
+import org.misarch.experimentexecutor.config.MISARCH_SERVICES
 import org.misarch.experimentexecutor.plugin.metrics.MetricPluginInterface
 import org.misarch.experimentexecutor.plugin.metrics.prometheus.model.PrometheusResponse
 import org.springframework.http.MediaType
@@ -22,30 +23,8 @@ class PrometheusMetricPlugin(
     private val storeResultDataInFiles: Boolean,
     private val basePath: String,
 ) : MetricPluginInterface {
-    private val services =
-        listOf(
-            "address",
-            "catalog",
-            "discount",
-            "gateway",
-            "inventory",
-            "invoice",
-            "media",
-            "notification",
-            "order",
-            "payment",
-            "return",
-            "review",
-            "shipment",
-            "shoppingcart",
-            "simulation",
-            "tax",
-            "user",
-            "wishlist",
-        )
-
     private val metrics =
-        services.map { service ->
+        MISARCH_SERVICES.map { service ->
             mapOf(
                 """container_cpu_usage_seconds_total""" to """{name="infrastructure-docker-$service-1"}""",
                 """dapr_http_server_latency_sum""" to """{app_id="$service"}""",
@@ -116,7 +95,7 @@ class PrometheusMetricPlugin(
                 .bodyToMono(PrometheusResponse::class.java)
                 .awaitSingle()
 
-        val service = services.first { metricFilter.contains(it) }
+        val service = MISARCH_SERVICES.first { metricFilter.contains(it) }
         val folderName = startTime.truncatedTo(ChronoUnit.SECONDS).toString().replace(":", "-")
         File("$basePath/$testUUID/$testVersion/reports/prometheus/$folderName/$service-$metricName.json").apply {
             parentFile.mkdirs()
