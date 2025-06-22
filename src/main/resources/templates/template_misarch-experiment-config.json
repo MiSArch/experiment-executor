@@ -9,7 +9,7 @@
         "artificialCPUUsage": null
       }
     ],
-    "pause": 15000
+    "pause": 15
   },
   {
     "failures": [
@@ -29,7 +29,7 @@
         "artificialCPUUsage": null
       }
     ],
-    "pause": 15000
+    "pause": 15
   },
   {
     "failures": [
