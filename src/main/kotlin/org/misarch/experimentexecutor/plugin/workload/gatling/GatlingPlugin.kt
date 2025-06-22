@@ -3,7 +3,6 @@ package org.misarch.experimentexecutor.plugin.workload.gatling
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.reactor.awaitSingle
 import org.misarch.experimentexecutor.controller.experiment.model.EncodedFileDTO
-import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
@@ -21,7 +20,6 @@ class GatlingPlugin(
     private val basePath: String,
 ) : WorkloadPluginInterface {
     override suspend fun executeWorkLoad(
-        workLoad: WorkLoad,
         testUUID: UUID,
         testVersion: String,
     ) {
