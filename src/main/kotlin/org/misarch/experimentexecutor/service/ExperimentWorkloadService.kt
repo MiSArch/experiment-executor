@@ -3,7 +3,6 @@ package org.misarch.experimentexecutor.service
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import org.misarch.experimentexecutor.model.WorkLoad
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.misarch.experimentexecutor.plugin.workload.gatling.GatlingPlugin
 import org.springframework.beans.factory.annotation.Value
@@ -23,13 +22,12 @@ class ExperimentWorkloadService(
         )
 
     suspend fun executeWorkLoad(
-        workLoad: WorkLoad,
         testUUID: UUID,
         testVersion: String,
     ) {
         coroutineScope {
             registry.map { plugin ->
-                async { plugin.executeWorkLoad(workLoad, testUUID, testVersion) }
+                async { plugin.executeWorkLoad(testUUID, testVersion) }
             }
         }.awaitAll()
     }

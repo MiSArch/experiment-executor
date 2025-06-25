@@ -3,15 +3,9 @@ package org.misarch.experimentexecutor.service
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.misarch.experimentexecutor.config.CHAOSTOOLKIT_FILENAME
 import org.misarch.experimentexecutor.config.EXECUTION_FILENAME
-import org.misarch.experimentexecutor.config.GATLING_USERSTEPS_FILENAME_1
-import org.misarch.experimentexecutor.config.GATLING_USERSTEPS_FILENAME_2
-import org.misarch.experimentexecutor.config.GATLING_WORK_FILENAME_1
-import org.misarch.experimentexecutor.config.GATLING_WORK_FILENAME_2
 import org.misarch.experimentexecutor.config.MISARCH_EXPERIMENT_CONFIG_FILENAME
-import org.misarch.experimentexecutor.config.TEMPLATE_PREFIX
 import org.misarch.experimentexecutor.controller.experiment.model.EncodedFileDTO
 import org.misarch.experimentexecutor.model.ExperimentConfig
-import org.misarch.experimentexecutor.model.GatlingLoadType
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.io.File
@@ -23,7 +17,6 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 @OptIn(ExperimentalEncodingApi::class)
 class ExperimentConfigService(
     @Value("\${experiment-executor.base-path}") private val basePath: String,
-    @Value("\${experiment-executor.template-path}") private val templatePath: String,
 ) {
     suspend fun getExistingExperiments(): List<String> {
         val experimentsDir = File(basePath)
@@ -47,52 +40,6 @@ class ExperimentConfigService(
             ?.filter { it.isDirectory && it.name.startsWith("v") }
             ?.map { it.name }
             ?: emptyList()
-    }
-
-    suspend fun generateExperiment(
-        testName: String,
-        loadType: GatlingLoadType,
-        testDuration: Int,
-        sessionDuration: Int,
-        rate: Float,
-    ): String {
-        val testUUID = UUID.randomUUID()
-        val testVersion = "v1"
-        val experimentDir = "$basePath/$testUUID/$testVersion"
-
-        val dirCreated = File(experimentDir).mkdirs()
-        if (!dirCreated) {
-            throw IllegalStateException("Failed to create directory at $experimentDir")
-        }
-
-        generateUserStepsCSV(experimentDir, loadType, testDuration, sessionDuration, rate)
-
-        val chaostoolkitTemplate = File("$templatePath/${TEMPLATE_PREFIX}${CHAOSTOOLKIT_FILENAME}").readText()
-        val updatedChaostoolkitTemplate =
-            chaostoolkitTemplate
-                .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
-                .replace("REPLACE_ME_TEST_VERSION", testVersion)
-        File("$experimentDir/$CHAOSTOOLKIT_FILENAME").writeText(updatedChaostoolkitTemplate)
-
-        val misarchTemplate = File("$templatePath/${TEMPLATE_PREFIX}${MISARCH_EXPERIMENT_CONFIG_FILENAME}").readText()
-        File("$experimentDir/$MISARCH_EXPERIMENT_CONFIG_FILENAME").writeText(misarchTemplate)
-
-        val workTemplate1 = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_WORK_FILENAME_1}").readText()
-        File("$experimentDir/$GATLING_WORK_FILENAME_1").writeText(workTemplate1)
-
-        val workTemplate2 = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_WORK_FILENAME_2}").readText()
-        File("$experimentDir/$GATLING_WORK_FILENAME_2").writeText(workTemplate2)
-
-        val executionTemplate = File("$templatePath/${TEMPLATE_PREFIX}${EXECUTION_FILENAME}").readText()
-        val executionTemplateUpdated =
-            executionTemplate
-                .replace("REPLACE_ME_TEST_UUID", testUUID.toString())
-                .replace("REPLACE_ME_TEST_VERSION", testVersion)
-                .replace("REPLACE_ME_TEST_NAME", testName)
-                .replace("REPLACE_ME_LOADTYPE", loadType.toString())
-        File("$experimentDir/$EXECUTION_FILENAME").writeText(executionTemplateUpdated)
-
-        return "$testUUID:$testVersion"
     }
 
     fun getChaosToolkitConfig(
@@ -206,51 +153,6 @@ class ExperimentConfigService(
             File("$filePath/${dto.fileName}.kt").writeText(decodedWorkContent)
             File("$filePath/${dto.fileName}.csv").writeText(decodedUserStepsContent)
         }
-    }
-
-    fun generateUserStepsCSV(
-        experimentDir: String,
-        loadType: GatlingLoadType,
-        testDuration: Int,
-        sessionDuration: Int,
-        rate: Float,
-    ) {
-        val userSteps =
-            when (loadType) {
-                // TODO think of something nice how to create multiple types for usersteps by default
-                //  e.g.: when realistic 70 / 30 aborted / successful +++ elasticity only one +++ resilience one with random spike
-                GatlingLoadType.NormalLoadTest -> {
-                    val normalUsersteps = File("$templatePath/${TEMPLATE_PREFIX}${GATLING_USERSTEPS_FILENAME_1}").readText()
-                    val values = normalUsersteps.replace("usersteps\n", "").split("\n").map { it.trim().toIntOrNull() ?: 0 }
-                    values.subList(0, testDuration)
-                }
-
-                GatlingLoadType.ScalabilityLoadTest -> {
-                    List(testDuration) { step -> (step * rate).toInt().coerceAtLeast(sessionDuration) }
-                }
-
-                GatlingLoadType.ElasticityLoadTest -> {
-                    val growth = List(size = testDuration / 6) { step -> (step * rate).toInt().coerceAtLeast(sessionDuration) }
-                    val decay = List(size = testDuration / 6) { sessionDuration }
-                    growth + decay + growth + decay + growth + decay
-                }
-
-                GatlingLoadType.ResilienceLoadTest -> {
-                    val growth = List(size = testDuration / 6) { step -> (step * (rate / 2)).toInt().coerceAtLeast(sessionDuration) }
-                    val decay = List(size = testDuration / 6) { sessionDuration }
-                    val spikeUp = List(size = testDuration / 24) { step -> (step * rate * 25).toInt().coerceAtLeast(sessionDuration) }
-                    val spikeDown = spikeUp.reversed()
-                    val lowPlateau = List(size = testDuration / 6) { sessionDuration }
-                    val highPlateauPattern = listOf(sessionDuration * 50) + List(size = sessionDuration - 1) { 0 }
-                    val highPlateau = List(testDuration / 3) { index -> highPlateauPattern[index % highPlateauPattern.size] }
-                    val final = List(size = testDuration / 12) { sessionDuration }
-                    growth + decay + spikeUp + spikeDown + lowPlateau + highPlateau + final
-                }
-            }
-
-        // TODO finalize this
-        File("$experimentDir/$GATLING_USERSTEPS_FILENAME_1").writeText("usersteps\n" + userSteps.joinToString("\n"))
-        File("$experimentDir/$GATLING_USERSTEPS_FILENAME_2").writeText("usersteps\n" + userSteps.reversed().joinToString("\n"))
     }
 
     suspend fun newExperimentVersion(

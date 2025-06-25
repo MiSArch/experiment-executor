@@ -4,16 +4,8 @@ data class ExperimentConfig(
     val testUUID: String,
     val testVersion: String,
     val testName: String,
-    val workLoad: WorkLoad,
-    val goals: List<Goal>,
-)
-
-data class WorkLoad(
-    val gatling: GatlingConfig,
-)
-
-data class GatlingConfig(
     val loadType: GatlingLoadType,
+    val goals: List<Goal>,
 )
 
 enum class GatlingLoadType {

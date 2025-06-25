@@ -86,7 +86,7 @@ class ExperimentExecutionService(
 
             val workloadJobs =
                 async {
-                    experimentWorkloadService.executeWorkLoad(experimentConfig.workLoad, testUUID, testVersion)
+                    experimentWorkloadService.executeWorkLoad(testUUID, testVersion)
                 }
 
             logger.info { "Initialized experiment and waiting for registrations for testUUID: $testUUID and testVersion: $testVersion" }
