@@ -71,6 +71,7 @@ class MisarchExperimentConfigPlugin(
         } else {
             stoppableJobs[testId]?.cancel()
             stoppableJobs.remove(testId)
+            configMap.remove(testId)
         }
         logger.info { "Stopped Misarch Experiment Configuration for testUUID: $testUUID and testVersion: $testVersion" }
     }

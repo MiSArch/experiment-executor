@@ -156,11 +156,11 @@ class ExperimentGeneratorService(
         val final = List(size = testDuration / 12) { 1 }
         val userSteps = growth + decay + spikeUp + spikeDown + lowPlateau + highPlateau + final
 
-        return listOf("buyProcessScenario", "abortedBuyProcessScenario").map { scenarioName ->
+        return listOf(GATLING_WORK_FILENAME_BUY, GATLING_WORK_FILENAME_ABORT).map { scenarioName ->
             GatlingConfig(
-                fileName = scenarioName,
+                fileName = scenarioName.substringBefore("."),
                 userStepsFileContent = "usersteps\n" + userSteps.joinToString("\n"),
-                workFileContent = File("$templatePath/${TEMPLATE_PREFIX}$GATLING_WORK_FILENAME_BUY").readText(),
+                workFileContent = File("$templatePath/${TEMPLATE_PREFIX}$scenarioName").readText(),
             )
         }
     }
