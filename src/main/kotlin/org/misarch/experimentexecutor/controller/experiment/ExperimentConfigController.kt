@@ -5,6 +5,7 @@ import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.model.GatlingLoadType
 import org.misarch.experimentexecutor.service.ExperimentConfigService
 import org.misarch.experimentexecutor.service.ExperimentGeneratorService
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -44,6 +45,17 @@ class ExperimentConfigController(
 
     @GetMapping("/experiments")
     suspend fun getExistingExperiments(): List<String> = experimentConfigService.getExistingExperiments()
+
+    @DeleteMapping("/experiment/{testUUID}")
+    suspend fun deleteExperiment(
+        @PathVariable testUUID: UUID,
+    ) = experimentConfigService.deleteExperiment(testUUID)
+
+    @DeleteMapping("/experiment/{testUUID}/{testVersion}")
+    suspend fun deleteExperimentVersion(
+        @PathVariable testUUID: UUID,
+        @PathVariable testVersion: String,
+    ) = experimentConfigService.deleteExperimentVersion(testUUID, testVersion)
 
     @GetMapping("/experiment/{testUUID}/versions")
     suspend fun getExperimentVersions(

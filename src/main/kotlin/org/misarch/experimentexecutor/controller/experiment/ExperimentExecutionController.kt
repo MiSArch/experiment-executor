@@ -2,7 +2,6 @@ package org.misarch.experimentexecutor.controller.experiment
 
 import org.misarch.experimentexecutor.model.ExperimentConfig
 import org.misarch.experimentexecutor.service.ExperimentExecutionService
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -40,7 +39,7 @@ class ExperimentExecutionController(
      * Stops the currently running experiment identified by its UUID.
      * This will stop the workload and the failure plugins.
      */
-    @DeleteMapping("/experiment/{testUUID}/{testVersion}")
+    @PostMapping("/experiment/{testUUID}/{testVersion}/stop")
     private suspend fun stopExperiment(
         @PathVariable testUUID: UUID,
         @PathVariable testVersion: String,

@@ -1,6 +1,7 @@
 package org.misarch.experimentexecutor.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.misarch.experimentexecutor.config.CHAOSTOOLKIT_FILENAME
 import org.misarch.experimentexecutor.config.EXECUTION_FILENAME
 import org.misarch.experimentexecutor.config.MISARCH_EXPERIMENT_CONFIG_FILENAME
@@ -12,6 +13,8 @@ import java.io.File
 import java.util.UUID
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+
+private val logger = KotlinLogging.logger {}
 
 @Service
 @OptIn(ExperimentalEncodingApi::class)
@@ -40,6 +43,31 @@ class ExperimentConfigService(
             ?.filter { it.isDirectory && it.name.startsWith("v") }
             ?.map { it.name }
             ?: emptyList()
+    }
+
+    fun deleteExperiment(testUUID: UUID) {
+        val testDir = File("$basePath/$testUUID")
+        if (testDir.exists()) {
+            testDir.deleteRecursively()
+        }
+        logger.info { "Experiment with UUID $testUUID deleted successfully." }
+    }
+
+    fun deleteExperimentVersion(
+        testUUID: UUID,
+        testVersion: String,
+    ) {
+        val testDir = File("$basePath/$testUUID")
+        val versions = testDir.listFiles()?.filter { it.isDirectory && it.name.startsWith("v") } ?: emptyList()
+        if (versions.size <= 1) {
+            testDir.deleteRecursively()
+        } else {
+            val versionDir = File("$basePath/$testUUID/$testVersion")
+            if (versionDir.exists()) {
+                versionDir.deleteRecursively()
+            }
+        }
+        logger.info { "Experiment with testUUID $testUUID and version $testVersion deleted successfully." }
     }
 
     fun getChaosToolkitConfig(
