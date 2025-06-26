@@ -44,6 +44,10 @@ configure<KtlintExtension> {
     version.set("1.5.0")
 }
 
+springBoot {
+    buildInfo()
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }

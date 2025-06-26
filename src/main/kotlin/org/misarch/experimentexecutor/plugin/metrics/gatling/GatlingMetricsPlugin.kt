@@ -2,7 +2,9 @@ package org.misarch.experimentexecutor.plugin.metrics.gatling
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.misarch.experimentexecutor.config.GATLING_RESPONSE_TIME_STATS_FILENAME
 import org.misarch.experimentexecutor.plugin.metrics.MetricPluginInterface
 import org.misarch.experimentexecutor.plugin.metrics.gatling.model.GatlingStats
 import org.springframework.http.MediaType
@@ -30,10 +32,6 @@ class GatlingMetricsPlugin(
         gatlingStatsJs: String,
         gatlingStatsHtml: String,
     ) {
-        if (storeResultDataInFiles) {
-            storeResultDataInFiles(testUUID, testVersion, startTime, gatlingStatsJs, gatlingStatsHtml)
-        }
-
         // Response Time Metrics
         val responseTimeStats = parseGatlingResponseTimeStats(gatlingStatsJs)
         postResponseTimeStatsToInflux(responseTimeStats, testUUID, testVersion, endTime.minusSeconds(60))
@@ -54,6 +52,17 @@ class GatlingMetricsPlugin(
         // -> list of maps with timestamp and list which represent the response time percentiles at the timepoint
         // -> could be added as well here
 
+        storeResultDataInFiles(
+            testUUID,
+            testVersion,
+            startTime,
+            gatlingStatsJs,
+            gatlingStatsHtml,
+            responseTimeStats,
+            dataSeries,
+            activeUsers,
+        )
+
         logger.info { "🚀 Gatling Metrics pushed to InfluxDB" }
     }
 
@@ -63,15 +72,23 @@ class GatlingMetricsPlugin(
         startTime: Instant,
         gatlingStatsJs: String,
         gatlingStatsHtml: String,
+        responseTimeStats: GatlingStats,
+        dataSeries: Map<String, Map<Long, List<Int>>>,
+        activeUsers: Map<String, List<Pair<Long, Int>>>,
     ) {
         val folderName = startTime.truncatedTo(ChronoUnit.SECONDS).toString().replace(":", "-")
         val reportDir =
-            File("$basePath/$testUUID/$testVersion/reports/gatling/$folderName").apply {
+            File("$basePath/$testUUID/$testVersion/reports/$folderName/gatling").apply {
                 mkdirs()
             }
 
-        File(reportDir, "stats.js").writeText(gatlingStatsJs)
-        File(reportDir, "index.html").writeText(gatlingStatsHtml)
+        File(reportDir, GATLING_RESPONSE_TIME_STATS_FILENAME).writeText(jacksonObjectMapper().writeValueAsString(responseTimeStats))
+        if (storeResultDataInFiles) {
+            File(reportDir, "dataSeries.json").writeText(jacksonObjectMapper().writeValueAsString(dataSeries))
+            File(reportDir, "activeUsers.json").writeText(jacksonObjectMapper().writeValueAsString(activeUsers))
+            File(reportDir, "stats.js").writeText(gatlingStatsJs)
+            File(reportDir, "index.html").writeText(gatlingStatsHtml)
+        }
     }
 
     private fun parseGatlingResponseTimeStats(gatlingStatsJs: String): GatlingStats {
@@ -148,10 +165,12 @@ class GatlingMetricsPlugin(
     ) {
         val lineProtocol =
             data.joinToString("\n") { (timestamp, value) ->
-                "$metricName,scenario=${scenario.replace(
-                    " ",
-                    "",
-                )},testUUID=$testUUID,testVersion=$testVersion value=${value.toDouble()} $timestamp"
+                "$metricName,scenario=${
+                    scenario.replace(
+                        " ",
+                        "",
+                    )
+                },testUUID=$testUUID,testVersion=$testVersion value=${value.toDouble()} $timestamp"
             }
         postToInflux(lineProtocol)
     }

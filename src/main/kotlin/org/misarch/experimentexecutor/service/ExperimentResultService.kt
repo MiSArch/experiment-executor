@@ -9,6 +9,7 @@ import org.misarch.experimentexecutor.plugin.export.grafana.GrafanaPlugin
 import org.misarch.experimentexecutor.plugin.export.llm.LLMPlugin
 import org.misarch.experimentexecutor.plugin.export.report.ReportPlugin
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.info.BuildProperties
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import java.time.Instant
@@ -20,11 +21,12 @@ class ExperimentResultService(
     grafanaConfig: GrafanaConfig,
     @Value("\${experiment-executor.template-path}") private val templatePath: String,
     @Value("\${experiment-executor.base-path}") private val basePath: String,
+    buildProperties: BuildProperties,
 ) {
     val registry =
         listOf(
             GrafanaPlugin(webClient, grafanaConfig, templatePath, basePath),
-            ReportPlugin(basePath),
+            ReportPlugin(basePath, buildProperties),
             LLMPlugin(), // not implemented yet
         )
 

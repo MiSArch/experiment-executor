@@ -97,7 +97,7 @@ class PrometheusMetricPlugin(
 
         val service = MISARCH_SERVICES.first { metricFilter.contains(it) }
         val folderName = startTime.truncatedTo(ChronoUnit.SECONDS).toString().replace(":", "-")
-        File("$basePath/$testUUID/$testVersion/reports/prometheus/$folderName/$service-$metricName.json").apply {
+        File("$basePath/$testUUID/$testVersion/reports/$folderName/prometheus/$service-$metricName.json").apply {
             parentFile.mkdirs()
             writeText(jacksonObjectMapper().writeValueAsString(response.toString()))
         }
