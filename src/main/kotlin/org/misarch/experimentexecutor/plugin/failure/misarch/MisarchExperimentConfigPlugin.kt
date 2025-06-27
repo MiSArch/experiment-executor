@@ -30,34 +30,29 @@ class MisarchExperimentConfigPlugin(
     private val experimentExecutorUrl: String,
     private val basePath: String,
 ) : FailurePluginInterface {
-    private val configMap = ConcurrentHashMap<String, List<MiSArchFailureConfig>>()
     private val stoppableJobs = ConcurrentHashMap<String, Job>()
 
     override suspend fun initializeFailure(
         testUUID: UUID,
         testVersion: String,
     ) {
-        val testId = "$testUUID:$testVersion"
-        configMap[testId] = readConfigFile("$basePath/$testUUID/$testVersion/$MISARCH_EXPERIMENT_CONFIG_FILENAME")
-        initiallyResetConfiguration()
-        registerPlugin(testUUID, testVersion)
-    }
-
-    override suspend fun startTimedExperiment(
-        testUUID: UUID,
-        testVersion: String,
-    ) {
-        val testId = "$testUUID:$testVersion"
-        // TODO somehow there are sometimes key-errors here
-        if (configMap.containsKey(testId)) {
-            coroutineScope {
-                stoppableJobs[testId] =
-                    launch {
-                        val config = configMap.getValue(testId)
-                        configMap.remove(testId)
-                        configureVariables(config)
+        coroutineScope {
+            val testId = "$testUUID:$testVersion"
+            stoppableJobs[testId] =
+                launch {
+                    val config = readConfigFile("$basePath/$testUUID/$testVersion/$MISARCH_EXPERIMENT_CONFIG_FILENAME")
+                    initiallyResetConfiguration()
+                    registerPlugin(testUUID, testVersion)
+                    var triggerState = checkTriggerState(testUUID, testVersion)
+                    0.until(6000).forEach { _ ->
+                        if (triggerState) {
+                            return@forEach
+                        }
+                        delay(100)
+                        triggerState = checkTriggerState(testUUID, testVersion)
                     }
-            }
+                    configureVariables(config)
+                }
         }
     }
 
@@ -66,13 +61,11 @@ class MisarchExperimentConfigPlugin(
         testVersion: String,
     ) {
         val testId = "$testUUID:$testVersion"
-        if (!stoppableJobs.containsKey(testId) && configMap.containsKey(testId)) {
-            configMap.remove(testId)
-        } else {
-            stoppableJobs[testId]?.cancel()
-            stoppableJobs.remove(testId)
-            configMap.remove(testId)
-        }
+        if (!stoppableJobs.containsKey(testId)) return
+
+        stoppableJobs[testId]?.cancel()
+        stoppableJobs.remove(testId)
+
         logger.info { "Stopped Misarch Experiment Configuration for testUUID: $testUUID and testVersion: $testVersion" }
     }
 
@@ -175,4 +168,15 @@ class MisarchExperimentConfigPlugin(
             .retrieve()
             .awaitBodilessEntity()
     }
+
+    private suspend fun checkTriggerState(
+        testUUID: UUID,
+        testVersion: String,
+    ): Boolean =
+        webClient
+            .get()
+            .uri("$experimentExecutorUrl/trigger/$testUUID/$testVersion")
+            .retrieve()
+            .awaitBody<String>()
+            .toBoolean()
 }

@@ -64,7 +64,6 @@ class PrometheusMetricPlugin(
                 )
             }
         }
-        logger.info { "🚀 Prometheus Metrics pushed to InfluxDB for Comparison" }
     }
 
     private suspend fun queryPrometheus(

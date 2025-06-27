@@ -38,7 +38,7 @@ class ExperimentExecutionService(
     suspend fun getTriggerState(
         testUUID: UUID,
         testVersion: String,
-    ): Boolean = getExperimentStateCache(testUUID, testVersion).triggerState == STARTED
+    ): Boolean = getExperimentStateCache(testUUID, testVersion)?.triggerState == STARTED
 
     suspend fun registerTriggerState(
         testUUID: UUID,
@@ -62,6 +62,10 @@ class ExperimentExecutionService(
         testUUID: UUID,
         testVersion: String,
     ) {
+        if (getExperimentStateCache(testUUID, testVersion) != null) {
+            throw IllegalStateException("An experiment run with testUUID $testUUID and testVersion $testVersion is already in progress.")
+        }
+
         val experimentState =
             ExperimentState(
                 testUUID = testUUID,
@@ -98,7 +102,7 @@ class ExperimentExecutionService(
                 ) {
                     registeredClients.remove("$testUUID:$testVersion")
                     setExperimentStateCache(experimentState.copy(triggerState = STARTED, startTime = Instant.now().toString()))
-                    experimentFailureService.startExperimentFailure(testUUID, testVersion)
+                    return@forEach
                 }
                 delay(100)
             }
@@ -119,6 +123,7 @@ class ExperimentExecutionService(
             workLoadJob.await()
             failureJob.await()
         }
+        registeredClients.remove("$testUUID:$testVersion")
         deleteExperimentStateCache(testUUID, testVersion)
     }
 
@@ -135,7 +140,9 @@ class ExperimentExecutionService(
             }
 
         CoroutineScope(Dispatchers.Default + exceptionHandler).launch {
-            val experimentState = getExperimentStateCache(testUUID, testVersion)
+            val experimentState =
+                getExperimentStateCache(testUUID, testVersion)
+                    ?: throw IllegalStateException("Experiment state not found for testUUID: $testUUID and testVersion: $testVersion")
 
             val startTimeString =
                 experimentState.startTime
@@ -156,6 +163,7 @@ class ExperimentExecutionService(
             )
 
             asyncEventResponder.emitSuccess(testUUID, testVersion)
+            deleteExperimentStateCache(testUUID, testVersion)
 
             logger.info { "Finished Experiment run for testUUID: $testUUID and testVersion: $testVersion" }
         }
@@ -164,9 +172,7 @@ class ExperimentExecutionService(
     private suspend fun getExperimentStateCache(
         testUUID: UUID,
         testVersion: String,
-    ): ExperimentState =
-        experimentStateCache["$testUUID:$testVersion"]
-            ?: throw IllegalStateException("Experiment state not found for testUUID: $testUUID and testVersion: $testVersion")
+    ): ExperimentState? = experimentStateCache["$testUUID:$testVersion"]
 
     private suspend fun setExperimentStateCache(experimentState: ExperimentState) {
         experimentStateCache["${experimentState.testUUID}:${experimentState.testVersion}"] = experimentState

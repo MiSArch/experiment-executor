@@ -30,11 +30,6 @@ class ChaosToolkitPlugin(
             .awaitSingle()
     }
 
-    override suspend fun startTimedExperiment(
-        testUUID: UUID,
-        testVersion: String,
-    ) {}
-
     override suspend fun stopExperiment(
         testUUID: UUID,
         testVersion: String,

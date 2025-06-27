@@ -8,11 +8,6 @@ interface FailurePluginInterface {
         testVersion: String,
     )
 
-    suspend fun startTimedExperiment(
-        testUUID: UUID,
-        testVersion: String,
-    )
-
     suspend fun stopExperiment(
         testUUID: UUID,
         testVersion: String,

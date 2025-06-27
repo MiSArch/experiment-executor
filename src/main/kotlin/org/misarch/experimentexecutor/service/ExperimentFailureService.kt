@@ -40,17 +40,6 @@ class ExperimentFailureService(
         }.awaitAll()
     }
 
-    suspend fun startExperimentFailure(
-        testUUID: UUID,
-        testVersion: String,
-    ) {
-        coroutineScope {
-            registry.map { plugin ->
-                async { plugin.startTimedExperiment(testUUID, testVersion) }
-            }
-        }.awaitAll()
-    }
-
     suspend fun stopExperimentFailure(
         testUUID: UUID,
         testVersion: String,
