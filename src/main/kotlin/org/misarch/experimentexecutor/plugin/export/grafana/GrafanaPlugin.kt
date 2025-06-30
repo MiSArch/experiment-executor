@@ -5,6 +5,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.reactor.awaitSingle
 import org.jsoup.Jsoup
 import org.misarch.experimentexecutor.config.GRAFANA_DASHBOARD_FILENAME
+import org.misarch.experimentexecutor.config.GRAFANA_DASHBOARD_FILENAME_KUBERNETES
 import org.misarch.experimentexecutor.config.GrafanaConfig
 import org.misarch.experimentexecutor.config.REPORT_FILENAME
 import org.misarch.experimentexecutor.config.TEMPLATE_PREFIX
@@ -43,7 +44,7 @@ class GrafanaPlugin(
     ) {
         val filePath =
             if (isKubernetes) {
-                "$templatePath/${TEMPLATE_PREFIX}${GRAFANA_DASHBOARD_FILENAME}-kubernetes"
+                "$templatePath/${TEMPLATE_PREFIX}${GRAFANA_DASHBOARD_FILENAME_KUBERNETES}"
             } else {
                 "$templatePath/${TEMPLATE_PREFIX}${GRAFANA_DASHBOARD_FILENAME}"
             }
