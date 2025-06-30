@@ -21,11 +21,12 @@ class ExperimentResultService(
     grafanaConfig: GrafanaConfig,
     @Value("\${experiment-executor.template-path}") private val templatePath: String,
     @Value("\${experiment-executor.base-path}") private val basePath: String,
+    @Value("\${experiment-executor.is-kubernetes}") private val isKubernetes: Boolean,
     buildProperties: BuildProperties,
 ) {
     val registry =
         listOf(
-            GrafanaPlugin(webClient, grafanaConfig, templatePath, basePath),
+            GrafanaPlugin(webClient, grafanaConfig, templatePath, basePath, isKubernetes),
             ReportPlugin(basePath, buildProperties),
             LLMPlugin(), // not implemented yet
         )

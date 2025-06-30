@@ -23,5 +23,6 @@ data class ExperimentExecutorConfig(
     val url: String,
     val basePath: String,
     val storeResultDataInFiles: Boolean,
+    val isKubernetes: Boolean,
     val corsOrigins: List<String>,
 )

@@ -24,5 +24,6 @@ experiment-executor:
   url: ${EXPERIMENT_EXECUTOR_URL}
   template-path: "src/main/resources/templates"
   store-result-data-in-files: ${STORE_RESULT_DATA_IN_FILES}
+  is-kubernetes: ${IS_KUBERNETES}
   cors-origins:
     - "http://localhost:5173"

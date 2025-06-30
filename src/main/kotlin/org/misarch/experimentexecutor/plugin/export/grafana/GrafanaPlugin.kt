@@ -28,6 +28,7 @@ class GrafanaPlugin(
     private val grafanaConfig: GrafanaConfig,
     private val templatePath: String,
     private val basePath: String,
+    private val isKubernetes: Boolean,
 ) : ExportPluginInterface {
     private var serviceAccountId: String? = null
     private var apiToken: String? = null
@@ -40,7 +41,13 @@ class GrafanaPlugin(
         goals: List<Goal>,
         gatlingStatsHtml: String,
     ) {
-        val filePath = "$templatePath/${TEMPLATE_PREFIX}${GRAFANA_DASHBOARD_FILENAME}"
+        val filePath =
+            if (isKubernetes) {
+                "$templatePath/${TEMPLATE_PREFIX}${GRAFANA_DASHBOARD_FILENAME}-kubernetes"
+            } else {
+                "$templatePath/${TEMPLATE_PREFIX}${GRAFANA_DASHBOARD_FILENAME}"
+            }
+
         createResultDashboard(filePath, testUUID, testVersion, startTime, endTime, goals, gatlingStatsHtml)
     }
 

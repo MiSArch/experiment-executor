@@ -30,7 +30,7 @@ fun buildChaosToolkitConfig(
                         tolerance = true,
                         provider =
                             PythonProvider(
-                                module = "chaostoolkit_docker",
+                                module = "misarch_chaostoolkit.chaostoolkit_docker",
                                 func = "are_containers_running",
                                 arguments =
                                     mapOf(
@@ -53,7 +53,7 @@ fun buildChaosToolkitConfig(
                 provider =
                     PythonProvider(
                         type = "python",
-                        module = "chaostoolkit_docker",
+                        module = "misarch_chaostoolkit.chaostoolkit_docker",
                         func = "kill_containers",
                         arguments =
                             mapOf(
@@ -77,7 +77,7 @@ fun buildChaosToolkitConfig(
                 provider =
                     PythonProvider(
                         type = "python",
-                        module = "chaostoolkit_docker",
+                        module = "misarch_chaostoolkit.chaostoolkit_docker",
                         func = "start_containers",
                         arguments =
                             mapOf(
