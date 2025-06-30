@@ -2025,7 +2025,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus_uid"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -2116,7 +2116,7 @@
           {
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "count(container_start_time_seconds{container=\"misarch-${service}-1\"} offset ${timeShift}) or on() vector(0)",
+            "expr": "count(container_start_time_seconds{container=\"misarch-${service}\"} offset ${timeShift}) or on() vector(0)",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "legendFormat": "container instances (${timeShift} ago)",
@@ -2131,7 +2131,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus_uid"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -2210,7 +2210,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "prometheus_uid"
+              "uid": "prometheus"
             },
             "disableTextWrap": false,
             "editorMode": "code",
@@ -2225,7 +2225,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "prometheus_uid"
+              "uid": "prometheus"
             },
             "disableTextWrap": false,
             "editorMode": "code",
@@ -2242,7 +2242,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus_uid"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -2320,14 +2320,14 @@
         "targets": [
           {
             "editorMode": "code",
-            "expr": "rate(dapr_http_server_latency_sum{app_id=\"misarch-${service}\"}[20s])",
+            "expr": "rate(dapr_http_server_latency_sum{app_id=\"${service}\"}[20s])",
             "legendFormat": "Path: {{path}}, Status Code: {{status}}",
             "range": true,
             "refId": "A"
           },
           {
             "editorMode": "code",
-            "expr": "rate(dapr_http_server_latency_sum{app_id=\"misarch-${service}\"}[20s] offset ${timeShift})",
+            "expr": "rate(dapr_http_server_latency_sum{app_id=\"${service}\"}[20s] offset ${timeShift})",
             "legendFormat": "Path: {{path}}, Status Code: {{status}} (${timeShift} ago)",
             "range": true,
             "refId": "B"
@@ -2339,7 +2339,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus_uid"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -2436,7 +2436,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus_uid"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -2514,7 +2514,7 @@
           {
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "rate(dapr_http_client_completed_count{app_id=\"misarch-${service}\", path!=\"/_ecs/variables-event\", path!=\"_ecs/defined-variables\", path!=\"/dapr/config\"}[20s])",
+            "expr": "rate(dapr_http_client_completed_count_total{app_id=\"${service}\", path!=\"/_ecs/variables-event\", path!=\"_ecs/defined-variables\", path!=\"/dapr/config\"}[20s])",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "legendFormat": "Path: {{path}}, Status: {{status}}",
@@ -2525,7 +2525,7 @@
           {
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "rate(dapr_http_client_completed_count{app_id=\"misarch-${service}\", path!=\"/_ecs/variables-event\", path!=\"_ecs/defined-variables\", path!=\"/dapr/config\"}[20s] offset ${timeShift})",
+            "expr": "rate(dapr_http_client_completed_count_total{app_id=\"${service}\", path!=\"/_ecs/variables-event\", path!=\"_ecs/defined-variables\", path!=\"/dapr/config\"}[20s] offset ${timeShift})",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "legendFormat": "Path: {{path}}, Status: {{status}} (${timeShift} ago)",
@@ -2540,7 +2540,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus_uid"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -2625,7 +2625,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "prometheus_uid"
+              "uid": "prometheus"
             },
             "editorMode": "code",
             "expr": "http_server_active_requests{exported_job=\"${service}\"} offset ${timeShift}",
@@ -2641,7 +2641,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus_uid"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -2719,14 +2719,14 @@
         "targets": [
           {
             "editorMode": "code",
-            "expr": "rate(dapr_http_client_roundtrip_latency_sum{app_id=\"misarch-${service}\", path!=\"/_ecs/variables-event\", path!=\"_ecs/defined-variables\", path!=\"/dapr/config\"}[20s])",
+            "expr": "rate(dapr_http_client_roundtrip_latency_sum{app_id=\"${service}\", path!=\"/_ecs/variables-event\", path!=\"_ecs/defined-variables\", path!=\"/dapr/config\"}[20s])",
             "legendFormat": "Path: {{path}}",
             "range": true,
             "refId": "A"
           },
           {
             "editorMode": "code",
-            "expr": "rate(dapr_http_client_roundtrip_latency_sum{app_id=\"misarch-${service}\", path!=\"/_ecs/variables-event\", path!=\"_ecs/defined-variables\", path!=\"/dapr/config\"}[20s] offset ${timeShift})",
+            "expr": "rate(dapr_http_client_roundtrip_latency_sum{app_id=\"${service}\", path!=\"/_ecs/variables-event\", path!=\"_ecs/defined-variables\", path!=\"/dapr/config\"}[20s] offset ${timeShift})",
             "legendFormat": "Path: {{path}} (${timeShift} ago)",
             "range": true,
             "refId": "B"
@@ -2738,7 +2738,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus_uid"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -2835,7 +2835,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus_uid"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -2914,7 +2914,7 @@
           {
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "rate(dapr_component_pubsub_egress_latencies_sum{app_id=\"misarch-${service}\"}[20s])",
+            "expr": "rate(dapr_component_pubsub_egress_latencies_sum{app_id=\"${service}\"}[20s])",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "legendFormat": "Topic: {{topic}}, Success: {{success}}",
@@ -2925,7 +2925,7 @@
           {
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "rate(dapr_component_pubsub_egress_latencies_sum{app_id=\"misarch-${service}\"}[20s] offset ${timeShift})",
+            "expr": "rate(dapr_component_pubsub_egress_latencies_sum{app_id=\"${service}\"}[20s] offset ${timeShift})",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "legendFormat": "Topic: {{topic}}, Success: {{success}} (${timeShift} ago)",
@@ -2940,7 +2940,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus_uid"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
