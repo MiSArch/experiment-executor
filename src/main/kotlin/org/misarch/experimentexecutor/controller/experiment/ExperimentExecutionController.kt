@@ -17,7 +17,7 @@ class ExperimentExecutionController(
     /**
      * Runs an experiment with the provided configuration file.
      */
-    @PostMapping("/experiment")
+    @PostMapping("/experiment/start")
     private suspend fun runExperimentWithConfigFile(
         @RequestBody experimentConfig: ExperimentConfig,
     ) = experimentExecutionService.initializeExperiment(
@@ -29,7 +29,7 @@ class ExperimentExecutionController(
     /**
      * Runs an experiment based on a stored test configuration identified by its UUID.
      */
-    @PostMapping("/experiment/{testUUID}/{testVersion}")
+    @PostMapping("/experiment/{testUUID}/{testVersion}/start")
     private suspend fun runExperiment(
         @PathVariable testUUID: UUID,
         @PathVariable testVersion: String,

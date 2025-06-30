@@ -43,7 +43,7 @@ class ExperimentConfigController(
         )
     }
 
-    @GetMapping("/experiments")
+    @GetMapping("/experiment/list")
     suspend fun getExistingExperiments(): List<String> = experimentConfigService.getExistingExperiments()
 
     @DeleteMapping("/experiment/{testUUID}")
