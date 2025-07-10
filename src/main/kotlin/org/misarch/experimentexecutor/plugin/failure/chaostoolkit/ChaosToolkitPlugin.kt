@@ -19,11 +19,12 @@ class ChaosToolkitPlugin(
     override suspend fun initializeFailure(
         testUUID: UUID,
         testVersion: String,
+        testDelay: Int,
     ) {
         val experimentYaml = File("$basePath/$testUUID/$testVersion/$CHAOSTOOLKIT_FILENAME").readText()
         webClient
             .post()
-            .uri("$chaosToolkitExecutorHost/start-experiment?testUUID=$testUUID&testVersion=$testVersion")
+            .uri("$chaosToolkitExecutorHost/start-experiment?testUUID=$testUUID&testVersion=$testVersion&testDelay=$testDelay")
             .bodyValue(experimentYaml)
             .retrieve()
             .toBodilessEntity()

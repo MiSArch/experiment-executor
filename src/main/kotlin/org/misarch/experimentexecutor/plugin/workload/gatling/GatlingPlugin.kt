@@ -3,6 +3,8 @@ package org.misarch.experimentexecutor.plugin.workload.gatling
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.reactor.awaitSingle
 import org.misarch.experimentexecutor.controller.experiment.model.EncodedFileDTO
+import org.misarch.experimentexecutor.model.SteadyState
+import org.misarch.experimentexecutor.model.WarmUp
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
@@ -22,6 +24,8 @@ class GatlingPlugin(
     override suspend fun executeWorkLoad(
         testUUID: UUID,
         testVersion: String,
+        warmUp: WarmUp?,
+        steadyState: SteadyState?,
     ) {
         val files = File("$basePath/$testUUID/$testVersion")
         val fileNames =
@@ -49,7 +53,13 @@ class GatlingPlugin(
             .uri(
                 "$gatlingExecutorHost/start-experiment" +
                     "?testUUID=$testUUID" +
-                    "&testVersion=$testVersion",
+                    "&testVersion=$testVersion" +
+                    "&warmUp=${(warmUp != null)}" +
+                    "&warmUpRate=${warmUp?.rate ?: 0}" +
+                    "&warmUpDuration=${warmUp?.duration ?: 0}" +
+                    "&steadyState=${(steadyState != null)}" +
+                    "&steadyStateRate=${steadyState?.rate ?: 0}" +
+                    "&steadyStateDuration=${steadyState?.duration ?: 0}",
             ).bodyValue(gatlingConfigs)
             .retrieve()
             .toBodilessEntity()

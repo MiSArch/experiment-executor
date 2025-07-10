@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import org.misarch.experimentexecutor.controller.experiment.AsyncEventErrorHandler
 import org.misarch.experimentexecutor.controller.experiment.AsyncEventResponder
 import org.misarch.experimentexecutor.model.ExperimentConfig
+import org.misarch.experimentexecutor.plugin.metrics.gatling.extractGoals
 import org.misarch.experimentexecutor.service.model.ExperimentState
 import org.misarch.experimentexecutor.service.model.ExperimentState.TriggerState.COMPLETED
 import org.misarch.experimentexecutor.service.model.ExperimentState.TriggerState.INITIALIZING
@@ -66,7 +67,7 @@ class ExperimentExecutionService(
             throw IllegalStateException("An experiment run with testUUID $testUUID and testVersion $testVersion is already in progress.")
         }
 
-        val experimentState =
+        val newExperimentState =
             ExperimentState(
                 testUUID = testUUID,
                 testVersion = testVersion,
@@ -74,33 +75,35 @@ class ExperimentExecutionService(
                 goals = experimentConfig.goals,
             )
 
-        setExperimentStateCache(experimentState)
+        setExperimentStateCache(newExperimentState)
 
-        val exceptionHandler =
-            CoroutineExceptionHandler { _, throwable ->
-                logger.error(throwable) { "Failed to execute experiment for testUUID: $testUUID and testVersion: $testVersion" }
-                asyncEventErrorHandler.handleError(testUUID, testVersion, throwable.message ?: "Unknown error")
-            }
+        val exceptionHandler = buildExceptionHandler(testUUID, testVersion)
 
         CoroutineScope(Dispatchers.Default + exceptionHandler).launch {
+            val testDelay = (experimentConfig.warmUp?.duration ?: 0) + (experimentConfig.steadyState?.duration ?: 0)
             val failureJobs =
                 async {
-                    experimentFailureService.setupExperimentFailure(testUUID, testVersion)
+                    experimentFailureService.setupExperimentFailure(testUUID, testVersion, testDelay)
                 }
 
             val workloadJobs =
                 async {
-                    experimentWorkloadService.executeWorkLoad(testUUID, testVersion)
+                    experimentWorkloadService.executeWorkLoad(testUUID, testVersion, experimentConfig.warmUp, experimentConfig.steadyState)
                 }
 
             logger.info { "Initialized experiment and waiting for registrations for testUUID: $testUUID and testVersion: $testVersion" }
 
-            0.until(6000).forEach { _ ->
+            0.until(6000 + testDelay).forEach { _ ->
                 if (registeredClients["$testUUID:$testVersion"]?.contains("gatling") == true &&
                     registeredClients["$testUUID:$testVersion"]?.contains("chaostoolkit") == true &&
                     registeredClients["$testUUID:$testVersion"]?.contains("misarchExperimentConfig") == true
                 ) {
                     registeredClients.remove("$testUUID:$testVersion")
+                    val experimentState =
+                        getExperimentStateCache(testUUID, testVersion)
+                            ?: throw IllegalStateException(
+                                "Experiment state not found for testUUID: $testUUID and testVersion: $testVersion",
+                            )
                     setExperimentStateCache(experimentState.copy(triggerState = STARTED, startTime = Instant.now().toString()))
                     return@forEach
                 }
@@ -116,6 +119,7 @@ class ExperimentExecutionService(
         testUUID: UUID,
         testVersion: String,
     ) {
+        // TODO a retry back-off would help because the container might not be there anymore
         coroutineScope {
             val failureJob = async { experimentFailureService.stopExperimentFailure(testUUID, testVersion) }
             val workLoadJob = async { experimentWorkloadService.stopWorkLoad(testUUID, testVersion) }
@@ -127,17 +131,30 @@ class ExperimentExecutionService(
         deleteExperimentStateCache(testUUID, testVersion)
     }
 
+    suspend fun finishSteadyState(
+        testUUID: UUID,
+        testVersion: String,
+        gatlingStatsJs: String,
+    ) {
+        val exceptionHandler = buildExceptionHandler(testUUID, testVersion)
+
+        CoroutineScope(Dispatchers.Default + exceptionHandler).launch {
+            val experimentState =
+                getExperimentStateCache(testUUID, testVersion)
+                    ?: throw IllegalStateException("Experiment state not found for testUUID: $testUUID and testVersion: $testVersion")
+
+            setExperimentStateCache(experimentState.copy(goals = extractGoals(gatlingStatsJs)))
+            logger.info { "Finished steady state analysis for testUUID: $testUUID and testVersion: $testVersion" }
+        }
+    }
+
     suspend fun finishExperiment(
         testUUID: UUID,
         testVersion: String,
         gatlingStatsJs: String,
         gatlingStatsHtml: String,
     ) {
-        val exceptionHandler =
-            CoroutineExceptionHandler { _, throwable ->
-                logger.error(throwable) { "Failed to finish experiment for testUUID: $testUUID and testVersion: $testVersion" }
-                asyncEventErrorHandler.handleError(testUUID, testVersion, throwable.message ?: "Unknown error")
-            }
+        val exceptionHandler = buildExceptionHandler(testUUID, testVersion)
 
         CoroutineScope(Dispatchers.Default + exceptionHandler).launch {
             val experimentState =
@@ -183,5 +200,16 @@ class ExperimentExecutionService(
         testVersion: String,
     ) {
         experimentStateCache.remove("$testUUID:$testVersion")
+    }
+
+    private fun buildExceptionHandler(
+        testUUID: UUID,
+        testVersion: String,
+    ) = CoroutineExceptionHandler { _, throwable ->
+        logger.error(throwable) { "Async failure for testUUID: $testUUID and testVersion: $testVersion" }
+        asyncEventErrorHandler.handleError(testUUID, testVersion, throwable.message ?: "Unknown error")
+        CoroutineScope(Dispatchers.Default).launch {
+            cancelExperiment(testUUID, testVersion)
+        }
     }
 }

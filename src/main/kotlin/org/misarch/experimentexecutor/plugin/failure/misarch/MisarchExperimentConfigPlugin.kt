@@ -11,6 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import org.misarch.experimentexecutor.config.MISARCH_EXPERIMENT_CONFIG_FILENAME
 import org.misarch.experimentexecutor.config.MISARCH_SERVICES
 import org.misarch.experimentexecutor.plugin.failure.FailurePluginInterface
@@ -35,6 +36,7 @@ class MisarchExperimentConfigPlugin(
     override suspend fun initializeFailure(
         testUUID: UUID,
         testVersion: String,
+        testDelay: Int,
     ) {
         coroutineScope {
             val testId = "$testUUID:$testVersion"
@@ -44,7 +46,7 @@ class MisarchExperimentConfigPlugin(
                     initiallyResetConfiguration()
                     registerPlugin(testUUID, testVersion)
                     var triggerState = checkTriggerState(testUUID, testVersion)
-                    0.until(6000).forEach { _ ->
+                    0.until(6000 + testDelay).forEach { _ ->
                         if (triggerState) {
                             return@forEach
                         }
@@ -149,13 +151,17 @@ class MisarchExperimentConfigPlugin(
         variable: String,
         bodyValue: Any,
     ) {
-        webClient
-            .put()
-            .uri("$misarchExperimentConfigHost/configuration/$component/variables/$variable")
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(bodyValue)
-            .retrieve()
-            .awaitBody<String>()
+        withRetries {
+            withTimeout(1500) {
+                webClient
+                    .put()
+                    .uri("$misarchExperimentConfigHost/configuration/$component/variables/$variable")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(bodyValue)
+                    .retrieve()
+                    .awaitBody<String>()
+            }
+        }
     }
 
     private suspend fun registerPlugin(

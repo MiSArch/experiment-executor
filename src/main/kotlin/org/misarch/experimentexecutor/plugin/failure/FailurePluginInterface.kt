@@ -6,6 +6,7 @@ interface FailurePluginInterface {
     suspend fun initializeFailure(
         testUUID: UUID,
         testVersion: String,
+        testDelay: Int,
     )
 
     suspend fun stopExperiment(

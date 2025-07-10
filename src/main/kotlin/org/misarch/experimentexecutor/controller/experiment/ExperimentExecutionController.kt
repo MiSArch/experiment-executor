@@ -81,4 +81,18 @@ class ExperimentExecutionController(
         val rawJs = test[1]
         experimentExecutionService.finishExperiment(testUUID, testVersion, rawJs, rawHtml)
     }
+
+    /**
+     * Collects Gatling metrics from Gatling's index.html and stats.js files transferred as concatenated plaintext strings, for the steady state phase.
+     */
+    @PostMapping("/experiment/{testUUID}/{testVersion}/gatling/metrics/steadyState")
+    private suspend fun collectGatingMetricsSteadyState(
+        @PathVariable testUUID: UUID,
+        @PathVariable testVersion: String,
+        @RequestBody data: String,
+    ) {
+        val test = data.split("\nSPLIT_HERE\n")
+        val rawJs = test[1]
+        experimentExecutionService.finishSteadyState(testUUID, testVersion, rawJs)
+    }
 }
