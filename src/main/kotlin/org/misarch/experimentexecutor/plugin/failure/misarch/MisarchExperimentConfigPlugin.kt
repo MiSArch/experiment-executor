@@ -153,13 +153,19 @@ class MisarchExperimentConfigPlugin(
     ) {
         withRetries {
             withTimeout(1500) {
-                webClient
-                    .put()
-                    .uri("$misarchExperimentConfigHost/configuration/$component/variables/$variable")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(bodyValue)
-                    .retrieve()
-                    .awaitBody<String>()
+                runCatching {
+                    webClient
+                        .put()
+                        .uri("$misarchExperimentConfigHost/configuration/$component/variables/$variable")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(bodyValue)
+                        .retrieve()
+                        .awaitBody<String>()
+                }.getOrElse {
+                    logger.warn {
+                        "Failed to configure variable $variable for component $component, this might impact the result: ${it.message}"
+                    }
+                }
             }
         }
     }
