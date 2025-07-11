@@ -49,7 +49,7 @@ fun buildChaosToolkitConfig(
         listOf(
             Action(
                 type = "action",
-                name = "kill-container",
+                name = "Kill Containers",
                 provider =
                     PythonProvider(
                         type = "python",
@@ -63,6 +63,79 @@ fun buildChaosToolkitConfig(
                                         "infrastructure-docker-gateway-dapr-1",
                                         "infrastructure-docker-gateway-ecs-1",
                                     ),
+                            ),
+                    ),
+                pauses =
+                    Pause(
+                        before = testDuration / 5,
+                        after = testDuration / 8,
+                    ),
+            ),
+            Action(
+                type = "action",
+                name = "Restart Containers",
+                provider =
+                    PythonProvider(
+                        type = "python",
+                        module = "misarch_chaostoolkit.chaostoolkit_docker",
+                        func = "start_containers",
+                        arguments =
+                            mapOf(
+                                "names" to
+                                    listOf(
+                                        "infrastructure-docker-gateway-1",
+                                        "infrastructure-docker-gateway-dapr-1",
+                                        "infrastructure-docker-gateway-ecs-1",
+                                    ),
+                            ),
+                    ),
+            ),
+        ),
+)
+
+fun buildChaosToolkitConfigKubernetes(
+    testUUID: UUID,
+    testVersion: String,
+    testDuration: Int,
+) = ChaosToolkitConfig(
+    title = "$testUUID:$testVersion",
+    description = "$testUUID:$testVersion",
+    steadyStateHypothesis =
+        SteadyStateHypothesis(
+            title = "Pod is running",
+            probes =
+                listOf(
+                    Probe(
+                        type = "probe",
+                        name = "Pod is running",
+                        tolerance = true,
+                        provider =
+                            PythonProvider(
+                                module = "chaosk8s.probes",
+                                func = "deployment_available_and_healthy",
+                                arguments =
+                                    mapOf(
+                                        "name" to "misarch-gateway",
+                                        "ns" to "misarch",
+                                    ),
+                            ),
+                    ),
+                ),
+        ),
+    method =
+        listOf(
+            Action(
+                type = "action",
+                name = "Kill Pods",
+                provider =
+                    PythonProvider(
+                        type = "python",
+                        module = "chaosk8s.pod.actions",
+                        func = "terminate_pods",
+                        arguments =
+                            mapOf(
+                                "label_selector" to "app=misarch-gateway",
+                                "ns" to "misarch",
                             ),
                     ),
                 pauses =

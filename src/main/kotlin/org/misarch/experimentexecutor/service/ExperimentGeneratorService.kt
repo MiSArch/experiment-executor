@@ -16,6 +16,7 @@ import org.misarch.experimentexecutor.model.GatlingLoadType
 import org.misarch.experimentexecutor.plugin.failure.chaostoolkit.model.ChaosToolkitConfig
 import org.misarch.experimentexecutor.plugin.workload.gatling.model.GatlingConfig
 import org.misarch.experimentexecutor.service.builders.buildChaosToolkitConfig
+import org.misarch.experimentexecutor.service.builders.buildChaosToolkitConfigKubernetes
 import org.misarch.experimentexecutor.service.builders.buildEmptyChaosToolkitConfig
 import org.misarch.experimentexecutor.service.builders.buildEmptyMisarchExperimentConfig
 import org.misarch.experimentexecutor.service.builders.buildExperimentConfig
@@ -32,6 +33,7 @@ private val logger = KotlinLogging.logger {}
 class ExperimentGeneratorService(
     @Value("\${experiment-executor.base-path}") private val basePath: String,
     @Value("\${experiment-executor.template-path}") private val templatePath: String,
+    @Value("\${experiment-executor.is-kubernetes}") private val isKubernetes: Boolean,
 ) {
     suspend fun generateExperiment(
         testName: String,
@@ -50,7 +52,11 @@ class ExperimentGeneratorService(
                     Triple(
                         generateRealisticGatlingConfigs(testDuration, maximumArrivingUsersPerSecond),
                         buildMisarchExperimentConfig(testDuration),
-                        buildChaosToolkitConfig(testUUID, testVersion, testDuration),
+                        if (isKubernetes) {
+                            buildChaosToolkitConfigKubernetes(testUUID, testVersion, testDuration)
+                        } else {
+                            buildChaosToolkitConfig(testUUID, testVersion, testDuration)
+                        },
                     )
                 }
 
@@ -74,7 +80,11 @@ class ExperimentGeneratorService(
                     Triple(
                         generateResilienceGatlingConfigs(testDuration, rate),
                         buildMisarchExperimentConfig(testDuration),
-                        buildChaosToolkitConfig(testUUID, testVersion, testDuration),
+                        if (isKubernetes) {
+                            buildChaosToolkitConfigKubernetes(testUUID, testVersion, testDuration)
+                        } else {
+                            buildChaosToolkitConfig(testUUID, testVersion, testDuration)
+                        },
                     )
                 }
             }
@@ -98,16 +108,38 @@ class ExperimentGeneratorService(
         val userStepsBuy = userSteps.map { if (it < 2) 0 else (it / 2).coerceAtLeast(0) }
         val userStepsAborted = userSteps.map { if (it < 2) it else (it / 2).coerceAtLeast(0) }
 
+        val workFileContentBuy =
+            File("$templatePath/${TEMPLATE_PREFIX}$GATLING_WORK_FILENAME_BUY").readText().let {
+                if (isKubernetes) {
+                    it
+                        .replace("http://gateway:8080", "http://misarch-gateway.misarch.svc.cluster.local:8080")
+                        .replace("http://keycloak:80", "http://keycloak.misarch.svc.cluster.local:80")
+                } else {
+                    it
+                }
+            }
+
+        val workFileContentAborted =
+            File("$templatePath/${TEMPLATE_PREFIX}$GATLING_WORK_FILENAME_ABORT").readText().let {
+                if (isKubernetes) {
+                    it
+                        .replace("http://gateway:8080", "http://misarch-gateway.misarch.svc.cluster.local:8080")
+                        .replace("http://keycloak:80", "http://keycloak.misarch.svc.cluster.local:80")
+                } else {
+                    it
+                }
+            }
+
         return listOf(
             GatlingConfig(
                 fileName = "buyProcessScenario",
                 userStepsFileContent = "usersteps\n" + userStepsBuy.joinToString("\n"),
-                workFileContent = File("$templatePath/${TEMPLATE_PREFIX}$GATLING_WORK_FILENAME_BUY").readText(),
+                workFileContent = workFileContentBuy,
             ),
             GatlingConfig(
                 fileName = "abortedBuyProcessScenario",
                 userStepsFileContent = "usersteps\n" + userStepsAborted.joinToString("\n"),
-                workFileContent = File("$templatePath/${TEMPLATE_PREFIX}$GATLING_WORK_FILENAME_ABORT").readText(),
+                workFileContent = workFileContentAborted,
             ),
         )
     }
