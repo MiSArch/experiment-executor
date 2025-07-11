@@ -144,25 +144,6 @@ fun buildChaosToolkitConfigKubernetes(
                         after = testDuration / 8,
                     ),
             ),
-            Action(
-                type = "action",
-                name = "restart-container",
-                provider =
-                    PythonProvider(
-                        type = "python",
-                        module = "misarch_chaostoolkit.chaostoolkit_docker",
-                        func = "start_containers",
-                        arguments =
-                            mapOf(
-                                "names" to
-                                    listOf(
-                                        "infrastructure-docker-gateway-1",
-                                        "infrastructure-docker-gateway-dapr-1",
-                                        "infrastructure-docker-gateway-ecs-1",
-                                    ),
-                            ),
-                    ),
-            ),
         ),
 )
 
