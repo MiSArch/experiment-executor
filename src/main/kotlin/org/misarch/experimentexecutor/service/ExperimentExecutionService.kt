@@ -73,6 +73,7 @@ class ExperimentExecutionService(
                 testVersion = testVersion,
                 triggerState = INITIALIZING,
                 goals = experimentConfig.goals,
+                factor = experimentConfig.steadyState?.factor ?: 1.0f,
             )
 
         setExperimentStateCache(newExperimentState)
@@ -143,7 +144,7 @@ class ExperimentExecutionService(
                 getExperimentStateCache(testUUID, testVersion)
                     ?: throw IllegalStateException("Experiment state not found for testUUID: $testUUID and testVersion: $testVersion")
 
-            setExperimentStateCache(experimentState.copy(goals = extractGoals(gatlingStatsJs)))
+            setExperimentStateCache(experimentState.copy(goals = extractGoals(gatlingStatsJs, experimentState.factor)))
             logger.info { "Finished steady state analysis for testUUID: $testUUID and testVersion: $testVersion" }
         }
     }

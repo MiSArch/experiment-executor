@@ -10,6 +10,7 @@ data class ExperimentState(
     val startTime: String? = null,
     val endTime: String? = null,
     val goals: List<Goal>,
+    val factor: Float,
 ) {
     enum class TriggerState {
         INITIALIZING,

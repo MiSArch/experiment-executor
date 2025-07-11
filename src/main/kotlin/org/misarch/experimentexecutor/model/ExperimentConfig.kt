@@ -31,4 +31,5 @@ data class WarmUp(
 data class SteadyState(
     val duration: Int,
     val rate: Int,
+    val factor: Float,
 )

@@ -74,7 +74,10 @@ fun extractActiveUsers(gatlingStatsHtml: String): Map<String, List<Pair<Long, In
         }.toMap()
 }
 
-fun extractGoals(gatlingStatsJs: String): List<Goal> {
+fun extractGoals(
+    gatlingStatsJs: String,
+    factor: Float,
+): List<Goal> {
     val parsedStats = parseGatlingResponseTimeStats(gatlingStatsJs)
     return labelToStatsAttribute
         .filter { (metric, _) -> !metric.startsWith("number") }
@@ -96,7 +99,7 @@ fun extractGoals(gatlingStatsJs: String): List<Goal> {
             value?.let {
                 Goal(
                     metric = metric,
-                    threshold = ((it.toFloatOrNull() ?: 0.0F) * 1.5F).toInt().toString(),
+                    threshold = ((it.toFloatOrNull() ?: 0.0F) * factor).toInt().toString(),
                     color = "red",
                 )
             }
