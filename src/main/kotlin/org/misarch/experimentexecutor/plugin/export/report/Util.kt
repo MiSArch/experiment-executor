@@ -6,6 +6,7 @@ import org.misarch.experimentexecutor.config.GATLING_RESPONSE_TIME_STATS_FILENAM
 import org.misarch.experimentexecutor.model.Goal
 import org.misarch.experimentexecutor.plugin.export.report.model.GoalViolation
 import org.misarch.experimentexecutor.plugin.metrics.gatling.model.GatlingStats
+import org.misarch.experimentexecutor.plugin.metrics.gatling.parseGatlingResponseTimeStats
 import java.io.File
 
 suspend fun checkGoalViolations(
@@ -33,9 +34,9 @@ suspend fun checkGoalViolations(
                             field
                         }
                     } as? String ?: return@mapNotNull null
-            ).toFloat().toInt()
+            ).toFloat()
 
-        if (goal.threshold.toInt() < value) {
+        if (goal.threshold.toFloat() < value) {
             GoalViolation(
                 metricName = goal.metric,
                 threshold = goal.threshold,
@@ -47,18 +48,47 @@ suspend fun checkGoalViolations(
     }
 }
 
+fun extractGoals(
+    gatlingStatsJs: String,
+    factor: Float,
+): List<Goal> {
+    val parsedStats = parseGatlingResponseTimeStats(gatlingStatsJs)
+    return labelToStatsAttribute
+        .mapNotNull { (metric, statsAttribute) ->
+            val value =
+                parsedStats.stats::class
+                    .members
+                    .firstOrNull { it.name == statsAttribute.substringBefore('.') }
+                    ?.call(parsedStats.stats)
+                    ?.let { field ->
+                        val subField = statsAttribute.substringAfter('.', "")
+                        if (subField.isNotEmpty()) {
+                            val finalValue = field::class.members.firstOrNull { it.name == subField }?.call(field)
+                            (finalValue as? String)?.toDoubleOrNull() ?: (finalValue as? Double) ?: 0.0
+                        } else {
+                            (field as? String)?.toDoubleOrNull() ?: (field as? Double) ?: 0.0
+                        }
+                    }
+
+            value?.let {
+                val f = if (metric.startsWith("percentage")) 1.0F else factor
+                Goal(
+                    metric = metric,
+                    threshold = (it * f).toString(),
+                    color = "red",
+                )
+            }
+        }
+}
+
 val labelToStatsAttribute =
     mapOf(
-        "number reqs with resp. time t < 800 ms" to "group1.count",
-        "number reqs with resp. time t < 800 ms < t < 1200 ms" to "group2.count",
-        "number reqs with resp. time t > 1200 ms" to "group3.count",
-        "number failed requests" to "group4.count",
-        "number of requests total" to "numberOfRequests.total",
-        "number of requests total ok" to "numberOfRequests.ok",
-        "number of requests total ko" to "numberOfRequests.ko",
-        "mean requests/sec" to "meanNumberOfRequestsPerSecond.total",
-        "mean requests/sec ok" to "meanNumberOfRequestsPerSecond.ok",
-        "mean requests/sec ko" to "meanNumberOfRequestsPerSecond.ko",
+        "percentage reqs with resp. time t < 800 ms" to "group1.percentage",
+        "percentage reqs with resp. time 800 ms < t < 1200 ms" to "group2.percentage",
+        "percentage reqs with resp. time t > 1200 ms" to "group3.percentage",
+        "percentage failed requests" to "group4.percentage",
+        "percentage mean requests/sec ok" to "percentageMeanNumberOfRequestsPerSecond.ok",
+        "percentage mean requests/sec ko" to "percentageMeanNumberOfRequestsPerSecond.ko",
         "min response time" to "minResponseTime.total",
         "mean response time" to "meanResponseTime.total",
         "max response time" to "maxResponseTime.total",

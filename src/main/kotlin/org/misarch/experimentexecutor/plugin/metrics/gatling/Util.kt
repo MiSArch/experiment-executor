@@ -2,8 +2,6 @@ package org.misarch.experimentexecutor.plugin.metrics.gatling
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.misarch.experimentexecutor.model.Goal
-import org.misarch.experimentexecutor.plugin.export.report.labelToStatsAttribute
 import org.misarch.experimentexecutor.plugin.metrics.gatling.model.GatlingStats
 import java.util.UUID
 import kotlin.collections.component1
@@ -74,38 +72,6 @@ fun extractActiveUsers(gatlingStatsHtml: String): Map<String, List<Pair<Long, In
         }.toMap()
 }
 
-fun extractGoals(
-    gatlingStatsJs: String,
-    factor: Float,
-): List<Goal> {
-    val parsedStats = parseGatlingResponseTimeStats(gatlingStatsJs)
-    return labelToStatsAttribute
-        .filter { (metric, _) -> !metric.startsWith("number") }
-        .mapNotNull { (metric, statsAttribute) ->
-            val value =
-                parsedStats.stats::class
-                    .members
-                    .firstOrNull { it.name == statsAttribute.substringBefore('.') }
-                    ?.call(parsedStats.stats)
-                    ?.let { field ->
-                        val subField = statsAttribute.substringAfter('.', "")
-                        if (subField.isNotEmpty()) {
-                            field::class.members.firstOrNull { it.name == subField }?.call(field)
-                        } else {
-                            field
-                        }
-                    } as? String
-
-            value?.let {
-                Goal(
-                    metric = metric,
-                    threshold = ((it.toFloatOrNull() ?: 0.0F) * factor).toInt().toString(),
-                    color = "red",
-                )
-            }
-        }.filter { it.threshold != "0" }
-}
-
 fun Map<Long, Int>.toLineProtocolOkKo(
     metricName: String,
     testUUID: UUID,
@@ -147,8 +113,14 @@ fun GatlingStats.buildGatlingGauges(suffix: String = "") =
         "meanNumberOfRequestsPerSecondTotal$suffix" to stats.meanNumberOfRequestsPerSecond.total.toDoubleOrNull(),
         "meanNumberOfRequestsPerSecondOk$suffix" to stats.meanNumberOfRequestsPerSecond.ok.toDoubleOrNull(),
         "meanNumberOfRequestsPerSecondKo$suffix" to stats.meanNumberOfRequestsPerSecond.ko.toDoubleOrNull(),
+        "percentageMeanNumberOfRequestsPerSecondOk$suffix" to stats.percentageMeanNumberOfRequestsPerSecond.ok,
+        "percentageMeanNumberOfRequestsPerSecondKo$suffix" to stats.percentageMeanNumberOfRequestsPerSecond.ko,
         "group1Count$suffix" to stats.group1.count.toDouble(),
+        "group1Percentage$suffix" to stats.group1.percentage,
         "group2Count$suffix" to stats.group2.count.toDouble(),
+        "group2Percentage$suffix" to stats.group2.percentage,
         "group3Count$suffix" to stats.group3.count.toDouble(),
+        "group3Percentage$suffix" to stats.group3.percentage,
         "group4Count$suffix" to stats.group4.count.toDouble(),
+        "group4Percentage$suffix" to stats.group4.percentage,
     )

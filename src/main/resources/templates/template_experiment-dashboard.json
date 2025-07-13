@@ -219,7 +219,68 @@
         },
         "gridPos": {
           "h": 2,
-          "w": 7,
+          "w": 6,
+          "x": 18,
+          "y": 1
+        },
+        "id": 48,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group1Percentage\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group1Percentage\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "percentage reqs with resp. time t < 800 ms",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 6,
           "x": 12,
           "y": 3
         },
@@ -280,7 +341,68 @@
         },
         "gridPos": {
           "h": 2,
-          "w": 8,
+          "w": 6,
+          "x": 18,
+          "y": 3
+        },
+        "id": 49,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group2Percentage\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group2Percentage\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "percentage reqs with resp. time 800 ms < t < 1200 ms",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 6,
           "x": 12,
           "y": 5
         },
@@ -341,7 +463,68 @@
         },
         "gridPos": {
           "h": 2,
-          "w": 9,
+          "w": 6,
+          "x": 18,
+          "y": 5
+        },
+        "id": 50,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group3Percentage\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group3Percentage\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "percentage reqs with resp. time t > 1200 ms",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 6,
           "x": 12,
           "y": 7
         },
@@ -375,6 +558,67 @@
           }
         ],
         "title": "number failed requests",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 6,
+          "x": 18,
+          "y": 7
+        },
+        "id": 51,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group4Percentage\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"group4Percentage\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "percentage failed requests",
         "type": "stat"
       },
       {
@@ -590,11 +834,11 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentageMeanNumberOfRequestsPerSecondOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentageMeanNumberOfRequestsPerSecondOk\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
             "refId": "A"
           }
         ],
-        "title": "mean requests/sec ok",
+        "title": "percentage mean requests/sec ok",
         "type": "stat"
       },
       {
@@ -651,11 +895,11 @@
               "type": "influxdb",
               "uid": "influxdb_uid"
             },
-            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"meanNumberOfRequestsPerSecondKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentageMeanNumberOfRequestsPerSecondKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentageMeanNumberOfRequestsPerSecondKo\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
             "refId": "A"
           }
         ],
-        "title": "mean requests/sec ko",
+        "title": "percentage mean requests/sec ko",
         "type": "stat"
       },
       {

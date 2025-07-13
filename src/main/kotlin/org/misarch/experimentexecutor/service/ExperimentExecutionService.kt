@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import org.misarch.experimentexecutor.controller.experiment.AsyncEventErrorHandler
 import org.misarch.experimentexecutor.controller.experiment.AsyncEventResponder
 import org.misarch.experimentexecutor.model.ExperimentConfig
-import org.misarch.experimentexecutor.plugin.metrics.gatling.extractGoals
+import org.misarch.experimentexecutor.plugin.export.report.extractGoals
 import org.misarch.experimentexecutor.service.model.ExperimentState
 import org.misarch.experimentexecutor.service.model.ExperimentState.TriggerState.COMPLETED
 import org.misarch.experimentexecutor.service.model.ExperimentState.TriggerState.INITIALIZING
@@ -144,7 +144,8 @@ class ExperimentExecutionService(
                 getExperimentStateCache(testUUID, testVersion)
                     ?: throw IllegalStateException("Experiment state not found for testUUID: $testUUID and testVersion: $testVersion")
 
-            setExperimentStateCache(experimentState.copy(goals = extractGoals(gatlingStatsJs, experimentState.factor)))
+            val goals = extractGoals(gatlingStatsJs, experimentState.factor)
+            setExperimentStateCache(experimentState.copy(goals = goals))
             logger.info { "Finished steady state analysis for testUUID: $testUUID and testVersion: $testVersion" }
         }
     }

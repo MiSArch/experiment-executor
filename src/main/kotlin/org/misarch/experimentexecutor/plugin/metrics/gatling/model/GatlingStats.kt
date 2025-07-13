@@ -1,5 +1,6 @@
 package org.misarch.experimentexecutor.plugin.metrics.gatling.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class GatlingStats(
@@ -26,7 +27,16 @@ data class GatlingStats(
         @JsonProperty("group3") val group3: NameHtmlCountPercentage,
         @JsonProperty("group4") val group4: NameHtmlCountPercentage,
         @JsonProperty("meanNumberOfRequestsPerSecond") val meanNumberOfRequestsPerSecond: TotalOkKo,
-    )
+    ) {
+        @get:JsonIgnore
+        val percentageMeanNumberOfRequestsPerSecond: TotalOkKo
+            get() =
+                TotalOkKo(
+                    total = "1.0",
+                    ok = calculatePercentageMeanNumberOfRequestsPerSecondOk()?.toString() ?: "0.0",
+                    ko = calculatePercentageMeanNumberOfRequestsPerSecondKo()?.toString() ?: "0.0",
+                )
+    }
 }
 
 data class TotalOkKo(
@@ -41,3 +51,15 @@ data class NameHtmlCountPercentage(
     @JsonProperty("count") val count: Int,
     @JsonProperty("percentage") val percentage: Double,
 )
+
+fun GatlingStats.Stats.calculatePercentageMeanNumberOfRequestsPerSecondOk(): Double? {
+    val total = meanNumberOfRequestsPerSecond.total.toDoubleOrNull() ?: return null
+    val ok = meanNumberOfRequestsPerSecond.ok.toDoubleOrNull() ?: return null
+    return if (total == 0.0) 0.0 else (ok / total) * 100
+}
+
+fun GatlingStats.Stats.calculatePercentageMeanNumberOfRequestsPerSecondKo(): Double? {
+    val total = meanNumberOfRequestsPerSecond.total.toDoubleOrNull() ?: return null
+    val ko = meanNumberOfRequestsPerSecond.ko.toDoubleOrNull() ?: return null
+    return if (total == 0.0) 0.0 else (ko / total) * 100
+}
