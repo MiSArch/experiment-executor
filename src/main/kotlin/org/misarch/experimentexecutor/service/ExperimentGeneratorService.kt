@@ -108,27 +108,8 @@ class ExperimentGeneratorService(
         val userStepsBuy = userSteps.map { if (it < 2) 0 else (it / 2).coerceAtLeast(0) }
         val userStepsAborted = userSteps.map { if (it < 2) it else (it / 2).coerceAtLeast(0) }
 
-        val workFileContentBuy =
-            File("$templatePath/${TEMPLATE_PREFIX}$GATLING_WORK_FILENAME_BUY").readText().let {
-                if (isKubernetes) {
-                    it
-                        .replace("http://gateway:8080", "http://misarch-gateway.misarch.svc.cluster.local:8080")
-                        .replace("http://keycloak:80", "http://keycloak.misarch.svc.cluster.local:80")
-                } else {
-                    it
-                }
-            }
-
-        val workFileContentAborted =
-            File("$templatePath/${TEMPLATE_PREFIX}$GATLING_WORK_FILENAME_ABORT").readText().let {
-                if (isKubernetes) {
-                    it
-                        .replace("http://gateway:8080", "http://misarch-gateway.misarch.svc.cluster.local:8080")
-                        .replace("http://keycloak:80", "http://keycloak.misarch.svc.cluster.local:80")
-                } else {
-                    it
-                }
-            }
+        val workFileContentBuy = getWorkFlowContentBuy()
+        val workFileContentAborted = getWorkFlowContentAborted()
 
         return listOf(
             GatlingConfig(
@@ -149,11 +130,12 @@ class ExperimentGeneratorService(
         rate: Float,
     ): List<GatlingConfig> {
         val userSteps = List(testDuration) { step -> (step * rate).toInt().coerceAtLeast(1) }
+        val workFileContent = getWorkFlowContentBuy()
         return listOf(
             GatlingConfig(
                 fileName = "buyProcessScenario",
                 userStepsFileContent = "usersteps\n" + userSteps.joinToString("\n"),
-                workFileContent = File("$templatePath/${TEMPLATE_PREFIX}$GATLING_WORK_FILENAME_BUY").readText(),
+                workFileContent = workFileContent,
             ),
         )
     }
@@ -165,11 +147,12 @@ class ExperimentGeneratorService(
         val growth = List(size = testDuration / 6) { step -> (step * rate).toInt().coerceAtLeast(1) }
         val decay = List(size = testDuration / 6) { 1 }
         val userSteps = growth + decay + growth + decay + growth + decay
+        val workFileContent = getWorkFlowContentBuy()
         return listOf(
             GatlingConfig(
                 fileName = "buyProcessScenario",
                 userStepsFileContent = "usersteps\n" + userSteps.joinToString("\n"),
-                workFileContent = File("$templatePath/${TEMPLATE_PREFIX}$GATLING_WORK_FILENAME_BUY").readText(),
+                workFileContent = workFileContent,
             ),
         )
     }
@@ -189,10 +172,11 @@ class ExperimentGeneratorService(
         val userSteps = growth + decay + spikeUp + spikeDown + lowPlateau + highPlateau + final
 
         return listOf(GATLING_WORK_FILENAME_BUY, GATLING_WORK_FILENAME_ABORT).map { scenarioName ->
+            val workFileContent = if (scenarioName == GATLING_WORK_FILENAME_BUY) getWorkFlowContentBuy() else getWorkFlowContentAborted()
             GatlingConfig(
                 fileName = scenarioName.substringBefore("."),
                 userStepsFileContent = "usersteps\n" + userSteps.joinToString("\n"),
-                workFileContent = File("$templatePath/${TEMPLATE_PREFIX}$scenarioName").readText(),
+                workFileContent = workFileContent,
             )
         }
     }
@@ -223,4 +207,26 @@ class ExperimentGeneratorService(
             File("$experimentDir/${config.fileName}.csv").writeText(config.userStepsFileContent)
         }
     }
+
+    private fun getWorkFlowContentBuy(): String =
+        File("$templatePath/${TEMPLATE_PREFIX}$GATLING_WORK_FILENAME_BUY").readText().let {
+            if (isKubernetes) {
+                it
+                    .replace("http://gateway:8080", "http://misarch-gateway.misarch.svc.cluster.local:8080")
+                    .replace("http://keycloak:80", "http://keycloak.misarch.svc.cluster.local:80")
+            } else {
+                it
+            }
+        }
+
+    private fun getWorkFlowContentAborted(): String =
+        File("$templatePath/${TEMPLATE_PREFIX}$GATLING_WORK_FILENAME_ABORT").readText().let {
+            if (isKubernetes) {
+                it
+                    .replace("http://gateway:8080", "http://misarch-gateway.misarch.svc.cluster.local:8080")
+                    .replace("http://keycloak:80", "http://keycloak.misarch.svc.cluster.local:80")
+            } else {
+                it
+            }
+        }
 }
