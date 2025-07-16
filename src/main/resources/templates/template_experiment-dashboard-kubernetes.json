@@ -83,8 +83,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -148,8 +147,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -209,8 +207,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -270,8 +267,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -331,8 +327,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -392,8 +387,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -453,8 +447,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -514,8 +507,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -575,8 +567,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -669,8 +660,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -734,8 +724,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -795,8 +784,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -856,8 +844,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -917,8 +904,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -979,8 +965,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1041,8 +1026,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1103,8 +1087,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1165,8 +1148,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1227,8 +1209,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1289,8 +1270,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1351,8 +1331,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1413,8 +1392,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1461,12 +1439,744 @@
         "type": "stat"
       },
       {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 5,
+          "x": 1,
+          "y": 17
+        },
+        "id": 52,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles1\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles1\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "50th percentile response time",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 6,
+          "x": 6,
+          "y": 17
+        },
+        "id": 53,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles2\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles2\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "75th percentile response time",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 6,
+          "x": 12,
+          "y": 17
+        },
+        "id": 54,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles3\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles3\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "95th percentile response time",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 6,
+          "x": 18,
+          "y": 17
+        },
+        "id": 55,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles4\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles4\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "99th percentile response time",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 5,
+          "x": 1,
+          "y": 19
+        },
+        "id": 56,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles1Ok\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles1Ok\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "50th percentile response time ok",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 6,
+          "x": 6,
+          "y": 19
+        },
+        "id": 57,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles2Ok\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles2Ok\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "75th percentile response time ok",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 6,
+          "x": 12,
+          "y": 19
+        },
+        "id": 58,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles3Ok\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles3Ok\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "95th percentile response time ok",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 6,
+          "x": 18,
+          "y": 19
+        },
+        "id": 59,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles4Ok\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles4Ok\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "99th percentile response time ok",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 5,
+          "x": 1,
+          "y": 21
+        },
+        "id": 60,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles1Ko\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles1Ko\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "50th percentile response time ko",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 6,
+          "x": 6,
+          "y": 21
+        },
+        "id": 61,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles2Ko\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles2Ko\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "75th percentile response time ko",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 6,
+          "x": 12,
+          "y": 21
+        },
+        "id": 62,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles3Ko\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles3Ko\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "95th percentile response time ko",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_uid"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 6,
+          "x": 18,
+          "y": 21
+        },
+        "id": 63,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "11.5.2",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "influxdb_uid"
+            },
+            "query": "current = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles4Ko\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\")\n  |> aggregateWindow(every: 1m, fn: last)\n  |> last()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"Now\" }))\n\nshifted = from(bucket: \"gatling\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"percentiles4Ko\")\n  |> filter(fn: (r) => r.testUUID == \"${testUUID}\")\n  |> filter(fn: (r) => r.testVersion == \"${testVersion}\") \n  |> timeShift(duration: ${timeShift})\n  |> aggregateWindow(every: 1m, fn: first)\n  |> first()\n  |> map(fn: (r) => ({ _time: r._time, _value: r._value, label: \"${timeShift} ago\" }))\n\nunion(tables: [current, shifted])\n  |> group(columns: [\"label\"])\n",
+            "refId": "A"
+          }
+        ],
+        "title": "99th percentile response time ko",
+        "type": "stat"
+      },
+      {
         "collapsed": false,
         "gridPos": {
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 17
+          "y": 23
         },
         "id": 46,
         "panels": [],
@@ -1482,7 +2192,7 @@
           "h": 8,
           "w": 12,
           "x": 1,
-          "y": 18
+          "y": 24
         },
         "id": 47,
         "options": {
@@ -1504,7 +2214,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 26
+          "y": 32
         },
         "id": 41,
         "panels": [],
@@ -1526,8 +2236,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -1538,7 +2247,7 @@
           "h": 2,
           "w": 4,
           "x": 1,
-          "y": 27
+          "y": 33
         },
         "id": 28,
         "options": {
@@ -1587,8 +2296,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1600,7 +2308,7 @@
           "h": 2,
           "w": 4,
           "x": 5,
-          "y": 27
+          "y": 33
         },
         "id": 26,
         "options": {
@@ -1649,8 +2357,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1662,7 +2369,7 @@
           "h": 2,
           "w": 4,
           "x": 9,
-          "y": 27
+          "y": 33
         },
         "id": 25,
         "options": {
@@ -1711,8 +2418,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1724,7 +2430,7 @@
           "h": 2,
           "w": 4,
           "x": 13,
-          "y": 27
+          "y": 33
         },
         "id": 24,
         "options": {
@@ -1773,8 +2479,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -1785,7 +2490,7 @@
           "h": 2,
           "w": 4,
           "x": 1,
-          "y": 29
+          "y": 35
         },
         "id": 34,
         "options": {
@@ -1834,8 +2539,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1847,7 +2551,7 @@
           "h": 2,
           "w": 4,
           "x": 5,
-          "y": 29
+          "y": 35
         },
         "id": 27,
         "options": {
@@ -1896,8 +2600,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1909,7 +2612,7 @@
           "h": 2,
           "w": 4,
           "x": 9,
-          "y": 29
+          "y": 35
         },
         "id": 29,
         "options": {
@@ -1958,8 +2661,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -1971,7 +2673,7 @@
           "h": 2,
           "w": 4,
           "x": 13,
-          "y": 29
+          "y": 35
         },
         "id": 31,
         "options": {
@@ -2020,8 +2722,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -2032,7 +2733,7 @@
           "h": 2,
           "w": 4,
           "x": 1,
-          "y": 31
+          "y": 37
         },
         "id": 35,
         "options": {
@@ -2081,8 +2782,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -2094,7 +2794,7 @@
           "h": 2,
           "w": 4,
           "x": 5,
-          "y": 31
+          "y": 37
         },
         "id": 33,
         "options": {
@@ -2143,8 +2843,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -2156,7 +2855,7 @@
           "h": 2,
           "w": 4,
           "x": 9,
-          "y": 31
+          "y": 37
         },
         "id": 30,
         "options": {
@@ -2205,8 +2904,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -2218,7 +2916,7 @@
           "h": 2,
           "w": 4,
           "x": 13,
-          "y": 31
+          "y": 37
         },
         "id": 32,
         "options": {
@@ -2258,7 +2956,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 33
+          "y": 39
         },
         "id": 9,
         "panels": [],
@@ -2314,8 +3012,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -2326,7 +3023,7 @@
           "h": 8,
           "w": 11,
           "x": 1,
-          "y": 34
+          "y": 40
         },
         "id": 1,
         "interval": "1s",
@@ -2420,8 +3117,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -2433,7 +3129,7 @@
           "h": 8,
           "w": 11,
           "x": 12,
-          "y": 34
+          "y": 40
         },
         "id": 3,
         "options": {
@@ -2531,8 +3227,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -2544,7 +3239,7 @@
           "h": 8,
           "w": 11,
           "x": 1,
-          "y": 42
+          "y": 48
         },
         "id": 44,
         "options": {
@@ -2628,8 +3323,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -2641,7 +3335,7 @@
           "h": 8,
           "w": 11,
           "x": 12,
-          "y": 42
+          "y": 48
         },
         "id": 6,
         "options": {
@@ -2725,8 +3419,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -2737,7 +3430,7 @@
           "h": 8,
           "w": 11,
           "x": 1,
-          "y": 50
+          "y": 56
         },
         "id": 7,
         "options": {
@@ -2829,8 +3522,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             }
@@ -2841,7 +3533,7 @@
           "h": 8,
           "w": 11,
           "x": 12,
-          "y": 50
+          "y": 56
         },
         "id": 45,
         "options": {
@@ -2930,8 +3622,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -2943,7 +3634,7 @@
           "h": 8,
           "w": 11,
           "x": 1,
-          "y": 58
+          "y": 64
         },
         "id": 11,
         "options": {
@@ -3027,8 +3718,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -3040,7 +3730,7 @@
           "h": 8,
           "w": 11,
           "x": 12,
-          "y": 58
+          "y": 64
         },
         "id": 12,
         "options": {
@@ -3124,8 +3814,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -3137,7 +3826,7 @@
           "h": 8,
           "w": 11,
           "x": 1,
-          "y": 66
+          "y": 72
         },
         "id": 10,
         "options": {
@@ -3229,8 +3918,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
-                  "value": null
+                  "color": "green"
                 }
               ]
             },
@@ -3242,7 +3930,7 @@
           "h": 8,
           "w": 11,
           "x": 12,
-          "y": 66
+          "y": 72
         },
         "id": 5,
         "options": {
