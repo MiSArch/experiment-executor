@@ -4151,9 +4151,14 @@
               "selected": false,
               "text": "paymentinformat",
               "value": "paymentinformat"
+            },
+            {
+              "selected": false,
+              "text": "address",
+              "value": "address"
             }
           ],
-          "query": "createordermuta, createshoppingc, placeordermutat, product, products, shipmentmethods, users, paymentinformat",
+          "query": "createordermuta, createshoppingc, placeordermutat, product, products, shipmentmethods, users, paymentinformat, address",
           "type": "custom"
         },
         {

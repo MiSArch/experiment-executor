@@ -113,7 +113,7 @@ val buyProcessScenario = scenario("buyProcessScenario")
         http("createOrderMutation").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}").body(StringBody("#{createOrderMutation}"))
             .check(jsonPath("$.data.createOrder.id").saveAs("createOrderId"))
     )
-    .pause(Duration.ofMillis(2000), Duration.ofMillis(5000))
+    .pause(Duration.ofMillis(8000), Duration.ofMillis(12000))
     .exec { session ->
         val createOrderId = session.getString("createOrderId")
         session.set(

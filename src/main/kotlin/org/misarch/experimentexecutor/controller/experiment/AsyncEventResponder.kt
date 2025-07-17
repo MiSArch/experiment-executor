@@ -51,7 +51,7 @@ class AsyncEventResponder(
     ) {
         val key = "$testUUID:$testVersion"
         val eventSink = eventEmitters[key]
-        eventSink?.next("http://localhost:3001/d/$testUUID-$testVersion")
+        eventSink?.next("https://misarch-experiment.gropius.dev/d/$testUUID-$testVersion")
         eventEmitters.remove(key)
     }
 }
