@@ -43,14 +43,24 @@ val buyProcessScenario = scenario("buyProcessScenario")
     .pause(Duration.ofMillis(50), Duration.ofMillis(150))
     .exec { session ->
         session.set(
-            "usersQuery",
-            "{ \"query\": \"query { users(first: 10, orderBy: { direction: ASC, field: ID }, skip: 0) { hasNextPage nodes {  id  birthday dateJoined gender username addresses { nodes { id } } } } }\" }"
+            "userQuery",
+            "{ \"query\": \"query getCurrentUser { currentUser { id } }\" }"
         )
     }
     .exec(
-        http("users").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}").body(StringBody("#{usersQuery}"))
-            .check(jsonPath("$.data.users.nodes[0].addresses.nodes[0].id").saveAs("addressId"))
-            .check(jsonPath("$.data.users.nodes[0].id").saveAs("userId"))
+        http("users").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}").body(StringBody("#{userQuery}"))
+            .check(jsonPath("$.data.currentUser.id").saveAs("userId"))
+    )
+    .pause(Duration.ofMillis(50), Duration.ofMillis(150))
+    .exec { session ->
+        session.set(
+            "addressQuery",
+            "{ \"query\": \"query getActiveAddressesOfCurrentUser(\$orderBy: UserAddressOrderInput = {}) { currentUser { addresses(orderBy: \$orderBy, filter: { isArchived: false }) { totalCount nodes { id city companyName country name { firstName lastName } postalCode street1 street2 } } } }\" }"
+        )
+    }
+    .exec(
+        http("address").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}").body(StringBody("#{addressQuery}"))
+            .check(jsonPath("$.data.currentUser.addresses.nodes[0].id").saveAs("addressId"))
     )
     .pause(Duration.ofMillis(50), Duration.ofMillis(150))
     .exec { session ->
@@ -62,15 +72,14 @@ val buyProcessScenario = scenario("buyProcessScenario")
         )
     }
     .exec(
-        http("createShoppingcartItemMutation").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}")
-            .body(StringBody("#{createShoppingcartItemMutation}"))
+        http("createShoppingcartItemMutation").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}").body(StringBody("#{createShoppingcartItemMutation}"))
             .check(jsonPath("$.data.createShoppingcartItem.id").saveAs("createShoppingcartItemId"))
     )
     .pause(Duration.ofMillis(4000), Duration.ofMillis(7000))
     .exec { session ->
         session.set(
             "shipmentMethodsQuery",
-            "{ \"query\": \"query { shipmentMethods { totalCount nodes { id name baseFees description feesPerItem feesPerKg } } }\" }",
+            "{ \"query\": \"query getShipmentMethods(\$isArchived: Boolean = false) { shipmentMethods(filter: { isArchived: \$isArchived }) { totalCount nodes { id baseFees description feesPerItem feesPerKg name } } } \" }",
         )
     }
     .exec(
@@ -81,13 +90,12 @@ val buyProcessScenario = scenario("buyProcessScenario")
     .exec { session ->
         session.set(
             "paymentInformationsQuery",
-            "{ \"query\": \"query { paymentInformations { nodes { id paymentMethod publicMethodDetails payments { nodes { id status totalAmount numberOfRetries payedAt } } } } }\" }",
+            "{ \"query\": \"query getPaymentInformationOfCurrentUser(\$paymentMethod: PaymentMethod) { currentUser { id paymentInformations(filter:{ paymentMethod: \$paymentMethod }) { totalCount nodes { id paymentMethod publicMethodDetails } } } }\" }",
         )
     }
     .exec(
-        http("paymentInformationsQuery").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}")
-            .body(StringBody("#{paymentInformationsQuery}"))
-            .check(jsonPath("$.data.paymentInformations.nodes[0].id").saveAs("paymentInformationId"))
+        http("paymentInformationsQuery").post("#{targetUrl}").header("Content-Type", "application/json").header("Authorization", "Bearer #{accessToken}").body(StringBody("#{paymentInformationsQuery}"))
+            .check(jsonPath("$.data.currentUser.paymentInformations.nodes[0].id").saveAs("paymentInformationId"))
     )
     .pause(Duration.ofMillis(4000), Duration.ofMillis(7000))
     .exec { session ->
