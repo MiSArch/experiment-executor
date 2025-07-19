@@ -27,3 +27,4 @@ experiment-executor:
   is-kubernetes: ${IS_KUBERNETES}
   cors-origins:
     - "http://localhost:5173"
+    - "https://misarch-experiment.gropius.dev"
