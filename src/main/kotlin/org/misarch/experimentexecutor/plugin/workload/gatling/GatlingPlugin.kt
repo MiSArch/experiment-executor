@@ -2,9 +2,11 @@ package org.misarch.experimentexecutor.plugin.workload.gatling
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.withTimeout
 import org.misarch.experimentexecutor.controller.experiment.model.EncodedFileDTO
 import org.misarch.experimentexecutor.model.SteadyState
 import org.misarch.experimentexecutor.model.WarmUp
+import org.misarch.experimentexecutor.plugin.failure.misarch.withRetries
 import org.misarch.experimentexecutor.plugin.workload.WorkloadPluginInterface
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
@@ -48,22 +50,26 @@ class GatlingPlugin(
                 )
             }
 
-        webClient
-            .post()
-            .uri(
-                "$gatlingExecutorHost/start-experiment" +
-                    "?testUUID=$testUUID" +
-                    "&testVersion=$testVersion" +
-                    "&warmUp=${(warmUp != null)}" +
-                    "&warmUpRate=${warmUp?.rate ?: 0}" +
-                    "&warmUpDuration=${warmUp?.duration ?: 0}" +
-                    "&steadyState=${(steadyState != null)}" +
-                    "&steadyStateRate=${steadyState?.rate ?: 0}" +
-                    "&steadyStateDuration=${steadyState?.duration ?: 0}",
-            ).bodyValue(gatlingConfigs)
-            .retrieve()
-            .toBodilessEntity()
-            .awaitSingle()
+        withRetries(maxRetries = 6, initialDelayMillis = 500) {
+            withTimeout(1500) {
+                webClient
+                    .post()
+                    .uri(
+                        "$gatlingExecutorHost/start-experiment" +
+                            "?testUUID=$testUUID" +
+                            "&testVersion=$testVersion" +
+                            "&warmUp=${(warmUp != null)}" +
+                            "&warmUpRate=${warmUp?.rate ?: 0}" +
+                            "&warmUpDuration=${warmUp?.duration ?: 0}" +
+                            "&steadyState=${(steadyState != null)}" +
+                            "&steadyStateRate=${steadyState?.rate ?: 0}" +
+                            "&steadyStateDuration=${steadyState?.duration ?: 0}",
+                    ).bodyValue(gatlingConfigs)
+                    .retrieve()
+                    .toBodilessEntity()
+                    .awaitSingle()
+            }
+        }
     }
 
     override suspend fun stopWorkLoad(

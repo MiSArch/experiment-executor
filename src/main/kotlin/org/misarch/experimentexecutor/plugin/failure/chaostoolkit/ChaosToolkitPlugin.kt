@@ -2,8 +2,10 @@ package org.misarch.experimentexecutor.plugin.failure.chaostoolkit
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.withTimeout
 import org.misarch.experimentexecutor.config.CHAOSTOOLKIT_FILENAME
 import org.misarch.experimentexecutor.plugin.failure.FailurePluginInterface
+import org.misarch.experimentexecutor.plugin.failure.misarch.withRetries
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import java.io.File
@@ -22,13 +24,17 @@ class ChaosToolkitPlugin(
         testDelay: Int,
     ) {
         val experimentYaml = File("$basePath/$testUUID/$testVersion/$CHAOSTOOLKIT_FILENAME").readText()
-        webClient
-            .post()
-            .uri("$chaosToolkitExecutorHost/start-experiment?testUUID=$testUUID&testVersion=$testVersion&testDelay=$testDelay")
-            .bodyValue(experimentYaml)
-            .retrieve()
-            .toBodilessEntity()
-            .awaitSingle()
+        withRetries {
+            withTimeout(1500) {
+                webClient
+                    .post()
+                    .uri("$chaosToolkitExecutorHost/start-experiment?testUUID=$testUUID&testVersion=$testVersion&testDelay=$testDelay")
+                    .bodyValue(experimentYaml)
+                    .retrieve()
+                    .toBodilessEntity()
+                    .awaitSingle()
+            }
+        }
     }
 
     override suspend fun stopExperiment(
