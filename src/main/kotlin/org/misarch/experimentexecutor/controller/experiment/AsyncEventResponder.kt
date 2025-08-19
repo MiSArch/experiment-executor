@@ -1,5 +1,6 @@
 package org.misarch.experimentexecutor.controller.experiment
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
@@ -43,6 +44,7 @@ class EventController(
 
 @Component
 class AsyncEventResponder(
+    @Value("\${experiment-executor.is-kubernetes}") private val isKubernetes: Boolean,
     private val eventEmitters: ConcurrentHashMap<String, FluxSink<String>>,
 ) {
     fun emitSuccess(
@@ -51,7 +53,8 @@ class AsyncEventResponder(
     ) {
         val key = "$testUUID:$testVersion"
         val eventSink = eventEmitters[key]
-        eventSink?.next("https://misarch-experiment.gropius.dev/d/$testUUID-$testVersion")
+        val host = if (isKubernetes) "misarch-experiment.gropius.dev" else "localhost:3001"
+        eventSink?.next("https://$host/d/$testUUID-$testVersion")
         eventEmitters.remove(key)
     }
 }
