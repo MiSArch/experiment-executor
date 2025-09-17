@@ -54,7 +54,8 @@ class AsyncEventResponder(
         val key = "$testUUID:$testVersion"
         val eventSink = eventEmitters[key]
         val host = if (isKubernetes) "misarch-experiment.gropius.dev" else "localhost:3001"
-        eventSink?.next("https://$host/d/$testUUID-$testVersion")
+        val protocol = if (host.startsWith("localhost")) "http" else "https"
+        eventSink?.next("$protocol://$host/d/$testUUID-$testVersion")
         eventEmitters.remove(key)
     }
 }
