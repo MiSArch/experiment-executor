@@ -1,6 +1,6 @@
 # Experiment Executor
 
-The Experiment Executor is a component of the MiSArch Experiment Tool and is responsible for executing experiments defined in an experiment. 
+The Experiment Executor is a component of Ceres and is responsible for executing experiments defined in an experiment. 
 It provides a REST API to trigger and manage experiments.
 
 ## Documentation
